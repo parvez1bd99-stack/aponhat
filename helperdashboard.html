@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ইউজার তৈরি - আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 p-4">
+    <div class="max-w-md mx-auto bg-white p-8 rounded-3xl shadow-xl border border-gray-100">
+        <div class="text-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800 border-b pb-2">নতুন কর্মী যোগ করুন</h2>
+        </div>
+        
+        <form id="create-user-form" class="space-y-4">
+            <input type="text" id="staff-name" placeholder="কর্মীর নাম" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
+            <input type="email" id="staff-email" placeholder="ইমেইল ঠিকানা" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
+            <input type="password" id="staff-pass" placeholder="পাসওয়ার্ড (যেমন: 123456)" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
+            
+            <label class="block text-xs font-bold text-gray-500 ml-1">পদবী নির্বাচন করুন:</label>
+            <select id="staff-role" class="w-full p-3 border rounded-xl outline-none bg-gray-50">
+                <option value="assistant">সহকারী (Assistant)</option>
+                <option value="delivery">ডেলিভারি ম্যান (Delivery Man)</option>
+                <option value="helper">সাহায্যকারী (Helper)</option>
+            </select>
+
+            <button type="submit" id="submit-btn" class="w-full bg-blue-700 text-white py-4 rounded-xl font-bold shadow-lg active:scale-95 transition-all">কর্মী একাউন্ট তৈরি করুন</button>
+        </form>
+
+        <div class="mt-6 p-4 bg-red-50 rounded-xl border border-red-100">
+            <p class="text-[10px] text-red-600 font-bold uppercase">সতর্কতা:</p>
+            <p class="text-[11px] text-red-500 italic mt-1">
+                একাউন্ট তৈরি করার পর আপনি লগ-আউট হয়ে যেতে পারেন। সেক্ষেত্রে পুনরায় মালিকের আইডি দিয়ে লগইন করুন।
+            </p>
+        </div>
+        <button onclick="window.history.back()" class="w-full mt-4 text-gray-400 text-xs font-bold">ফিরে যান</button>
+    </div>
+
+    <script type="module">
+        import { db, auth } from "./firebase-config.js";
+        import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const staffForm = document.getElementById('create-user-form');
+        const btn = document.getElementById('submit-btn');
+
+        staffForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!confirm("আপনি কি নিশ্চিতভাবে এই কর্মী যোগ করতে চান?")) return;
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> তৈরি হচ্ছে...`;
+
+            const name = document.getElementById('staff-name').value;
+            const email = document.getElementById('staff-email').value;
+            const pass = document.getElementById('staff-pass').value;
+            const role = document.getElementById('staff-role').value;
+
+            try {
+                // ১. ফায়ারবেস অথেন্টিকেশনে নতুন ইউজার তৈরি
+                const userCred = await createUserWithEmailAndPassword(auth, email, pass);
+                
+                // ২. ডাটাবেজে ইউজারের পদবীসহ তথ্য সেভ
+                await setDoc(doc(db, "users", userCred.user.uid), {
+                    name: name,
+                    email: email,
+                    role: role,
+                    commissionRate: (role === 'helper') ? 1 : 0, 
+                    createdAt: new Date()
+                });
+
+                alert("কর্মী একাউন্ট সফলভাবে তৈরি হয়েছে!");
+                window.location.reload();
+            } catch (err) { 
+                alert("ভুল হয়েছে: " + err.message); 
+                btn.disabled = false;
+                btn.innerHTML = `কর্মী একাউন্ট তৈরি করুন`;
+            }
+        });
+    </script>
+</body>
+</html>

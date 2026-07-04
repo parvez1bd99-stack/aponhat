@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ডেলিভারি চার্জ ম্যানেজমেন্ট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; display: none; }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 pb-20">
+
+    <div class="max-w-lg mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+        <div class="bg-blue-600 p-6 text-white text-center">
+            <h2 class="text-2xl font-bold italic">আপন হাট</h2>
+            <p class="text-xs opacity-80 mt-1">ডেলিভারি চার্জ কন্ট্রোল প্যানেল</p>
+        </div>
+
+        <div class="p-6">
+            <h3 class="text-sm font-bold text-gray-500 mb-4 uppercase flex items-center gap-2">
+                <i class="fas fa-list-ul text-blue-600"></i> বর্তমানে সেট করা রুলস:
+            </h3>
+            
+            <div id="rules-list" class="space-y-3 mb-8">
+                <p class="text-center py-10 text-gray-400 italic">অনুমতি যাচাই করা হচ্ছে...</p>
+            </div>
+
+            <div class="bg-blue-50 p-6 rounded-3xl border-2 border-dashed border-blue-200">
+                <h3 id="form-title" class="text-blue-700 font-bold mb-4 flex items-center gap-2">
+                    <i class="fas fa-plus-circle"></i> নতুন ধাপ যোগ করুন
+                </h3>
+                
+                <form id="delivery-form" class="space-y-4">
+                    <input type="hidden" id="edit-index" value="-1">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 mb-1 ml-1 uppercase">সর্বোচ্চ ওজন (গ্রাম)</label>
+                        <input type="number" id="max-w" placeholder="যেমন: ১০০০" class="w-full p-4 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 mb-1 ml-1 uppercase">ডেলিভারি চার্জ (৳)</label>
+                        <input type="number" id="charge" placeholder="যেমন: ৩০" class="w-full p-4 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div class="flex gap-2">
+                        <button type="submit" id="save-btn" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 active:scale-95 transition-all">সেভ করুন</button>
+                        <button type="button" id="cancel-btn" class="hidden bg-gray-200 text-gray-600 px-6 rounded-2xl font-bold" onclick="resetForm()">বাতিল</button>
+                    </div>
+                </form>
+            </div>
+
+            <button onclick="window.location.href='owner-dashboard.html'" class="w-full mt-8 text-gray-400 text-sm font-bold flex items-center justify-center gap-2">
+                <i class="fas fa-arrow-left"></i> ড্যাশবোর্ডে ফিরে যান
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyD8xa2qosGeDU_IXfecYxTVO8BlnvM9esU", 
+            authDomain: "aponhat.firebaseapp.com", 
+            projectId: "aponhat", 
+            storageBucket: "aponhat.firebasestorage.app", 
+            messagingSenderId: "904413579712", 
+            appId: "1:904413579712:web:4a3a4ba2014b0783c0a025" 
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const docRef = doc(db, "settings", "delivery");
+
+        let currentRules = [];
+
+        // ১. মালিক কি না তা নিশ্চিত হয়ে ডাটা লোড করা
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists() && userDoc.data().role === 'owner') {
+                    document.body.style.display = "block"; // মালিক হলে স্ক্রিন দেখাবে
+                    loadDeliveryRules(); // তারপর ডাটা লোড করবে
+                } else {
+                    alert("আপনার এই সেকশনে প্রবেশের অনুমতি নেই!");
+                    window.location.href = "login.html";
+                }
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
+        function loadDeliveryRules() {
+            onSnapshot(docRef, (docSnap) => {
+                const listArea = document.getElementById('rules-list');
+                listArea.innerHTML = "";
+                
+                if(docSnap.exists()){
+                    currentRules = docSnap.data().rules || [];
+                    currentRules.sort((a, b) => a.maxW - b.maxW);
+
+                    if(currentRules.length === 0) {
+                        listArea.innerHTML = "<p class='text-center py-6 text-gray-400'>কোন রুল সেট করা নেই।</p>";
+                        return;
+                    }
+
+                    currentRules.forEach((r, index) => {
+                        listArea.innerHTML += `
+                        <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <div class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px]">${index + 1}</div>
+                                <div>
+                                    <h4 class="font-bold text-gray-800 text-sm">${r.maxW} গ্রাম পর্যন্ত</h4>
+                                    <p class="text-[10px] text-green-600 font-bold">চার্জ: ৳${r.charge}</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="editRule(${index})" class="text-blue-500 p-2 hover:bg-blue-50 rounded-lg"><i class="fas fa-edit"></i></button>
+                                <button onclick="deleteRule(${index})" class="text-red-500 p-2 hover:bg-red-50 rounded-lg"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        </div>`;
+                    });
+                } else {
+                    listArea.innerHTML = "<p class='text-center py-6 text-gray-400'>সেটিংস তৈরি করা হয়নি।</p>";
+                }
+            }, (error) => {
+                document.getElementById('rules-list').innerHTML = `<p class="text-red-500 text-center py-10">অনুমতি সমস্যা: ${error.message}</p>`;
+            });
+        }
+
+        document.getElementById('delivery-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const maxW = Number(document.getElementById('max-w').value);
+            const charge = Number(document.getElementById('charge').value);
+            const editIndex = Number(document.getElementById('edit-index').value);
+
+            if (editIndex === -1) {
+                currentRules.push({ maxW, charge });
+            } else {
+                currentRules[editIndex] = { maxW, charge };
+            }
+
+            try {
+                await setDoc(docRef, { rules: currentRules });
+                alert("সফলভাবে সেভ হয়েছে!");
+                resetForm();
+            } catch (error) {
+                alert("সেভ করতে সমস্যা: " + error.message);
+            }
+        };
+
+        window.editRule = (index) => {
+            const rule = currentRules[index];
+            document.getElementById('max-w').value = rule.maxW;
+            document.getElementById('charge').value = rule.charge;
+            document.getElementById('edit-index').value = index;
+            document.getElementById('form-title').innerText = "রুল আপডেট করুন";
+            document.getElementById('save-btn').innerText = "আপডেট করুন";
+            document.getElementById('cancel-btn').classList.remove('hidden');
+        };
+
+        window.deleteRule = async (index) => {
+            if(confirm("মুছে ফেলতে চান?")){
+                currentRules.splice(index, 1);
+                await setDoc(docRef, { rules: currentRules });
+            }
+        };
+
+        window.resetForm = () => {
+            document.getElementById('delivery-form').reset();
+            document.getElementById('edit-index').value = "-1";
+            document.getElementById('form-title').innerText = "নতুন ধাপ যোগ করুন";
+            document.getElementById('save-btn').innerText = "সেভ করুন";
+            document.getElementById('cancel-btn').classList.add('hidden');
+        };
+    </script>
+</body>
+</html>

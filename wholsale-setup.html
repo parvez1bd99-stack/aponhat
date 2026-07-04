@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>পাইকারি বাজার কন্ট্রোল - আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; display: none; background-color: #f8fafc; }
+        
+        /* কাস্টম টগল সুইচ ডিজাইন */
+        .toggle-bg { width: 44px; height: 24px; background: #e2e8f0; border-radius: 50px; position: relative; transition: 0.3s; cursor: pointer; }
+        .toggle-dot { width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input:checked + .toggle-bg { background: #2563eb; }
+        input:checked + .toggle-bg .toggle-dot { left: 23px; }
+    </style>
+</head>
+<body class="pb-20">
+
+    <!-- ওপরের বার -->
+    <nav class="bg-blue-800 p-4 text-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="font-bold text-lg italic">পাইকারি বাজার কন্ট্রোল</h1>
+            <a href="owner-dashboard.html" class="bg-white text-blue-800 px-4 py-1.5 rounded-full text-xs font-bold shadow">ফিরে যান</a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 max-w-2xl">
+        <div class="bg-blue-50 p-4 rounded-3xl mb-6 border border-blue-100 flex items-center gap-3">
+            <i class="fas fa-info-circle text-blue-600 text-xl"></i>
+            <p class="text-[11px] text-blue-800 leading-tight font-bold uppercase">নির্দেশনা: সুইচ অন করলে পণ্যটি পাইকারি বাজারে দেখাবে। ক্লিক করে প্যাকেজ সেট করুন।</p>
+        </div>
+
+        <div id="product-list-setup" class="space-y-3">
+            <p class="text-center py-20 text-gray-400 italic font-bold">পণ্য লোড হচ্ছে...</p>
+        </div>
+    </div>
+
+    <!-- প্যাকেজ এডিট মডাল -->
+    <div id="setup-modal" class="fixed inset-0 bg-black/60 hidden z-[100] flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-[35px] w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center mb-6 border-b pb-3">
+                <div>
+                    <h2 class="text-xl font-black text-blue-900 italic" id="modal-p-name">পণ্য</h2>
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest mt-1">প্যাকেজ সেটআপ</p>
+                </div>
+                <button onclick="closeSetup()" class="text-red-500 text-3xl">&times;</button>
+            </div>
+
+            <div id="current-packages" class="space-y-2 mb-6"></div>
+
+            <div class="bg-blue-50 p-5 rounded-3xl border border-dashed border-blue-200">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-blue-600 mb-1 ml-1 uppercase">পরিমাণ (পিস)</label>
+                        <input type="number" id="pack-qty" placeholder="যেমন: ১২" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-blue-600 mb-1 ml-1 uppercase">মোট দাম (৳)</label>
+                        <input type="number" id="pack-price" placeholder="যেমন: ৫৫০" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    </div>
+                </div>
+                <button onclick="addNewPackage()" class="w-full bg-blue-700 text-white py-3 rounded-2xl font-bold mt-4 shadow-lg active:scale-95 transition-all">+ প্যাকেজ যোগ করুন</button>
+            </div>
+
+            <button id="save-all-btn" onclick="saveToDB()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-black text-lg shadow-xl shadow-green-100 mt-6 active:scale-95 transition-all">প্যাকেজসমূহ সেভ করুন</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, auth } from "./firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        let allProducts = [], currentPID = null, tempPackages = [];
+
+        // ১. মালিক ভেরিফিকেশন
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const uDoc = await getDoc(doc(db, "users", user.uid));
+                if (uDoc.exists() && uDoc.data().role === 'owner') {
+                    document.body.style.display = "block";
+                    loadProducts();
+                } else { window.location.href = "login.html"; }
+            } else { window.location.href = "login.html"; }
+        });
+
+        async function loadProducts() {
+            const snap = await getDocs(collection(db, "products"));
+            allProducts = snap.docs.map(d => ({id: d.id, ...d.data()}));
+            renderList(allProducts);
+        }
+
+        window.renderList = (items) => {
+            const area = document.getElementById('product-list-setup');
+            area.innerHTML = "";
+            items.forEach(p => {
+                const pCount = p.wholesalePackages ? p.wholesalePackages.length : 0;
+                const isEnabled = p.isWholesaleEnabled || false;
+
+                area.innerHTML += `
+                <div class="bg-white p-4 rounded-[28px] shadow-sm border border-slate-100 flex justify-between items-center transition-all hover:border-blue-300">
+                    <div onclick="openSetup('${p.id}')" class="flex-1 cursor-pointer">
+                        <h3 class="font-bold text-slate-800 text-sm leading-tight">${p.name}</h3>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase mt-1">প্যাকেজ: <span class="text-blue-600">${pCount}টি</span></p>
+                    </div>
+                    
+                    <div class="flex items-center gap-6">
+                        <!-- অন-অফ সুইচ -->
+                        <div class="flex flex-col items-center gap-1">
+                            <label class="cursor-pointer">
+                                <input type="checkbox" class="hidden" ${isEnabled ? 'checked' : ''} onchange="window.toggleWSStatus('${p.id}', this.checked)">
+                                <div class="toggle-bg"><div class="toggle-dot"></div></div>
+                            </label>
+                            <span class="text-[8px] font-black uppercase ${isEnabled?'text-blue-600':'text-slate-300'}">${isEnabled?'চালু':'বন্ধ'}</span>
+                        </div>
+                        
+                        <button onclick="openSetup('${p.id}')" class="text-blue-500 bg-blue-50 w-10 h-10 rounded-2xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        // ২. অন-অফ সুইচ ফাংশন
+        window.toggleWSStatus = async (id, status) => {
+            try {
+                await updateDoc(doc(db, "products", id), { isWholesaleEnabled: status });
+                const idx = allProducts.findIndex(x => x.id === id);
+                allProducts[idx].isWholesaleEnabled = status;
+                renderList(allProducts); // ইউআই আপডেট
+            } catch(e) { alert("সেভ করতে সমস্যা হয়েছে!"); }
+        };
+
+        window.openSetup = (id) => {
+            const p = allProducts.find(x => x.id === id);
+            currentPID = id;
+            document.getElementById('modal-p-name').innerText = p.name;
+            tempPackages = p.wholesalePackages || [];
+            renderTempPacks();
+            document.getElementById('setup-modal').classList.remove('hidden');
+        };
+
+        function renderTempPacks() {
+            const container = document.getElementById('current-packages');
+            container.innerHTML = tempPackages.length === 0 ? "<p class='text-[10px] text-red-400 font-bold uppercase text-center py-4'>কোন প্যাকেজ নেই</p>" : "";
+            tempPackages.forEach((pack, idx) => {
+                container.innerHTML += `
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-2xl border border-gray-100">
+                    <span class="text-xs font-black text-slate-700">${pack.qty} পিস = ৳${pack.price}</span>
+                    <button onclick="removePack(${idx})" class="text-red-400 hover:text-red-600 px-2"><i class="fas fa-trash-alt"></i></button>
+                </div>`;
+            });
+        }
+
+        window.addNewPackage = () => {
+            const qty = Number(document.getElementById('pack-qty').value);
+            const price = Number(document.getElementById('pack-price').value);
+            if(!qty || !price) return alert("সঠিক ডাটা দিন");
+            tempPackages.push({ qty, price });
+            tempPackages.sort((a,b) => a.qty - b.qty);
+            renderTempPacks();
+            document.getElementById('pack-qty').value = "";
+            document.getElementById('pack-price').value = "";
+        };
+
+        window.removePack = (idx) => {
+            tempPackages.splice(idx, 1);
+            renderTempPacks();
+        };
+
+        window.saveToDB = async () => {
+            const btn = document.getElementById('save-all-btn');
+            btn.disabled = true; btn.innerText = "সেভ হচ্ছে...";
+            try {
+                await updateDoc(doc(db, "products", currentPID), { wholesalePackages: tempPackages });
+                alert("সফলভাবে সেভ হয়েছে!");
+                location.reload();
+            } catch(e) { alert("ত্রুটি!"); btn.disabled = false; btn.innerText = "সেভ করুন"; }
+        };
+
+        window.closeSetup = () => document.getElementById('setup-modal').classList.add('hidden');
+
+    </script>
+</body>
+</html>

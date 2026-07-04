@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ডেলিভারি প্যানেল - আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 pb-20">
+
+    <nav class="bg-blue-700 p-4 text-white shadow-md sticky top-0 z-50">
+        <h1 class="text-center font-bold">ডেলিভারি প্যানেল</h1>
+    </nav>
+
+    <div class="container mx-auto p-4">
+        <!-- আজকের ক্যাশ হিসাব কার্ড -->
+        <div class="bg-white p-5 rounded-2xl shadow-md border-b-8 border-blue-700 mb-6 text-center">
+            <p class="text-gray-500 font-bold text-xs uppercase">আজকের মোট ক্যাশ সংগ্রহ</p>
+            <h2 class="text-3xl font-extrabold text-blue-800 my-1">৳ <span id="today-cash">0</span></h2>
+            <p class="text-[10px] text-gray-400">অর্ডার ডেলিভারি সম্পন্ন হওয়ার পর এটি আপডেট হবে</p>
+        </div>
+
+        <h3 class="font-bold text-gray-700 mb-3 ml-1"><i class="fas fa-truck-loading mr-2"></i>ডেলিভারি করার তালিকা</h3>
+        
+        <!-- ডেলিভারি লিস্ট -->
+        <div id="delivery-list" class="space-y-4 text-sm">
+            <p class="text-center py-10 text-gray-400">অপেক্ষা করুন...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db } from "./firebase-config.js";
+        import { collection, onSnapshot, query, where, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // ১. শিপিং এ থাকা অর্ডারগুলো রিয়েল-টাইমে দেখা
+        onSnapshot(query(collection(db, "orders"), where("status", "==", "shipping")), snap => {
+            const list = document.getElementById('delivery-list');
+            list.innerHTML = snap.empty ? "<p class='text-center py-10 bg-white rounded-xl shadow-sm'>সব মাল ডেলিভারি শেষ!</p>" : "";
+            
+            snap.forEach(d => {
+                const o = d.data();
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500";
+                card.innerHTML = `
+                    <h4 class="font-bold text-lg">${o.customerName}</h4>
+                    <p class="text-gray-600"><i class="fas fa-map-marker-alt text-red-500 mr-1"></i> ${o.customerAddress}</p>
+                    <a href="tel:${o.customerPhone}" class="text-blue-600 font-bold block my-2 italic underline"><i class="fas fa-phone-alt"></i> ${o.customerPhone}</a>
+                    <p class="bg-gray-100 p-2 rounded mt-2 font-bold text-green-700 text-center">টাকা পাবেন: ৳${o.totalBill}</p>
+                    <div class="flex gap-2 mt-4">
+                        <button onclick="updateStatus('${d.id}', 'paid')" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-bold shadow-md active:scale-95 transition">টাকা পেয়েছি</button>
+                        <button onclick="updateStatus('${d.id}', 'due')" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold shadow-md active:scale-95 transition">বাকি থাকল</button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        });
+
+        // ২. আজকের ক্যাশ হিসাব (delivered এবং paid অর্ডার থেকে)
+        const today = new Date().toLocaleDateString();
+        onSnapshot(query(collection(db, "orders"), where("status", "==", "delivered"), where("paymentStatus", "==", "paid")), snap => {
+            let cash = 0;
+            snap.forEach(d => {
+                const data = d.data();
+                if(data.createdAt && data.createdAt.toDate().toLocaleDateString() === today) {
+                    cash += Number(data.totalBill);
+                }
+            });
+            document.getElementById('today-cash').innerText = cash;
+        });
+
+        // ৩. স্ট্যাটাস আপডেট করার ফাংশন
+        window.updateStatus = async (id, payStatus) => {
+            if(confirm("অর্ডারটি কি সম্পন্ন হয়েছে?")) {
+                try {
+                    await updateDoc(doc(db, "orders", id), { 
+                        status: 'delivered', 
+                        paymentStatus: payStatus,
+                        deliveredAt: new Date()
+                    });
+                    alert("সফলভাবে আপডেট হয়েছে!");
+                } catch (e) {
+                    alert("ভুল হয়েছে: " + e.message);
+                }
+            }
+        };
+    </script>
+</body>
+</html>

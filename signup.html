@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>একাউন্ট খুলুন - আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md border border-gray-100">
+        <div class="text-center mb-8">
+            <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-user-plus text-green-600 text-2xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800">নতুন একাউন্ট খুলুন</h2>
+            <p class="text-gray-500 text-sm mt-1">আপন হাটে আপনাকে স্বাগতম</p>
+        </div>
+
+        <form id="signup-form" class="space-y-5">
+            <div>
+                <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">আপনার নাম</label>
+                <input type="text" id="name" placeholder="যেমন: মো: আরিফুল ইসলাম" class="w-full p-4 border rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all" required>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">ইমেইল ঠিকানা</label>
+                <input type="email" id="email" placeholder="example@gmail.com" class="w-full p-4 border rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all" required>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">পাসওয়ার্ড</label>
+                <input type="password" id="password" placeholder="কমপক্ষে ৬ সংখ্যা" class="w-full p-4 border rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all" required>
+            </div>
+
+            <button type="submit" id="signup-btn" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-green-700 active:scale-95 transition-all flex items-center justify-center gap-2">
+                <span>একাউন্ট তৈরি করুন</span>
+                <i class="fas fa-arrow-right text-xs"></i>
+            </button>
+        </form>
+        
+        <div class="mt-8 text-center border-t pt-6">
+            <p class="text-gray-500 text-sm">আগে থেকেই একাউন্ট আছে? 
+                <a href="login.html" class="text-green-600 font-bold underline">লগইন করুন</a>
+            </p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, auth } from "./firebase-config.js";
+        import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const signupForm = document.getElementById('signup-form');
+        const signupBtn = document.getElementById('signup-btn');
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            signupBtn.disabled = true;
+            signupBtn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> একাউন্ট তৈরি হচ্ছে...`;
+            
+            try {
+                // ১. ফায়ারবেস অথেন্টিকেশনে ইউজার তৈরি
+                const userCred = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCred.user;
+
+                // ২. ফায়ারস্টোর ডাটাবেজে ইউজারের প্রোফাইল সেভ করা
+                await setDoc(doc(db, "users", user.uid), {
+                    name: name,
+                    email: email,
+                    role: 'customer', // ডিফল্টভাবে কাস্টমার রোল
+                    createdAt: new Date()
+                });
+
+                alert("স্বাগতম " + name + "! আপনার একাউন্ট সফলভাবে তৈরি হয়েছে।");
+                window.location.href = "customer-dashboard.html";
+
+            } catch (error) {
+                console.error(error);
+                if (error.code === 'auth/email-already-in-use') {
+                    alert("এই ইমেইলটি দিয়ে আগেই একাউন্ট খোলা হয়েছে।");
+                } else if (error.code === 'auth/weak-password') {
+                    alert("পাসওয়ার্ডটি কমপক্ষে ৬ সংখ্যার দিন।");
+                } else {
+                    alert("ভুল হয়েছে: " + error.message);
+                }
+                signupBtn.disabled = false;
+                signupBtn.innerHTML = `<span>একাউন্ট তৈরি করুন</span> <i class="fas fa-arrow-right text-xs"></i>`;
+            }
+        });
+    </script>
+</body>
+</html>

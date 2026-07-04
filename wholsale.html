@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>পাইকারি বাজার - আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; display: none; background-color: #f1f5f9; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .ws-card { transition: all 0.3s ease; }
+        .ws-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="pb-24">
+
+    <!-- নেভিগেশন বার -->
+    <nav class="bg-blue-900 p-4 text-white sticky top-0 z-50 shadow-xl">
+        <div class="container mx-auto flex justify-between items-center px-2">
+            <h1 class="text-xl font-black italic tracking-widest uppercase text-blue-100">আপন হাট পাইকারি</h1>
+            <button onclick="location.href='index.html'" class="text-[10px] bg-blue-800 border border-blue-600 px-4 py-1.5 rounded-full font-bold">খুচরা বাজার</button>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 max-w-4xl">
+        <!-- দোকানদার ওয়েলকাম কার্ড -->
+        <div class="bg-gradient-to-br from-blue-700 to-indigo-900 p-6 rounded-[35px] text-white mb-8 shadow-2xl relative overflow-hidden">
+            <i class="fas fa-store-alt absolute -right-6 -bottom-6 text-9xl opacity-10 -rotate-12"></i>
+            <h2 class="text-xl font-bold italic">আসসালামু আলাইকুম, <span id="shop-name">দোকানদার</span>!</h2>
+            <p class="text-xs opacity-80 mt-1">আপনার প্রয়োজনীয় পাইকারি প্যাকেজগুলো নিচে দেখুন।</p>
+        </div>
+
+        <!-- সার্চ বক্স -->
+        <div class="mb-8 relative">
+            <input type="text" id="search-ws" oninput="window.searchWholesale()" placeholder="প্রয়োজনীয় পণ্যটি খুঁজুন..." 
+            class="w-full p-4 pl-12 rounded-3xl border-none shadow-md focus:ring-2 focus:ring-blue-500 outline-none text-slate-700">
+            <i class="fas fa-search absolute left-5 top-5 text-slate-300"></i>
+        </div>
+
+        <!-- পাইকারি পণ্যের গ্রিড -->
+        <div id="ws-product-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <p class="text-center col-span-full py-20 text-slate-400 italic">ডাটা চেক করা হচ্ছে...</p>
+        </div>
+    </div>
+
+    <!-- পাইকারি ফ্লোটিং কার্ট -->
+    <div id="ws-cart" class="fixed bottom-0 left-0 w-full bg-white shadow-[0_-15px_50px_rgba(0,0,0,0.15)] p-5 border-t border-blue-50 hidden z-50 rounded-t-[40px]">
+        <div class="container mx-auto flex justify-between items-center px-2">
+            <div>
+                <p class="font-black text-blue-900 text-xl tracking-tighter"><span id="ws-count">0</span>টি আইটেম</p>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">অর্ডার লিস্ট তৈরি হয়েছে</p>
+            </div>
+            <button onclick="window.sendWholesaleOrder()" id="ws-submit-btn" class="bg-green-600 text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-green-100 flex items-center gap-3 active:scale-90 transition-all">
+                <i class="fab fa-whatsapp text-2xl"></i> হোয়াটসঅ্যাপে পাঠান
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, auth } from "./firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, getDocs, getDoc, doc, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        let wsProducts = [], wsCart = [];
+        const MY_WHATSAPP = "8801407281473"; 
+        let currentUserData = null;
+
+        // ১. এক্সেস কন্ট্রোল (শুধুমাত্র দোকানদার/Wholesaler এর জন্য)
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const uDoc = await getDoc(doc(db, "users", user.uid));
+                if (uDoc.exists() && (uDoc.data().role === 'wholesaler' || uDoc.data().role === 'owner')) {
+                    currentUserData = uDoc.data();
+                    document.getElementById('shop-name').innerText = currentUserData.name;
+                    document.body.style.display = "block";
+                    loadWSData();
+                } else {
+                    alert("দুঃখিত! এটি শুধুমাত্র রেজিস্টার্ড দোকানদারদের জন্য।");
+                    window.location.href = "index.html";
+                }
+            } else { window.location.href = "login.html"; }
+        });
+
+        // ২. ডাটা ফিল্টার (সুইচ অন করা পণ্যগুলো আনা)
+        async function loadWSData() {
+            try {
+                const snap = await getDocs(collection(db, "products"));
+                wsProducts = snap.docs
+                    .map(d => ({id: d.id, ...d.data()}))
+                    .filter(p => p.isWholesaleEnabled === true); 
+                
+                renderWS(wsProducts);
+            } catch (e) { console.error("Error loading products:", e); }
+        }
+
+        window.renderWS = (items) => {
+            const list = document.getElementById('ws-product-list');
+            list.innerHTML = items.length === 0 ? "<div class='col-span-full text-center py-20'><p class='text-slate-400 font-bold'>বর্তমানে কোন পাইকারি পণ্য নেই।</p></div>" : "";
+
+            items.forEach(p => {
+                const img = (p.image || "").split(',')[0] || 'https://via.placeholder.com/300';
+                const packs = p.wholesalePackages || [];
+
+                let packsHTML = "";
+                if(packs.length > 0) {
+                    packsHTML = packs.map(pack => `
+                        <button onclick="window.addWS('${p.name}', ${pack.qty}, ${pack.price})" class="w-full flex justify-between items-center bg-blue-50 p-3 rounded-2xl border border-blue-100 hover:bg-blue-600 hover:text-white transition group">
+                            <span class="text-xs font-black uppercase tracking-tighter italic">📦 ${pack.qty} পিস</span>
+                            <b class="text-sm font-black tracking-tight">৳${pack.price}</b>
+                        </button>
+                    `).join('');
+                } else {
+                    packsHTML = `<p class="text-[10px] text-orange-400 font-bold text-center py-2 italic">প্যাকেজ শীঘ্রই আসবে</p>`;
+                }
+
+                list.innerHTML += `
+                <div class="bg-white rounded-[40px] shadow-sm border border-slate-200/50 p-5 flex flex-col justify-between ws-card">
+                    <div>
+                        <img src="${img}" class="w-full h-44 object-cover rounded-[30px] mb-4 shadow-inner">
+                        <h3 class="font-bold text-slate-800 text-sm leading-tight mb-2 h-10 overflow-hidden px-1">${p.name}</h3>
+                        <div class="space-y-2 mt-4">${packsHTML}</div>
+                    </div>
+                </div>`;
+            });
+        }
+
+        // ৩. তালিকায় যোগ করা
+        window.addWS = (name, qty, price) => {
+            wsCart.push({ name, qty, price });
+            updateWSUI();
+            
+            const countEl = document.getElementById('ws-count');
+            countEl.classList.add('scale-150', 'text-green-500');
+            setTimeout(() => countEl.classList.remove('scale-150', 'text-green-500'), 300);
+        };
+
+        function updateWSUI() {
+            const cartDiv = document.getElementById('ws-cart');
+            if(wsCart.length > 0) {
+                cartDiv.classList.remove('hidden');
+                document.getElementById('ws-count').innerText = wsCart.length;
+            }
+        }
+
+        // ৪. স্মার্ট অর্ডার ফাংশন (Save to DB + WhatsApp)
+        window.sendWholesaleOrder = async () => {
+            if(wsCart.length === 0) return;
+
+            const btn = document.getElementById('ws-submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> প্রসেসিং...`;
+
+            let total = 0;
+            let orderText = "";
+            wsCart.forEach((item, i) => {
+                total += item.price;
+                orderText += `${i+1}. ${item.name} (${item.qty} পিস) - ৳${item.price}\n`;
+            });
+
+            const orderPayload = {
+                customerName: currentUserData.name,
+                customerEmail: currentUserData.email,
+                items: wsCart,
+                totalBill: total,
+                status: 'pending',
+                createdAt: new Date()
+            };
+
+            try {
+                // ১. ডাটাবেজ ব্যাকআপ (wholesale_orders কালেকশনে সেভ)
+                await addDoc(collection(db, "wholesale_orders"), orderPayload);
+
+                // ২. হোয়াটসঅ্যাপ মেসেজ তৈরি
+                let msg = "🏪 *আপন হাট পাইকারি অর্ডার তালিকা*\n";
+                msg += `দোকানদার: ${orderPayload.customerName}\n`;
+                msg += "--------------------------\n";
+                msg += orderText;
+                msg += "--------------------------\n";
+                msg += `💰 *সম্ভাব্য মোট বিল: ৳${total}*\n\nদয়া করে অর্ডারটি কনফার্ম করুন।`;
+                
+                window.open(`https://wa.me/${MY_WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
+                
+                alert("আপনার অর্ডারটি ডাটাবেজে সংরক্ষিত হয়েছে এবং হোয়াটসঅ্যাপ ওপেন হচ্ছে।");
+                wsCart = [];
+                document.getElementById('ws-cart').classList.add('hidden');
+
+            } catch (e) {
+                console.error(e);
+                alert("ত্রুটি! সরাসরি হোয়াটসঅ্যাপে যোগাযোগ করুন।");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fab fa-whatsapp text-2xl"></i> হোয়াটসঅ্যাপে পাঠান`;
+            }
+        };
+
+        window.searchWholesale = () => {
+            const term = document.getElementById('search-ws').value.toLowerCase();
+            const filtered = wsProducts.filter(p => p.name.toLowerCase().includes(term));
+            window.renderWS(filtered);
+        }
+
+    </script>
+</body>
+</html>

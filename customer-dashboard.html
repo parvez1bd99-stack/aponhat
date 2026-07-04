@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আমার প্রোফাইল - আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; }
+        .star-rating i { cursor: pointer; font-size: 1.5rem; color: #d1d5db; transition: color 0.2s; }
+        .star-rating i.active { color: #fbbf24; }
+        .benefit-card { transition: transform 0.3s ease; }
+        .benefit-card:hover { transform: translateY(-5px); }
+    </style>
+</head>
+<body class="bg-gray-100 pb-20">
+
+    <!-- ওপরের বার -->
+    <nav class="bg-green-600 p-4 text-white sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold italic">আপন হাট</h1>
+            <div class="flex gap-4 items-center">
+                <a href="index.html" class="text-xs bg-white text-green-600 px-3 py-1 rounded-full font-bold">দোকানে যান</a>
+                <button id="logout-btn" class="text-xs border px-2 py-1 rounded hover:bg-green-700 font-bold">লগআউট</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 max-w-2xl">
+        
+        <!-- প্রোফাইল কার্ড -->
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+            <div class="bg-gradient-to-r from-green-600 to-green-800 p-6 text-white flex items-center gap-4">
+                <div class="bg-white p-3 rounded-full h-16 w-16 flex items-center justify-center text-green-600 text-3xl shadow-inner">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <h2 id="user-display-name" class="text-2xl font-bold">লোড হচ্ছে...</h2>
+                    <p id="user-display-email" class="text-sm opacity-80 italic">অপেক্ষা করুন...</p>
+                </div>
+            </div>
+            <div class="p-4 flex justify-around text-center bg-green-50">
+                <div>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase">মোট অর্ডার</p>
+                    <p id="total-orders-count" class="text-xl font-black text-green-700">0</p>
+                </div>
+                <div class="border-l border-r px-8">
+                    <p class="text-[10px] text-gray-500 font-bold uppercase">সদস্য পদ</p>
+                    <p class="text-sm font-bold text-orange-600">নিয়মিত কাস্টমার</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- বেনিফিট সেকশন (নতুন যুক্ত করা হয়েছে) -->
+        <div class="mb-8">
+            <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2 text-lg">
+                <i class="fas fa-gift text-orange-500"></i> কেন আপন হাট আপনার সেরা সঙ্গী?
+            </h3>
+            <div class="grid grid-cols-2 gap-3">
+                <!-- সুবিধা ১ -->
+                <div class="benefit-card bg-white p-4 rounded-2xl shadow-sm border-b-4 border-orange-500 text-center">
+                    <div class="bg-orange-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-sun text-orange-600"></i>
+                    </div>
+                    <h4 class="text-[11px] font-bold text-gray-800">রোদ-বৃষ্টির ঝামেলা শেষ</h4>
+                    <p class="text-[9px] text-gray-500 mt-1 leading-tight">বাজারে যাওয়ার কষ্ট নেই, ঘরে বসেই সব অর্ডার করুন।</p>
+                </div>
+                <!-- সুবিধা ২ -->
+                <div class="benefit-card bg-white p-4 rounded-2xl shadow-sm border-b-4 border-blue-500 text-center">
+                    <div class="bg-blue-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-motorcycle text-blue-600"></i>
+                    </div>
+                    <h4 class="text-[11px] font-bold text-gray-800">সময় ও ভাড়া সাশ্রয়</h4>
+                    <p class="text-[9px] text-gray-500 mt-1 leading-tight">আপনার মূল্যবান সময় বাঁচবে এবং রিকশা ভাড়ার প্রয়োজন নেই।</p>
+                </div>
+                <!-- সুবিধা ৩ -->
+                <div class="benefit-card bg-white p-4 rounded-2xl shadow-sm border-b-4 border-green-500 text-center">
+                    <div class="bg-green-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-balance-scale text-green-600"></i>
+                    </div>
+                    <h4 class="text-[11px] font-bold text-gray-800">সঠিক ওজন ও ফ্রেশ পণ্য</h4>
+                    <p class="text-[9px] text-gray-500 mt-1 leading-tight">ডিজিটাল স্কেলে সঠিক মাপে একদম টাটকা পণ্য আমরা দিচ্ছি।</p>
+                </div>
+                <!-- সুবিধা ৪ -->
+                <div class="benefit-card bg-white p-4 rounded-2xl shadow-sm border-b-4 border-purple-500 text-center">
+                    <div class="bg-purple-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <i class="fas fa-hand-holding-heart text-purple-600"></i>
+                    </div>
+                    <h4 class="text-[11px] font-bold text-gray-800">গ্রামের অর্থনীতিতে অবদান</h4>
+                    <p class="text-[9px] text-gray-500 mt-1 leading-tight">আপনি যখন আপন হাট থেকে কেনেন, উন্নতি হয় আপনার গ্রামেরই।</p>
+                </div>
+            </div>
+            <div class="mt-4 text-center">
+                <a href="benefits.html" class="text-xs font-bold text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-100">
+                    আমাদের সব সুবিধা বিস্তারিত দেখুন <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+        </div>
+
+        <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2 text-lg border-t pt-6">
+            <i class="fas fa-history text-green-600"></i> আপনার অর্ডারের ইতিহাস
+        </h3>
+
+        <!-- অর্ডারের তালিকা -->
+        <div id="order-list-area" class="space-y-4">
+            <div class="text-center py-10">
+                <div class="animate-spin text-green-600 text-3xl mb-2"><i class="fas fa-spinner"></i></div>
+                <p class="text-gray-400">অর্ডার চেক করা হচ্ছে...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- রিভিউ মডাল -->
+    <div id="review-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-[100] flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-sm shadow-2xl">
+            <h2 class="text-xl font-bold text-center text-gray-800 mb-2">পণ্যের রিভিউ দিন</h2>
+            <p id="review-product-name" class="text-center text-sm text-gray-500 mb-6 font-bold"></p>
+            
+            <div class="star-rating flex justify-center gap-2 mb-6" id="star-container">
+                <i class="fas fa-star" data-rating="1"></i>
+                <i class="fas fa-star" data-rating="2"></i>
+                <i class="fas fa-star" data-rating="3"></i>
+                <i class="fas fa-star" data-rating="4"></i>
+                <i class="fas fa-star" data-rating="5"></i>
+            </div>
+
+            <textarea id="review-comment" rows="3" placeholder="পণ্যটি কেমন লেগেছে লিখুন..." class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-yellow-400 mb-4"></textarea>
+            
+            <button id="submit-review-btn" class="w-full bg-yellow-500 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-yellow-600 transition">রিভিউ সাবমিট করুন</button>
+            <button onclick="closeReviewModal()" class="w-full mt-2 text-gray-400 font-bold text-sm">বন্ধ করুন</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, auth } from "./firebase-config.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, query, where, onSnapshot, getDoc, doc, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        let currentReviewPName = "";
+        let selectedRating = 0;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                document.getElementById('user-display-email').innerText = user.email;
+                try {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    document.getElementById('user-display-name').innerText = userDoc.exists() ? userDoc.data().name : "সম্মানিত কাস্টমার";
+                } catch (e) { document.getElementById('user-display-name').innerText = "সম্মানিত কাস্টমার"; }
+                loadCustomerOrders(user.email);
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
+        function loadCustomerOrders(email) {
+            const q = query(collection(db, "orders"), where("customerEmail", "==", email));
+            
+            onSnapshot(q, (snapshot) => {
+                const area = document.getElementById('order-list-area');
+                document.getElementById('total-orders-count').innerText = snapshot.size;
+                area.innerHTML = "";
+
+                if (snapshot.empty) {
+                    area.innerHTML = `<div class="text-center py-10 bg-white rounded-2xl shadow-sm border"><p class="text-gray-400 italic">আপনি এখনো কোনো অর্ডার করেননি।</p></div>`;
+                    return;
+                }
+
+                snapshot.forEach((orderDoc) => {
+                    const order = orderDoc.data();
+                    const status = order.status;
+                    let sColor, sText, sIcon;
+
+                    if(status === "pending") { sColor = "bg-orange-100 text-orange-600"; sText = "প্রসেসিং"; sIcon = "fa-clock"; }
+                    else if(status === "shipping") { sColor = "bg-blue-100 text-blue-600"; sText = "ডেলিভারি পথে"; sIcon = "fa-motorcycle"; }
+                    else if(status === "delivered") { sColor = "bg-green-100 text-green-600"; sText = "পেয়ে গেছেন"; sIcon = "fa-check-circle"; }
+                    else if(status === "cancelled") { sColor = "bg-red-100 text-red-600"; sText = "বাতিল"; sIcon = "fa-times-circle"; }
+                    else { sColor = "bg-gray-100 text-gray-600"; sText = "অর্ডার হয়েছে"; sIcon = "fa-sync"; }
+
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-5 rounded-2xl shadow-sm border border-gray-100";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[10px] text-gray-400 font-bold uppercase">
+                                তারিখ: ${order.createdAt?.toDate().toLocaleDateString('bn-BD') || 'N/A'}
+                            </span>
+                            <span class="${sColor} text-[10px] px-3 py-1 rounded-full font-bold flex items-center gap-1">
+                                <i class="fas ${sIcon}"></i> ${sText}
+                            </span>
+                        </div>
+                        <div class="border-b border-dashed pb-3 mb-3">
+                            <div class="space-y-2">
+                                ${order.items.map(item => `
+                                    <div class="flex justify-between items-center">
+                                        <p class="text-sm font-bold text-gray-800">${item.name}</p>
+                                        ${status === 'delivered' ? 
+                                          `<button onclick="openReviewModal('${item.name}')" class="text-[10px] text-orange-500 bg-orange-50 px-2 py-1 rounded-lg border border-orange-200 font-bold">রিভিউ দিন</button>` : 
+                                          `<p class="text-xs text-gray-400">৳${item.price}</p>`
+                                        }
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">মোট বিল</p>
+                                <p class="text-xl font-black text-green-700">৳${order.totalBill}</p>
+                            </div>
+                            <p class="text-[10px] text-gray-400 italic">ID: ${orderDoc.id.substring(0,8)}</p>
+                        </div>
+                    `;
+                    area.appendChild(card);
+                });
+            });
+        }
+
+        window.openReviewModal = (productName) => {
+            currentReviewPName = productName;
+            document.getElementById('review-product-name').innerText = productName;
+            document.getElementById('review-modal').classList.remove('hidden');
+            selectedRating = 0;
+            updateStars();
+        };
+
+        window.closeReviewModal = () => {
+            document.getElementById('review-modal').classList.add('hidden');
+            document.getElementById('review-comment').value = "";
+        };
+
+        const stars = document.querySelectorAll('#star-container i');
+        stars.forEach(star => {
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.getAttribute('data-rating'));
+                updateStars();
+            });
+        });
+
+        function updateStars() {
+            stars.forEach(star => {
+                const r = parseInt(star.getAttribute('data-rating'));
+                star.classList.toggle('active', r <= selectedRating);
+            });
+        }
+
+        document.getElementById('submit-review-btn').onclick = async () => {
+            const comment = document.getElementById('review-comment').value.trim();
+            if(selectedRating === 0) return alert("দয়া করে একটি রেটিং দিন।");
+            
+            const btn = document.getElementById('submit-review-btn');
+            btn.disabled = true; btn.innerText = "সেভ হচ্ছে...";
+
+            try {
+                await addDoc(collection(db, "reviews"), {
+                    productName: currentReviewPName,
+                    userId: auth.currentUser.uid,
+                    userName: document.getElementById('user-display-name').innerText,
+                    rating: selectedRating,
+                    comment: comment,
+                    createdAt: new Date()
+                });
+                alert("আপনার মূলবান রিভিউর জন্য ধন্যবাদ!");
+                closeReviewModal();
+            } catch (e) {
+                alert("দুঃখিত, রিভিউ সেভ করা যায়নি।");
+            } finally {
+                btn.disabled = false; btn.innerText = "রিভিউ সাবমিট করুন";
+            }
+        };
+
+        document.getElementById('logout-btn').onclick = () => {
+            if(confirm("আপনি কি লগআউট করতে চান?")) signOut(auth).then(() => location.href = "login.html");
+        };
+    </script>
+</body>
+</html>

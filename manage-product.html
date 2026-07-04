@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>পণ্য ব্যবস্থাপনা - আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100 pb-20">
+
+    <!-- নেভিগেশন বার -->
+    <nav class="bg-green-700 p-4 text-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="font-bold text-lg italic">পণ্য ব্যবস্থাপনা</h1>
+            <a href="owner-dashboard.html" class="text-xs bg-white text-green-700 px-3 py-1 rounded-full font-bold shadow-sm">ড্যাশবোর্ড</a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 max-w-2xl">
+        <!-- সার্চ বক্স -->
+        <div class="mb-6">
+            <input type="text" id="search-product" onkeyup="searchProduct()" placeholder="পণ্যের নাম লিখে খুঁজুন..." class="w-full p-4 rounded-2xl border shadow-sm outline-none focus:ring-2 focus:ring-green-500 transition-all">
+        </div>
+
+        <!-- পণ্যের তালিকা এরিয়া -->
+        <div id="product-list-area" class="space-y-4">
+            <p class="text-center py-10 text-gray-400 italic">পণ্য লোড হচ্ছে...</p>
+        </div>
+    </div>
+
+    <!-- এডিট মডাল (Popup Form) -->
+    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-[60] flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-3xl w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
+            <div class="flex justify-between items-center mb-6 border-b pb-2">
+                <h2 class="text-xl font-bold text-green-700">পণ্য এডিট করুন</h2>
+                <button onclick="closeEditModal()" class="text-red-500 text-3xl font-bold">&times;</button>
+            </div>
+            
+            <form id="edit-form" class="space-y-4">
+                <input type="hidden" id="edit-p-id">
+                
+                <!-- নাম -->
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase ml-1">পণ্যের নাম</label>
+                    <input type="text" id="edit-p-name" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500" required>
+                </div>
+
+                <!-- মূল্য -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-red-500 uppercase ml-1">ক্রয় মূল্য (৳)</label>
+                        <input type="number" id="edit-p-buy" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-red-500" required>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-green-600 uppercase ml-1">বিক্রয় মূল্য (৳)</label>
+                        <input type="number" id="edit-p-sell" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                </div>
+
+                <!-- ওজন ও স্টক -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-blue-600 uppercase ml-1">ওজন (গ্রাম)</label>
+                        <input type="number" id="edit-p-weight" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">স্টক পরিমাণ</label>
+                        <input type="number" id="edit-p-stock" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                </div>
+
+                <!-- বিবরণ (নতুন যুক্ত করা হয়েছে) -->
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase ml-1">পণ্যের বিবরণ</label>
+                    <textarea id="edit-p-desc" rows="3" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500" placeholder="পণ্যের বিস্তারিত বিবরণ লিখুন..."></textarea>
+                </div>
+
+                <!-- একাধিক ছবির লিংক -->
+                <div id="edit-image-inputs-container">
+                    <label class="block text-xs font-bold text-blue-600 uppercase ml-1 mb-2">ছবির লিংক সমূহ (Image URLs)</label>
+                </div>
+                <button type="button" onclick="addEditImageField()" class="text-[10px] bg-blue-100 text-blue-700 px-3 py-2 rounded-lg font-bold hover:bg-blue-200 transition">
+                    <i class="fas fa-plus-circle mr-1"></i> আরও ছবি যোগ করুন
+                </button>
+                
+                <button type="submit" id="update-btn" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-green-700 active:scale-95 transition-all mt-4">তথ্য আপডেট করুন</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db } from "./firebase-config.js";
+        import { collection, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        let allProducts = [];
+
+        // ১. রিয়েল-টাইম লোড
+        onSnapshot(collection(db, "products"), (snapshot) => {
+            allProducts = [];
+            const area = document.getElementById('product-list-area');
+            area.innerHTML = "";
+
+            snapshot.forEach((docSnap) => {
+                const p = docSnap.data();
+                const id = docSnap.id;
+                allProducts.push({ id, ...p });
+
+                const mainImg = (p.image || "").split(',')[0] || 'https://via.placeholder.com/150';
+
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex gap-4 items-center transition hover:shadow-md";
+                card.innerHTML = `
+                    <img src="${mainImg}" class="w-20 h-20 object-cover rounded-2xl bg-gray-50 border shadow-inner">
+                    <div class="flex-1">
+                        <h3 class="font-bold text-gray-800 leading-tight">${p.name}</h3>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-tighter">
+                            ওজন: ${p.weight || 0}g | স্টক: ${p.stock} | ৳${p.sellPrice}
+                        </p>
+                        <div class="flex gap-2 mt-2">
+                            <button onclick="openEditModal('${id}')" class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-[10px] font-bold border border-blue-100 hover:bg-blue-500 hover:text-white transition">এডিট</button>
+                            <button onclick="deleteProduct('${id}')" class="bg-red-50 text-red-500 px-3 py-1 rounded-lg text-[10px] font-bold border border-red-100 hover:bg-red-500 hover:text-white transition">ডিলিট</button>
+                        </div>
+                    </div>
+                `;
+                area.appendChild(card);
+            });
+        });
+
+        // ২. ইমেজ ফিল্ড বাড়ানোর ফাংশন
+        window.addEditImageField = (val = "") => {
+            const container = document.getElementById('edit-image-inputs-container');
+            const div = document.createElement('div');
+            div.className = "flex gap-2 mb-2 animate-pulse";
+            div.innerHTML = `
+                <input type="text" class="edit-p-image-input w-full p-3 border rounded-xl outline-none focus:border-blue-500 text-xs" placeholder="ছবির লিংক দিন" value="${val}">
+                <button type="button" onclick="this.parentElement.remove()" class="bg-red-100 text-red-500 px-3 rounded-xl"><i class="fas fa-trash"></i></button>
+            `;
+            container.appendChild(div);
+            setTimeout(() => div.classList.remove('animate-pulse'), 300);
+        };
+
+        // ৩. এডিট মডাল ওপেন
+        window.openEditModal = (id) => {
+            const p = allProducts.find(item => item.id === id);
+            if (!p) return;
+
+            document.getElementById('edit-p-id').value = id;
+            document.getElementById('edit-p-name').value = p.name;
+            document.getElementById('edit-p-buy').value = p.buyPrice;
+            document.getElementById('edit-p-sell').value = p.sellPrice;
+            document.getElementById('edit-p-weight').value = p.weight || 0;
+            document.getElementById('edit-p-stock').value = p.stock;
+            document.getElementById('edit-p-desc').value = p.description || ""; // বিবরণ লোড
+
+            const imgContainer = document.getElementById('edit-image-inputs-container');
+            imgContainer.innerHTML = '<label class="block text-xs font-bold text-blue-600 uppercase ml-1 mb-2">ছবির লিংক সমূহ (Image URLs)</label>';
+            
+            if (p.image) {
+                p.image.split(',').forEach(url => addEditImageField(url.trim()));
+            } else {
+                addEditImageField();
+            }
+
+            document.getElementById('edit-modal').classList.remove('hidden');
+        };
+
+        window.closeEditModal = () => document.getElementById('edit-modal').classList.add('hidden');
+
+        // ৪. আপডেট সেভ
+        document.getElementById('edit-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-p-id').value;
+            const btn = document.getElementById('update-btn');
+            
+            btn.disabled = true; btn.innerText = "আপডেট হচ্ছে...";
+
+            const imageUrls = Array.from(document.querySelectorAll('.edit-p-image-input'))
+                                   .map(input => input.value.trim())
+                                   .filter(val => val !== "") 
+                                   .join(',');
+
+            try {
+                await updateDoc(doc(db, "products", id), {
+                    name: document.getElementById('edit-p-name').value,
+                    buyPrice: Number(document.getElementById('edit-p-buy').value),
+                    sellPrice: Number(document.getElementById('edit-p-sell').value),
+                    weight: Number(document.getElementById('edit-p-weight').value),
+                    stock: Number(document.getElementById('edit-p-stock').value),
+                    description: document.getElementById('edit-p-desc').value.trim(), // বিবরণ আপডেট
+                    image: imageUrls
+                });
+                alert("সফলভাবে আপডেট হয়েছে!");
+                closeEditModal();
+            } catch (err) { alert("ভুল হয়েছে: " + err.message); }
+            finally { btn.disabled = false; btn.innerText = "তথ্য আপডেট করুন"; }
+        };
+
+        // ৫. ডিলিট
+        window.deleteProduct = async (id) => {
+            if (confirm("আপনি কি নিশ্চিতভাবে এই পণ্যটি ডিলিট করতে চান?")) {
+                try {
+                    await deleteDoc(doc(db, "products", id));
+                    alert("পণ্যটি ডিলিট করা হয়েছে।");
+                } catch (err) { alert("ভুল হয়েছে: " + err.message); }
+            }
+        };
+
+        // ৬. সার্চ
+        window.searchProduct = () => {
+            const term = document.getElementById('search-product').value.toLowerCase();
+            const cards = document.querySelectorAll('#product-list-area > div');
+            cards.forEach(card => {
+                const name = card.querySelector('h3').innerText.toLowerCase();
+                card.style.display = name.includes(term) ? "flex" : "none";
+            });
+        };
+
+    </script>
+</body>
+</html>

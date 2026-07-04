@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>অর্ডার ম্যানেজমেন্ট - আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; }
+        
+        /* প্রিন্ট সেটআপ: A4 ৩ কলাম এবং সাদাকালো */
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            
+            html, body { margin: 0 !important; padding: 0 !important; height: auto !important; overflow: hidden !important; background: #fff; }
+
+            #print-area {
+                position: absolute; left: 0; top: 0; width: 100%;
+                display: grid !important; grid-template-columns: repeat(3, 1fr) !important;
+                gap: 5px; padding: 5px;
+            }
+
+            .memo-card {
+                border: 1.5px solid #000 !important; /* গাঢ় কালো বর্ডার */
+                padding: 10px;
+                background: #fff !important;
+                page-break-inside: avoid;
+                break-inside: avoid;
+                color: #000 !important; /* সব লেখা কালো */
+                border-radius: 5px;
+            }
+            
+            .memo-card h2, .memo-card p, .memo-card span, .memo-card b {
+                color: #000 !important;
+            }
+
+            .no-print { display: none !important; }
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-gray-50 pb-20">
+
+    <!-- ওপরের নেভিগেশন বার -->
+    <nav class="bg-green-700 p-4 text-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="font-bold text-lg italic tracking-tight text-white">আপন হাট প্যানেল</h1>
+            <div class="flex gap-2">
+                <button onclick="deleteSelected()" id="batch-delete-btn" class="hidden bg-red-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-lg">
+                    <i class="fas fa-trash-alt mr-1"></i> মুছুন (<span id="delete-count">0</span>)
+                </button>
+                <button onclick="printSelected()" id="batch-print-btn" class="hidden bg-orange-500 text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-lg">
+                    <i class="fas fa-print mr-1"></i> প্রিন্ট (<span id="select-count">0</span>)
+                </button>
+                <a href="owner-dashboard.html" id="back-link" class="bg-white text-green-700 px-3 py-1.5 rounded-lg text-[10px] font-bold shadow">ড্যাশবোর্ড</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ট্যাব ফিল্টার -->
+    <div class="container mx-auto p-4 flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+        <div class="flex gap-2">
+            <button onclick="loadOrders('pending')" id="tab-pending" class="filter-btn bg-white px-5 py-2 rounded-full shadow text-[10px] font-bold border border-green-600 text-green-700">নতুন</button>
+            <button onclick="loadOrders('shipping')" id="tab-shipping" class="filter-btn bg-white px-5 py-2 rounded-full shadow text-[10px] font-bold border border-gray-200">শিপিং</button>
+            <button onclick="loadOrders('delivered')" id="tab-delivered" class="filter-btn bg-white px-5 py-2 rounded-full shadow text-[10px] font-bold border border-gray-200">সম্পন্ন</button>
+            <button onclick="loadOrders('cancelled')" id="tab-cancelled" class="filter-btn bg-white px-5 py-2 rounded-full shadow text-[10px] font-bold border border-gray-200">বাতিল</button>
+        </div>
+        <button onclick="deleteAllCancelled()" id="clear-cancelled-btn" class="hidden bg-red-100 text-red-600 border border-red-200 px-4 py-2 rounded-full text-[10px] font-black hover:bg-red-600 transition">
+            <i class="fas fa-broom mr-1"></i> সব বাতিল মুছুন
+        </button>
+    </div>
+
+    <div class="container mx-auto p-4">
+        <div id="order-display" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <p class="text-center col-span-full py-10 text-gray-400 italic font-bold">অর্ডার লোড হচ্ছে...</p>
+        </div>
+    </div>
+
+    <!-- প্রিন্ট এরিয়া -->
+    <div id="print-area" class="hidden"></div>
+
+    <script type="module">
+        import { db, auth } from "./firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, onSnapshot, query, orderBy, updateDoc, doc, getDoc, getDocs, where, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        let selectedOrders = new Set();
+        let userRole = 'assistant'; 
+        let buyPriceMap = {}; 
+        const SITE_URL = "https://aponhat.vercel.app"; 
+        const CONTACT_NO = "০১৭XXXXXXXX"; 
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    userRole = userDoc.data().role;
+                    if (userRole !== 'owner') document.getElementById('back-link').href = "assistant-dashboard.html";
+                    if (userRole === 'owner') {
+                        const pSnap = await getDocs(collection(db, "products"));
+                        pSnap.forEach(d => { buyPriceMap[d.data().name] = d.data().buyPrice || 0; });
+                    }
+                }
+                loadOrders('pending');
+            } else { window.location.href = "login.html"; }
+        });
+
+        window.loadOrders = (status) => {
+            selectedOrders.clear();
+            updateControlButtons();
+            const clearBtn = document.getElementById('clear-cancelled-btn');
+            status === 'cancelled' ? clearBtn.classList.remove('hidden') : clearBtn.classList.add('hidden');
+
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('border-green-600', 'text-green-700');
+                btn.classList.add('border-gray-200', 'text-gray-500');
+            });
+            document.getElementById(`tab-${status}`).classList.add('border-green-600', 'text-green-700');
+            
+            const q = query(collection(db, "orders"), where("status", "==", status), orderBy("createdAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                const display = document.getElementById('order-display');
+                display.innerHTML = snapshot.empty ? `<p class="text-center col-span-full py-20 text-gray-400 font-bold italic">কোন অর্ডার নেই।</p>` : "";
+
+                snapshot.forEach((orderDoc) => {
+                    const order = orderDoc.data();
+                    const id = orderDoc.id;
+                    const isHomeDelivery = order.customerAddress !== "🏪 শপ পিকআপ";
+
+                    let totalOrderProfit = 0;
+                    if (userRole === 'owner') {
+                        order.items.forEach(item => {
+                            const bPrice = buyPriceMap[item.name] || 0;
+                            totalOrderProfit += (item.price - bPrice) * item.qty;
+                        });
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-5 rounded-3xl shadow-sm border border-gray-100 transition-all hover:shadow-lg relative";
+                    
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex gap-2 items-center">
+                                <input type="checkbox" onchange="toggleSelect('${id}')" class="w-5 h-5 rounded accent-green-600">
+                                <div><h3 class="font-bold text-gray-800 text-sm">${order.customerName}</h3><p class="text-[9px] text-gray-400">${order.createdAt?.toDate().toLocaleString('bn-BD')}</p></div>
+                            </div>
+                            <span class="${isHomeDelivery ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'} text-[9px] px-2 py-1 rounded-full font-black uppercase">
+                                ${isHomeDelivery ? 'হোম ডেলিভারি' : 'দোকান থেকে'}
+                            </span>
+                        </div>
+                        <div class="space-y-1 text-[11px] mb-4 bg-gray-50 p-3 rounded-2xl">
+                            <p class="font-bold text-blue-700 underline"><i class="fas fa-phone-alt mr-1"></i> ${order.customerPhone}</p>
+                            <p class="text-gray-500 italic"><i class="fas fa-map-marker-alt text-red-400 mr-1"></i> ${order.customerAddress}</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-2xl text-[11px] mb-4 border-2 border-dashed border-slate-100">
+                            <ul class="space-y-1">${order.items.map(i => `<li class="flex justify-between"><span>${i.name} (x${i.qty})</span> <b>৳${i.price * i.qty}</b></li>`).join('')}</ul>
+                            <div class="mt-3 pt-2 border-t border-slate-100 flex justify-between font-black text-xs text-green-800">
+                                <span>মোট:</span> <span>৳${order.totalBill}</span>
+                            </div>
+                            ${userRole === 'owner' ? `<div class="mt-2 p-2 bg-green-50 rounded-xl border border-green-100 flex justify-between items-center"><span class="text-[10px] text-green-600 font-bold uppercase">নিট লাভ:</span><span class="text-xs font-black text-green-700">৳${totalOrderProfit}</span></div>` : ''}
+                        </div>
+                        <div class="mt-2">
+                            <select onchange="window.handleStatusChange('${id}', this.value, '${status}')" class="w-full p-2.5 rounded-2xl text-[10px] font-bold border border-slate-200 outline-none bg-slate-50">
+                                <option value="pending" ${status==='pending'?'selected':''}>নতুন অর্ডার</option>
+                                <option value="shipping" ${status==='shipping'?'selected':''}>শিপিং (পথে আছে)</option>
+                                <option value="delivered" ${status==='delivered'?'selected':''}>সম্পন্ন হয়েছে</option>
+                                <option value="cancelled" ${status==='cancelled'?'selected':''}>বাতিল করুন</option>
+                            </select>
+                        </div>`;
+                    display.appendChild(card);
+                });
+            });
+        };
+
+        window.deleteAllCancelled = async () => {
+            if (confirm("সব বাতিল অর্ডার মুছবেন?")) {
+                const snap = await getDocs(query(collection(db, "orders"), where("status", "==", "cancelled")));
+                for (const d of snap.docs) await deleteDoc(doc(db, "orders", d.id));
+                alert("পরিষ্কার করা হয়েছে।");
+            }
+        };
+
+        window.deleteSelected = async () => {
+            if (confirm(`নির্বাচিত ${selectedOrders.size}টি অর্ডার মুছবেন?`)) {
+                for (const id of selectedOrders) await deleteDoc(doc(db, "orders", id));
+                selectedOrders.clear(); updateControlButtons();
+            }
+        };
+
+        window.handleStatusChange = async (id, newS, oldS) => {
+            if (newS === oldS) return;
+            if (newS === 'cancelled') {
+                if (confirm("অর্ডার বাতিল করবেন? স্টক ফেরত যাবে।")) { await cancelAndRestore(id); } else { location.reload(); }
+            } else {
+                if (confirm(`স্ট্যাটাস '${newS}' করবেন?`)) await updateDoc(doc(db, "orders", id), { status: newS });
+                else location.reload();
+            }
+        };
+
+        window.toggleSelect = (id) => { selectedOrders.has(id) ? selectedOrders.delete(id) : selectedOrders.add(id); updateControlButtons(); };
+
+        function updateControlButtons() {
+            const pb = document.getElementById('batch-print-btn');
+            const dbb = document.getElementById('batch-delete-btn');
+            document.getElementById('select-count').innerText = selectedOrders.size;
+            document.getElementById('delete-count').innerText = selectedOrders.size;
+            if (selectedOrders.size > 0) { pb.classList.remove('hidden'); dbb.classList.remove('hidden'); }
+            else { pb.classList.add('hidden'); dbb.classList.add('hidden'); }
+        }
+
+        window.printSelected = async () => {
+            const printArea = document.getElementById('print-area');
+            printArea.innerHTML = "";
+            for (const id of selectedOrders) {
+                const oDoc = await getDoc(doc(db, "orders", id));
+                const d = oDoc.data();
+                const itemsSub = d.items.reduce((s, i) => s + (i.price * i.qty), 0);
+                // কিউআর কোড এপিআই লিংক
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${SITE_URL}`;
+
+                printArea.innerHTML += `
+                    <div class="memo-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #000; padding-bottom:5px; margin-bottom:8px;">
+                            <div style="text-align:left;">
+                                <h2 style="font-size:18px; font-weight:900; margin:0; color:#000;">আপন হাট</h2>
+                                <p style="font-size:8px; margin:0; font-weight:bold;">${SITE_URL}</p>
+                                <p style="font-size:8px; margin:0; font-weight:bold;">ফোন: ${CONTACT_NO}</p>
+                            </div>
+                            <img src="${qrUrl}" style="width:45px; height:45px; border:1px solid #000;">
+                        </div>
+                        <div style="font-size:9px; line-height:1.3; margin-bottom:10px;">
+                            <p><strong>আইডি:</strong> #${id.substring(0,6).toUpperCase()}</p>
+                            <p><strong>কাস্টমার:</strong> ${d.customerName}</p>
+                            <p><strong>ফোন:</strong> ${d.customerPhone}</p>
+                            <p><strong>ঠিকানা:</strong> ${d.customerAddress}</p>
+                        </div>
+                        <div style="border-top:1px dashed #000; padding-top:5px; font-size:9px;">
+                            ${d.items.map(i => `<div style="display:flex; justify-content:space-between;"><span>${i.name} (x${i.qty})</span> <span>৳${i.price * i.qty}</span></div>`).join('')}
+                        </div>
+                        <div style="border-top:1px solid #000; margin-top:8px; padding-top:5px; font-size:9px; font-weight:bold;">
+                            <div style="display:flex; justify-content:space-between;"><span>পণ্যের দাম:</span> <span>৳${itemsSub}</span></div>
+                            <div style="display:flex; justify-content:space-between;"><span>ডেলিভারি চার্জ:</span> <span>৳${d.deliveryCharge || 0}</span></div>
+                            <div style="border-top:2px solid #000; margin-top:4px; padding-top:4px; font-size:12px; display:flex; justify-content:space-between;">
+                                <span>সর্বমোট বিল:</span> <span>৳${d.totalBill}</span>
+                            </div>
+                        </div>
+                        <p style="text-align:center; font-size:7px; margin-top:12px; border-top:1px solid #000; padding-top:5px; font-weight:bold;">ধন্যবাদ, আবার আসবেন!</p>
+                    </div>`;
+            }
+            window.print();
+        };
+
+        async function cancelAndRestore(orderId) {
+            const oDoc = await getDoc(doc(db, "orders", orderId));
+            const items = oDoc.data().items;
+            for (const item of items) {
+                const qP = query(collection(db, "products"), where("name", "==", item.name));
+                const pSnap = await getDocs(qP);
+                pSnap.forEach(async (p) => { await updateDoc(doc(db, "products", p.id), { stock: p.data().stock + (item.qty || 1) }); });
+            }
+            await updateDoc(doc(db, "orders", orderId), { status: 'cancelled' });
+            location.reload();
+        }
+    </script>
+</body>
+</html>

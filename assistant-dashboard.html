@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>সহকারী ড্যাশবোর্ড - আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 pb-20">
+
+    <nav class="bg-green-700 p-4 text-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="font-bold text-lg"><i class="fas fa-user-cog mr-2"></i>সহকারী ড্যাশবোর্ড</h1>
+            <button onclick="logout()" class="text-xs border px-2 py-1 rounded bg-green-800">লগআউট</button>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4">
+        <!-- স্ট্যাটাস কাউন্টার -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-4 rounded-xl shadow border-l-4 border-orange-500 text-center">
+                <p class="text-[10px] text-gray-500 font-bold uppercase">নতুন অর্ডার</p>
+                <h2 id="pending-count" class="text-2xl font-bold text-orange-600">0</h2>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow border-l-4 border-blue-500 text-center">
+                <p class="text-[10px] text-gray-500 font-bold uppercase">ভেরিফাইড</p>
+                <h2 id="verified-count" class="text-2xl font-bold text-blue-600">0</h2>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow border-l-4 border-purple-500 text-center">
+                <p class="text-[10px] text-gray-500 font-bold uppercase">শিপিং এ আছে</p>
+                <h2 id="shipping-count" class="text-2xl font-bold text-purple-600">0</h2>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow border-l-4 border-green-500 text-center">
+                <p class="text-[10px] text-gray-500 font-bold uppercase">আজকের ডেলিভারি</p>
+                <h2 id="delivered-count" class="text-2xl font-bold text-green-600">0</h2>
+            </div>
+        </div>
+
+        <!-- প্রধান বাটনসমূহ -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <button onclick="openManualOrder()" class="bg-blue-600 text-white p-6 rounded-2xl shadow-lg flex items-center justify-center gap-4 text-xl font-bold active:scale-95 transition">
+                <i class="fas fa-cart-plus text-3xl"></i> কাস্টমারের অর্ডার কাটুন
+            </button>
+            <button onclick="window.location.href='order-list.html'" class="bg-green-600 text-white p-6 rounded-2xl shadow-lg flex items-center justify-center gap-4 text-xl font-bold active:scale-95 transition">
+                <i class="fas fa-list-ul text-3xl"></i> অর্ডার ম্যানেজ করুন
+            </button>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+            <h3 class="font-bold text-gray-700 mb-4 border-b pb-2">দ্রুত লিঙ্ক</h3>
+            <div class="grid grid-cols-3 gap-4 text-center">
+                <a href="index.html" class="p-3 bg-gray-50 rounded-lg"><i class="fas fa-store text-green-600 block mb-1"></i><span class="text-[10px] font-bold">দোকান দেখুন</span></a>
+                <a href="addProduct.html" class="p-3 bg-gray-50 rounded-lg"><i class="fas fa-boxes text-orange-600 block mb-1"></i><span class="text-[10px] font-bold">পণ্য যোগ</span></a>
+                <a href="delivery-man.html" class="p-3 bg-gray-50 rounded-lg"><i class="fas fa-truck text-blue-600 block mb-1"></i><span class="text-[10px] font-bold">ডেলিভারি</span></a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ম্যানুয়াল অর্ডার মডাল -->
+    <div id="manual-order-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-[60] overflow-y-auto p-4">
+        <div class="bg-white p-6 rounded-2xl w-full max-w-2xl mx-auto my-10 shadow-2xl">
+            <div class="flex justify-between items-center mb-6 border-b pb-3">
+                <h2 class="text-xl font-bold text-blue-700">নতুন ম্যানুয়াল অর্ডার</h2>
+                <button onclick="closeManualOrder()" class="text-red-500 text-2xl">&times;</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <input type="text" id="m-cust-name" placeholder="কাস্টমারের নাম" class="w-full p-2 border rounded">
+                    <input type="number" id="m-cust-phone" placeholder="মোবাইল নম্বর" class="w-full p-2 border rounded">
+                    <textarea id="m-cust-address" placeholder="ঠিকানা" class="w-full p-2 border rounded"></textarea>
+                </div>
+                <div class="space-y-4">
+                    <select id="m-product-select" class="w-full p-2 border rounded">
+                        <option value="">পণ্য বেছে নিন...</option>
+                    </select>
+                    <div id="m-selected-items" class="bg-gray-50 p-3 rounded-lg min-h-[100px] text-xs space-y-2"></div>
+                    <div class="flex justify-between font-bold text-lg text-green-700">
+                        <span>মোট বিল:</span> <span>৳<span id="m-total-bill">0</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 flex gap-3">
+                <button onclick="submitManualOrder()" class="flex-1 bg-green-600 text-white py-3 rounded-xl font-bold shadow-lg">অর্ডার সম্পন্ন করুন</button>
+                <button onclick="closeManualOrder()" class="bg-gray-200 px-6 py-3 rounded-xl font-bold">বন্ধ করুন</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, auth } from "./firebase-config.js";
+        import { collection, onSnapshot, addDoc, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        let manualCart = [];
+        let allProducts = [];
+
+        // ১. রিয়েল-টাইম স্ট্যাটাস আপডেট
+        onSnapshot(collection(db, "orders"), (snapshot) => {
+            let pending = 0, verified = 0, shipping = 0, delivered = 0;
+            const today = new Date().toLocaleDateString();
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                if(data.status === 'pending') pending++;
+                if(data.status === 'verified') verified++;
+                if(data.status === 'shipping') shipping++;
+                if(data.status === 'delivered' && data.createdAt.toDate().toLocaleDateString() === today) delivered++;
+            });
+            document.getElementById('pending-count').innerText = pending;
+            document.getElementById('verified-count').innerText = verified;
+            document.getElementById('shipping-count').innerText = shipping;
+            document.getElementById('delivered-count').innerText = delivered;
+        });
+
+        // ২. পণ্য লোড করা
+        async function loadProductOptions() {
+            const snap = await getDocs(collection(db, "products"));
+            const select = document.getElementById('m-product-select');
+            select.innerHTML = '<option value="">পণ্য বেছে নিন...</option>';
+            allProducts = [];
+            snap.forEach(d => {
+                const p = d.data();
+                allProducts.push({id: d.id, ...p});
+                const opt = document.createElement('option');
+                opt.value = d.id;
+                opt.innerText = `${p.name} - ৳${p.sellPrice}`;
+                select.appendChild(opt);
+            });
+        }
+
+        document.getElementById('m-product-select').onchange = (e) => {
+            const pId = e.target.value;
+            if(!pId) return;
+            const p = allProducts.find(item => item.id === pId);
+            manualCart.push(p);
+            renderManualCart();
+            e.target.value = "";
+        };
+
+        function renderManualCart() {
+            const area = document.getElementById('m-selected-items');
+            const totalBill = document.getElementById('m-total-bill');
+            let total = 0; area.innerHTML = "";
+            manualCart.forEach((item) => {
+                total += item.sellPrice;
+                area.innerHTML += `<div class="flex justify-between bg-white p-2 rounded border"><span>${item.name}</span> <strong>৳${item.sellPrice}</strong></div>`;
+            });
+            totalBill.innerText = total;
+        }
+
+        window.submitManualOrder = async () => {
+            const name = document.getElementById('m-cust-name').value;
+            const phone = document.getElementById('m-cust-phone').value;
+            const address = document.getElementById('m-cust-address').value;
+            if(!name || !phone || manualCart.length === 0) return alert("তথ্য সঠিকভাবে দিন।");
+
+            if(confirm("অর্ডারটি নিশ্চিত করতে চান?")) {
+                try {
+                    for(const item of manualCart) {
+                        await updateDoc(doc(db, "products", item.id), { stock: item.stock - 1 });
+                    }
+                    await addDoc(collection(db, "orders"), {
+                        customerName: name, customerPhone: phone, customerAddress: address || "দোকানে এসে নিয়েছেন",
+                        items: manualCart.map(i => ({name: i.name, price: i.sellPrice})),
+                        totalBill: document.getElementById('m-total-bill').innerText,
+                        status: 'verified', createdAt: new Date()
+                    });
+                    alert("অর্ডার সফল!");
+                    closeManualOrder();
+                } catch (e) { alert("ত্রুটি: " + e.message); }
+            }
+        };
+
+        window.openManualOrder = () => { document.getElementById('manual-order-modal').classList.remove('hidden'); loadProductOptions(); };
+        window.closeManualOrder = () => { document.getElementById('manual-order-modal').classList.add('hidden'); manualCart = []; renderManualCart(); };
+        window.logout = () => signOut(auth).then(() => window.location.href = "login.html");
+    </script>
+</body>
+</html>

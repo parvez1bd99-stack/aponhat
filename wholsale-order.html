@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>পাইকারি অর্ডার তালিকা - আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; display: none; background-color: #f8fafc; }
+    </style>
+</head>
+<body class="pb-20">
+
+    <!-- ওপরের বার -->
+    <nav class="bg-indigo-900 p-4 text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="font-bold text-lg italic"><i class="fas fa-clipboard-list mr-2"></i>পাইকারি অর্ডারসমূহ</h1>
+            <a href="owner-dashboard.html" class="bg-white text-indigo-900 px-4 py-1 rounded-full text-xs font-bold shadow">ড্যাশবোর্ড</a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 max-w-2xl">
+        <!-- ফিল্টার বা স্ট্যাটাস বার -->
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-slate-500 font-bold text-xs uppercase tracking-widest">নতুন পাইকারি অর্ডার:</h2>
+            <button onclick="window.clearAllOrders()" class="text-red-500 text-[10px] font-black uppercase border border-red-200 px-3 py-1 rounded-lg hover:bg-red-500 hover:text-white transition">সব মুছুন</button>
+        </div>
+
+        <div id="ws-order-display" class="space-y-4">
+            <p class="text-center py-20 text-gray-400 italic">অর্ডার চেক করা হচ্ছে...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, auth } from "./firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, onSnapshot, query, orderBy, deleteDoc, doc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // ১. মালিক চেক
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const uDoc = await getDoc(doc(db, "users", user.uid));
+                if (uDoc.exists() && uDoc.data().role === 'owner') {
+                    document.body.style.display = "block";
+                    loadWholesaleOrders();
+                } else { window.location.href = "login.html"; }
+            } else { window.location.href = "login.html"; }
+        });
+
+        // ২. রিয়েল-টাইম পাইকারি অর্ডার লোড
+        function loadWholesaleOrders() {
+            const q = query(collection(db, "wholesale_orders"), orderBy("createdAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                const area = document.getElementById('ws-order-display');
+                area.innerHTML = snapshot.empty ? `<p class="text-center py-20 text-slate-300 font-bold">কোন পাইকারি অর্ডার পাওয়া যায়নি।</p>` : "";
+
+                snapshot.forEach((orderDoc) => {
+                    const order = orderDoc.data();
+                    const id = orderDoc.id;
+
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-5 rounded-[30px] shadow-sm border border-slate-100 relative overflow-hidden transition-all hover:shadow-md";
+                    
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-black text-slate-800 text-lg leading-tight">${order.customerName}</h3>
+                                <p class="text-[10px] text-indigo-500 font-bold">${order.customerEmail}</p>
+                                <p class="text-[9px] text-slate-300 uppercase mt-1">${order.createdAt?.toDate().toLocaleString('bn-BD')}</p>
+                            </div>
+                            <button onclick="window.deleteWSOrder('${id}')" class="text-slate-300 hover:text-red-500 p-2"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+
+                        <div class="bg-indigo-50 p-4 rounded-2xl border border-dashed border-indigo-100 mb-4">
+                            <p class="text-[9px] font-black text-indigo-400 uppercase mb-2 tracking-widest">অর্ডারের তালিকা:</p>
+                            <ul class="space-y-1">
+                                ${order.items.map(item => `
+                                    <li class="flex justify-between text-xs text-slate-700">
+                                        <span>${item.name}</span>
+                                        <b class="text-indigo-600">${item.qty} পিস</b>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+
+                        <div class="flex justify-between items-center px-1">
+                            <span class="text-xs font-bold text-slate-400 uppercase">মোট সম্ভাব্য বিল:</span>
+                            <span class="text-xl font-black text-green-700">৳${order.totalBill}</span>
+                        </div>
+                    `;
+                    area.appendChild(card);
+                });
+            });
+        }
+
+        // ৩. ডিলিট ফাংশন
+        window.deleteWSOrder = async (id) => {
+            if(confirm("আপনি কি এই অর্ডারটি মুছতে চান?")) {
+                try {
+                    await deleteDoc(doc(db, "wholesale_orders", id));
+                } catch(e) { alert("মুছতে সমস্যা হয়েছে!"); }
+            }
+        };
+
+        window.clearAllOrders = async () => {
+            if(confirm("সবগুলো পাইকারি অর্ডার কি মুছে ফেলতে চান?")) {
+                const snap = await getDocs(collection(db, "wholesale_orders"));
+                for (const d of snap.docs) await deleteDoc(doc(db, "wholesale_orders", d.id));
+                alert("সব পরিষ্কার করা হয়েছে।");
+            }
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>মালিক ড্যাশবোর্ড - আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; display: none; background-color: #f8fafc; }
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .quick-card { transition: all 0.3s ease; }
+        .quick-card:hover { transform: translateY(-5px); }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- মোবাইল বটম নেভিগেশন -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-[100] flex justify-around p-3 shadow-2xl">
+        <a href="owner-dashboard.html" class="text-green-600 flex flex-col items-center">
+            <i class="fas fa-home text-xl"></i><span class="text-[10px] font-bold">হোম</span>
+        </a>
+        <a href="order-list.html" class="text-slate-400 flex flex-col items-center">
+            <i class="fas fa-shopping-bag text-xl"></i><span class="text-[10px] font-bold">অর্ডার</span>
+        </a>
+        <a href="addProduct.html" class="bg-green-600 text-white w-12 h-12 rounded-full -mt-8 flex items-center justify-center shadow-lg border-4 border-white">
+            <i class="fas fa-plus"></i>
+        </a>
+        <a href="delivery-setting.html" class="text-slate-400 flex flex-col items-center">
+            <i class="fas fa-truck text-xl"></i><span class="text-[10px] font-bold">ডেলিভারি</span>
+        </a>
+        <button onclick="logout()" class="text-red-400 flex flex-col items-center">
+            <i class="fas fa-sign-out-alt text-xl"></i><span class="text-[10px] font-bold">লগআউট</span>
+        </button>
+    </div>
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- ডেস্কটপ সাইডবার -->
+        <aside class="hidden md:flex w-64 bg-white border-r border-slate-200 flex-col sticky top-0 h-screen p-6">
+            <div class="mb-10 text-center">
+                <h1 class="text-2xl font-black text-green-600 italic">আপন হাট</h1>
+                <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">অ্যাডমিন কন্ট্রোল</p>
+            </div>
+            <nav class="flex-1 space-y-1">
+                <a href="owner-dashboard.html" class="flex items-center gap-3 p-3 bg-green-50 text-green-700 rounded-xl font-bold transition-all"><i class="fas fa-th-large"></i> ড্যাশবোর্ড</a>
+                <a href="order-list.html" class="flex items-center gap-3 p-3 text-slate-500 hover:bg-slate-50 rounded-xl transition-all"><i class="fas fa-shopping-cart"></i> অর্ডার লিস্ট</a>
+                <a href="addProduct.html" class="flex items-center gap-3 p-3 text-slate-500 hover:bg-slate-50 rounded-xl transition-all"><i class="fas fa-plus-circle"></i> নতুন পণ্য</a>
+                <a href="delivery-settings.html" class="flex items-center gap-3 p-3 text-slate-500 hover:bg-slate-50 rounded-xl transition-all"><i class="fas fa-truck"></i> ডেলিভারি চার্জ</a>
+                <a href="index.html" class="flex items-center gap-3 p-3 text-slate-500 hover:bg-slate-50 rounded-xl transition-all"><i class="fas fa-store"></i> দোকান দেখুন</a>
+            </nav>
+            <button onclick="logout()" class="mt-auto flex items-center gap-3 p-3 text-red-500 hover:bg-red-50 rounded-xl transition-all font-bold"><i class="fas fa-power-off"></i> লগআউট</button>
+        </aside>
+
+        <!-- মেইন কন্টেন্ট এরিয়া -->
+        <main class="flex-1 p-4 md:p-8 pb-24 md:pb-10">
+            <!-- হেডার -->
+            <header class="flex justify-between items-center mb-8">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-800">আসসালামু আলাইকুম, <span id="owner-name-display" class="text-green-600 italic">মালিক</span>!</h2>
+                    <p class="text-xs text-slate-400 font-medium">আপনার ডিজিটাল দোকানের বর্তমান অবস্থা</p>
+                </div>
+            </header>
+
+            <!-- ১. দ্রুত এক্সেস সেকশন (Quick Actions) -->
+            <div class="mb-10">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <i class="fas fa-bolt text-yellow-500"></i> দ্রুত কাজের লিংক সমূহ
+                </h4>
+                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3 md:gap-4">
+                    <!-- লিংক ১ -->
+                    <a href="addProduct.html" class="quick-card bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center group">
+                        <i class="fas fa-plus-circle text-blue-500 text-xl group-hover:scale-110 transition"></i>
+                        <span class="text-[10px] font-bold mt-2 text-slate-600">নতুন পণ্য</span>
+                    </a>
+                    <!-- লিংক ২ -->
+                    <a href="order-list.html" class="quick-card bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center group">
+                        <i class="fas fa-shopping-basket text-green-500 text-xl group-hover:scale-110 transition"></i>
+                        <span class="text-[10px] font-bold mt-2 text-slate-600">অর্ডার লিস্ট</span>
+                    </a>
+                    <!-- লিংক ৩ -->
+                    <a href="manage-user.html" class="quick-card bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center group">
+                        <i class="fas fa-users-cog text-purple-500 text-xl group-hover:scale-110 transition"></i>
+                        <span class="text-[10px] font-bold mt-2 text-slate-600">কর্মী নিয়োগ</span>
+                    </a>
+                    <!-- লিংক ৪ -->
+                    <a href="manage-product.html" class="quick-card bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center group">
+                        <i class="fas fa-truck-loading text-orange-500 text-xl group-hover:scale-110 transition"></i>
+                        <span class="text-[10px] font-bold mt-2 text-slate-600">ম্যানেজ প্রোডাক্ট</span>
+                    </a>
+                    <!-- লিংক ৫ -->
+                    <a href="index.html" class="quick-card bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center group">
+                        <i class="fas fa-external-link-alt text-cyan-500 text-xl group-hover:scale-110 transition"></i>
+                        <span class="text-[10px] font-bold mt-2 text-slate-600">দোকান দেখুন</span>
+                    </a>
+                    <!-- লিংক ৬ -->
+                    <a href="benefits.html" class="quick-card bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center group">
+                        <i class="fas fa-gift text-pink-500 text-xl group-hover:scale-110 transition"></i>
+                        <span class="text-[10px] font-bold mt-2 text-slate-600">সুবিধা পাতা</span>
+                    </a>
+                    <!-- লিংক ৭ -->
+                    <a href="wholsale.html" class="quick-card bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center group">
+                        <i class="fas fa-store-alt text-indigo-500 text-xl group-hover:scale-110 transition"></i>
+                        <span class="text-[10px] font-bold mt-2 text-slate-600">পাইকারি</span>
+                    </a>
+                    <!-- লিংক ৮ -->
+                    <a href="wholsale-setup.html" class="quick-card bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center group">
+                        <i class="fas fa-history text-slate-400 text-xl group-hover:scale-110 transition"></i>
+                        <span class="text-[10px] font-bold mt-2 text-slate-600">wholesale setup</span>
+                    </a>
+                    <!-- লিংক ৯ -->
+                    <a href="manage-user.html" class="quick-card bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center group">
+                        <i class="fas fa-wallet text-red-400 text-xl group-hover:scale-110 transition"></i>
+                        <span class="text-[10px] font-bold mt-2 text-slate-600">বকেয়া খাতা</span>
+                    </a>
+                    <!-- লিংক ১০ -->
+                    <a href="wholsale-order.html" class="quick-card bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center group opacity-50">
+                        <i class="fas fa-star text-yellow-400 text-xl group-hover:scale-110 transition"></i>
+                        <span class="text-[10px] font-bold mt-2 text-slate-600">পাইকারি অর্ডার </span>
+                    </a>
+                    <!-- লিংক ১১ -->
+                    <a href="#" class="quick-card bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center group opacity-50">
+                        <i class="fas fa-tags text-teal-400 text-xl group-hover:scale-110 transition"></i>
+                        <span class="text-[10px] font-bold mt-2 text-slate-600">অফার সেট</span>
+                    </a>
+                    <!-- লিংক ১২ -->
+                    <a href="#" class="quick-card bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center text-center group opacity-50">
+                        <i class="fas fa-tools text-gray-400 text-xl group-hover:scale-110 transition"></i>
+                        <span class="text-[10px] font-bold mt-2 text-slate-600">সেটিংস</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ২. স্ট্যাটাস কার্ডসমূহ -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+                <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-5 rounded-3xl text-white shadow-lg">
+                    <p class="text-[10px] font-bold uppercase opacity-70 mb-1">মোট বিক্রি</p>
+                    <h3 class="text-2xl font-black">৳ <span id="total-sales">0</span></h3>
+                </div>
+                <div class="bg-gradient-to-br from-green-600 to-green-700 p-5 rounded-3xl text-white shadow-lg">
+                    <p class="text-[10px] font-bold uppercase opacity-70 mb-1">আসল লাভ</p>
+                    <h3 class="text-2xl font-black">৳ <span id="total-profit">0</span></h3>
+                </div>
+                <div class="bg-gradient-to-br from-red-600 to-red-700 p-5 rounded-3xl text-white shadow-lg">
+                    <p class="text-[10px] font-bold uppercase opacity-70 mb-1">বকেয়া বাকি</p>
+                    <h3 class="text-2xl font-black">৳ <span id="total-due">0</span></h3>
+                </div>
+            </div>
+
+            <!-- ৩. ইনভেন্টরি ও হেল্পার টেবিল -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                    <h4 class="font-bold text-slate-700 mb-4 flex items-center gap-2"><i class="fas fa-boxes text-green-500"></i> ইনভেন্টরি</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="text-[10px] text-slate-400 font-bold uppercase border-b border-slate-50">
+                                <tr><th class="pb-2">পণ্য</th><th class="pb-2">বেচা</th><th class="pb-2">স্টক</th><th class="pb-2 text-center">কাজ</th></tr>
+                            </thead>
+                            <tbody id="stock-table" class="text-xs">
+                                <tr><td colspan="4" class="py-10 text-center">লোড হচ্ছে...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                    <h4 class="font-bold text-slate-700 mb-4 flex items-center gap-2"><i class="fas fa-user-friends text-purple-500"></i> হেল্পার কমিশন</h4>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="text-[10px] text-slate-400 font-bold uppercase border-b border-slate-50">
+                                <tr><th class="pb-2">নাম</th><th class="pb-2 text-center">কমিশন</th><th class="pb-2 text-center">বদলান</th></tr>
+                            </thead>
+                            <tbody id="helper-list" class="text-xs">
+                                <tr><td colspan="3" class="py-10 text-center">চেক করা হচ্ছে...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- স্ক্রিপ্ট অংশ (আগের মতোই থাকবে) -->
+    <script type="module">
+        import { db, auth } from "./firebase-config.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, getDocs, onSnapshot, updateDoc, doc, query, where, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists() && userDoc.data().role === 'owner') {
+                    document.getElementById('owner-name-display').innerText = userDoc.data().name;
+                    document.body.style.display = "block";
+                    startDash();
+                } else { window.location.href = "login.html"; }
+            } else { window.location.href = "login.html"; }
+        });
+
+        function startDash() {
+            calculateFinance();
+            loadStock();
+            loadHelpers();
+        }
+
+        async function calculateFinance() {
+            const ordersSnap = await getDocs(collection(db, "orders"));
+            const productsSnap = await getDocs(collection(db, "products"));
+            let buyPrices = {};
+            productsSnap.forEach(d => buyPrices[d.data().name] = Number(d.data().buyPrice) || 0);
+            let tSales = 0, tProfit = 0, tDue = 0;
+            ordersSnap.forEach(docSnap => {
+                const order = docSnap.data();
+                if(order.status === 'cancelled') return;
+                tSales += Number(order.totalBill);
+                let orderProfit = 0;
+                order.items.forEach(item => {
+                    const buyP = buyPrices[item.name] || 0;
+                    orderProfit += (item.price - buyP);
+                });
+                if(order.helperCommissionRate) orderProfit -= (Number(order.totalBill) * (order.helperCommissionRate / 100));
+                tProfit += orderProfit;
+                if(order.paymentStatus === 'due') tDue += Number(order.totalBill);
+            });
+            document.getElementById('total-sales').innerText = tSales.toLocaleString('bn-BD');
+            document.getElementById('total-profit').innerText = tProfit.toLocaleString('bn-BD');
+            document.getElementById('total-due').innerText = tDue.toLocaleString('bn-BD');
+        }
+
+        function loadStock() {
+            onSnapshot(collection(db, "products"), (snap) => {
+                const table = document.getElementById('stock-table');
+                table.innerHTML = "";
+                snap.forEach(d => {
+                    const p = d.data();
+                    table.innerHTML += `<tr class="border-b border-slate-50"><td class="py-3 px-2 font-bold">${p.name}</td><td class="py-3 px-2">৳${p.sellPrice}</td><td class="py-3 px-2"><span class="${p.stock < 10 ? 'text-red-500 font-bold' : ''}">${p.stock}</span></td><td class="py-3 px-2 text-center text-blue-500 cursor-pointer" onclick="editStock('${d.id}', ${p.stock})"><i class="fas fa-edit"></i></td></tr>`;
+                });
+            });
+        }
+
+        function loadHelpers() {
+            onSnapshot(query(collection(db, "users"), where("role", "==", "helper")), (snap) => {
+                const list = document.getElementById('helper-list');
+                list.innerHTML = snap.empty ? "<tr><td colspan='3' class='py-10 text-center text-slate-300'>নেই</td></tr>" : "";
+                snap.forEach(d => {
+                    const u = d.data();
+                    list.innerHTML += `<tr class="border-b border-slate-50"><td class="py-3 px-2 font-bold">${u.name}</td><td class="py-3 px-2 text-center font-black text-purple-600">${u.commissionRate || 0}%</td><td class="py-3 px-2 text-center"><button onclick="setCommission('${d.id}', ${u.commissionRate || 0})" class="bg-purple-100 text-purple-600 p-1 rounded hover:bg-purple-600 hover:text-white transition"><i class="fas fa-cog"></i></button></td></tr>`;
+                });
+            });
+        }
+
+        window.editStock = async (id, cur) => {
+            const n = prompt("স্টক সংখ্যা বদলান:", cur);
+            if (n !== null) await updateDoc(doc(db, "products", id), { stock: Number(n) });
+        };
+
+        window.setCommission = async (id, cur) => {
+            const n = prompt("কমিশন হার বদলান:", cur);
+            if (n !== null) await updateDoc(doc(db, "users", id), { commissionRate: Number(n) });
+        };
+
+        window.logout = () => { if(confirm("লগআউট?")) signOut(auth).then(() => window.location.href = "login.html"); };
+
+    </script>
+</body>
+</html>
