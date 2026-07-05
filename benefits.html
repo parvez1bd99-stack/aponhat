@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>কেন আপন হাট? - আপনার গ্রামের ডিজিটাল সঙ্গী</title>
+    <title>কেন আপন হাট? - সুবিধা ও ইনকাম গাইড</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
-        body { font-family: 'Hind Siliguri', sans-serif; }
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f8fafc; }
+        .helper-card { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); }
     </style>
 </head>
-<body class="bg-gray-50 pb-10">
+<body class="pb-10">
 
     <!-- ওপরের বার -->
     <nav class="bg-green-600 p-4 text-white sticky top-0 z-50 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold">আপন হাট</h1>
+            <h1 class="text-xl font-bold italic">আপন হাট</h1>
             <a href="index.html" class="bg-white text-green-600 px-4 py-1 rounded-full font-bold text-xs shadow-sm">বাজার করতে যান</a>
         </div>
     </nav>
@@ -31,66 +32,88 @@
     </div>
 
     <div class="container mx-auto p-6 max-w-lg">
-        <h2 class="text-2xl font-bold text-center text-green-800 mb-8 border-b-2 border-green-100 pb-2">কেন আপনি আপন হাট থেকে কিনবেন?</h2>
+        
+        <!-- সেকশন ১: কাস্টমারদের জন্য সুবিধা -->
+        <div class="mb-16">
+            <h2 class="text-2xl font-bold text-center text-green-800 mb-8 border-b-2 border-green-100 pb-2">কেন আপনি আপন হাট থেকে কিনবেন?</h2>
 
-        <div class="space-y-6">
-            <!-- সুবিধা ১ -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-orange-500 flex items-start gap-4 transition hover:shadow-md">
-                <div class="bg-orange-100 p-3 rounded-full text-orange-600 text-xl">
-                    <i class="fas fa-sun"></i>
+            <div class="space-y-6">
+                <!-- সুবিধা ১-৫ (আপনার আগের কোড) -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-orange-500 flex items-start gap-4">
+                    <div class="bg-orange-100 p-3 rounded-full text-orange-600 text-xl"><i class="fas fa-sun"></i></div>
+                    <div>
+                        <h3 class="font-bold text-gray-800">রোদে পুড়তে হবে না</h3>
+                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">বাজারে যাওয়ার জন্য কড়া রোদ বা বৃষ্টিতে ভিজে কষ্ট করার দিন শেষ। এখন সব হবে এক ক্লিকে ঘরে বসেই।</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="font-bold text-gray-800">রোদে পুড়তে হবে না</h3>
-                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">বাজারে যাওয়ার জন্য কড়া রোদ বা বৃষ্টিতে ভিজে কষ্ট করার দিন শেষ। এখন সব হবে এক ক্লিকে ঘরে বসেই।</p>
-                </div>
-            </div>
 
-            <!-- সুবিধা ২ -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-blue-500 flex items-start gap-4 transition hover:shadow-md">
-                <div class="bg-blue-100 p-3 rounded-full text-blue-600 text-xl">
-                    <i class="fas fa-motorcycle"></i>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-blue-500 flex items-start gap-4">
+                    <div class="bg-blue-100 p-3 rounded-full text-blue-600 text-xl"><i class="fas fa-motorcycle"></i></div>
+                    <div>
+                        <h3 class="font-bold text-gray-800">সময় ও ভাড়া সাশ্রয়</h3>
+                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">বাজারে যাওয়ার রিকশা বা ভ্যান ভাড়ার প্রয়োজন নেই। আমরাই পৌঁছে দেব মালামাল।</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="font-bold text-gray-800">সময় ও ভাড়া সাশ্রয়</h3>
-                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">বাজারে যাওয়ার রিকশা বা ভ্যান ভাড়ার প্রয়োজন নেই। আপনার মূল্যবান সময় বাঁচিয়ে আমরাই পৌঁছে দেব মালামাল।</p>
-                </div>
-            </div>
 
-            <!-- সুবিধা ৩ -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-green-500 flex items-start gap-4 transition hover:shadow-md">
-                <div class="bg-green-100 p-3 rounded-full text-green-600 text-xl">
-                    <i class="fas fa-weight"></i>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-green-500 flex items-start gap-4">
+                    <div class="bg-green-100 p-3 rounded-full text-green-600 text-xl"><i class="fas fa-weight"></i></div>
+                    <div>
+                        <h3 class="font-bold text-gray-800">সঠিক ওজনে সেরা মান</h3>
+                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">ডিজিটাল স্কেলে মেপে একদম ফ্রেশ ও সঠিক ওজনের পণ্য সরবরাহ নিশ্চিত করি।</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="font-bold text-gray-800">সঠিক ওজনে সেরা মান</h3>
-                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">পণ্য মাপা বা ওজন নিয়ে কোনো দুশ্চিন্তা নেই। আমরা ডিজিটাল স্কেলে মেপে একদম ফ্রেশ মাল সরবরাহ করি।</p>
-                </div>
-            </div>
 
-            <!-- সুবিধা ৪ -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-purple-500 flex items-start gap-4 transition hover:shadow-md">
-                <div class="bg-purple-100 p-3 rounded-full text-purple-600 text-xl">
-                    <i class="fas fa-wallet"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-gray-800">নিরাপদ পেমেন্ট সুবিধা</h3>
-                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">আমাদের নিয়মিত কাস্টমারদের জন্য বিশেষ সুবিধা রয়েছে। পণ্য হাতে পেয়ে তারপর টাকা পরিশোধ করার সুযোগ।</p>
-                </div>
-            </div>
-
-            <!-- সুবিধা ৫ -->
-            <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-red-500 flex items-start gap-4 transition hover:shadow-md">
-                <div class="bg-red-100 p-3 rounded-full text-red-600 text-xl">
-                    <i class="fas fa-users-cog"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-gray-800">গ্রামের উন্নতিতে অবদান</h3>
-                    <p class="text-xs text-gray-500 mt-1 leading-relaxed">আপনি যখন আপন হাট থেকে কেনেন, তখন আপনার গ্রামেই কর্মসংস্থান তৈরি হয় এবং গ্রামের অর্থনীতির উন্নতি হয়।</p>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-purple-500 flex items-start gap-4">
+                    <div class="bg-purple-100 p-3 rounded-full text-purple-600 text-xl"><i class="fas fa-wallet"></i></div>
+                    <div>
+                        <h3 class="font-bold text-gray-800">নিরাপদ পেমেন্ট সুবিধা</h3>
+                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">পণ্য হাতে পেয়ে তারপর টাকা পরিশোধ করার ক্যাশ-অন-ডেলিভারি সুবিধা।</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- অ্যাকশন বাটন -->
+        <!-- সেকশন ২: হেলপার গাইড (নতুন যুক্ত করা হয়েছে) -->
+        <div class="mb-10 p-8 rounded-[40px] shadow-xl border-2 border-green-200 relative overflow-hidden helper-card">
+            <div class="absolute -right-6 -top-6 text-green-100 text-9xl -rotate-12"><i class="fas fa-coins"></i></div>
+            
+            <h2 class="text-2xl font-black text-green-800 mb-6 relative z-10 flex items-center gap-2">
+                <i class="fas fa-hand-holding-usd"></i> হেলপার হয়ে ইনকাম করুন!
+            </h2>
+            
+            <div class="space-y-6 relative z-10">
+                <div class="bg-white/60 p-4 rounded-2xl">
+                    <h3 class="font-bold text-green-900 text-sm mb-1">কাজটা কী?</h3>
+                    <p class="text-xs text-green-700 leading-relaxed">আপনার এরিয়ার মানুষের হয়ে আপন হাট অ্যাপ থেকে অর্ডার করে দিন। ডেলিভারি আমাদের লোক করে দিবে, আপনি পাবেন প্রতিটি অর্ডারে ২% থেকে ৫% কমিশন!</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-white p-3 rounded-2xl text-center shadow-sm">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase">গড় আয়</p>
+                        <p class="text-lg font-black text-green-600">৳২০০-৳৫০০/দিন</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-2xl text-center shadow-sm">
+                        <p class="text-[10px] text-gray-400 font-bold uppercase">উত্তোলন</p>
+                        <p class="text-lg font-black text-orange-500">বিকাশ / নগদ</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h3 class="font-bold text-slate-800 text-sm border-b border-green-200 pb-1">মেনে চলার নিয়মসমূহ:</h3>
+                    <ul class="text-[11px] text-slate-600 space-y-2">
+                        <li class="flex gap-2"><i class="fas fa-check-circle text-green-500 mt-1"></i> সঠিক নাম ও মোবাইল নম্বর দিয়ে অর্ডার করতে হবে।</li>
+                        <li class="flex gap-2"><i class="fas fa-check-circle text-green-500 mt-1"></i> অর্ডার ডেলিভারি হওয়ার সাথে সাথে কমিশন যোগ হবে।</li>
+                        <li class="flex gap-2"><i class="fas fa-times-circle text-red-400 mt-1"></i> ভুয়া অর্ডার বা ক্যানসেল অর্ডারে কমিশন পাওয়া যাবে না।</li>
+                    </ul>
+                </div>
+
+                <a href="signup.html" class="block w-full bg-green-700 text-white py-4 rounded-2xl font-black text-center shadow-lg hover:bg-green-800 active:scale-95 transition-all">
+                    হেলপার হিসেবে কাজ শুরু করুন
+                </a>
+            </div>
+        </div>
+
+        <!-- সাধারণ অ্যাকশন বাটন -->
         <div class="mt-12 text-center bg-green-50 p-8 rounded-[30px] border-2 border-dashed border-green-200 shadow-inner">
             <h3 class="text-xl font-bold text-green-800 mb-2 italic">অপেক্ষা কিসের?</h3>
             <p class="text-[10px] text-green-600 mb-6 uppercase font-bold tracking-widest">আপনার প্রথম অর্ডারের জন্য আমরা প্রস্তুত!</p>
@@ -102,7 +125,7 @@
 
     <!-- ফুটার -->
     <footer class="mt-10 p-6 text-center text-[10px] text-gray-400">
-        &copy; ২০২৪ আপন হাট | আপনার গ্রামের ডিজিটাল বন্ধু
+        &copy; ২০২৬ আপন হাট | আপনার গ্রামের ডিজিটাল বন্ধু
     </footer>
 
 </body>
