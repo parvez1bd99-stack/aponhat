@@ -11,11 +11,28 @@
         body { font-family: 'Hind Siliguri', sans-serif; background-color: #f3f4f6; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .active-thumb { border-color: #16a34a !important; transform: scale(1.1); }
-        .product-card { transition: all 0.3s ease; }
+        .product-card { transition: all 0.3s ease; border-radius: 35px; }
         .star-active { color: #fbbf24; }
         .star-inactive { color: #e5e7eb; }
         @keyframes cart-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
         .pulse { animation: cart-pulse 0.4s ease-in-out; }
+        
+        /* আয়তাকার ইমেজের জন্য বিশেষ স্টাইল */
+        .img-container {
+            width: 100%;
+            height: 200px; /* আয়তাকার উচ্চতা */
+            overflow: hidden;
+            border-radius: 25px;
+        }
+        .img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .product-card:hover .img-container img {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body class="pb-24">
@@ -110,7 +127,6 @@
         const CACHE_KEY = "aponhat_final_cache_v4";
         const CACHE_TIME = 2 * 60 * 60 * 1000; 
 
-        // ১. লগআউট ফাংশন (Fix: Attached to window for global access)
         window.handleLogout = async () => {
             if(confirm("আপনি কি লগআউট করতে চান?")) {
                 await signOut(auth);
@@ -168,16 +184,39 @@
                 let starsHTML = "";
                 for(let i=1; i<=5; i++) { starsHTML += `<i class="fas fa-star text-[10px] ${i <= Math.round(avgRating) ? 'star-active' : 'star-inactive'}"></i>`; }
 
+                const regularPrice = Number(p.regularPrice) || 0;
+                const sellPrice = Number(p.sellPrice) || 0;
+                let discountBadge = "";
+                let priceHTML = `<p class="text-green-600 font-black text-2xl">৳${sellPrice}</p>`;
+
+                if (regularPrice > sellPrice) {
+                    const percent = Math.round(((regularPrice - sellPrice) / regularPrice) * 100);
+                    discountBadge = `<div class="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg z-10">
+                                        ${percent}% ছাড়
+                                     </div>`;
+                    priceHTML = `
+                        <div class="text-right">
+                            <p class="text-slate-400 text-xs font-bold line-through">৳${regularPrice}</p>
+                            <p class="text-green-600 font-black text-2xl leading-none">৳${sellPrice}</p>
+                        </div>
+                    `;
+                }
+
                 list.innerHTML += `
-                <div class="bg-white rounded-[40px] shadow-sm border border-slate-100 overflow-hidden product-card p-4 transition-all">
-                    <img id="main-img-${p.id}" src="${mainImg}" onclick="openZoom(this.src)" class="w-full h-72 object-cover rounded-[32px] cursor-zoom-in">
-                    <div class="flex gap-2 overflow-x-auto scrollbar-hide mt-3 px-1">
-                        ${imgArr.map((img, idx) => `<img src="${img}" onclick="updatePreview('${p.id}', '${img}', this)" class="thumbnail w-12 h-12 object-cover rounded-xl border-2 border-slate-100 cursor-pointer ${idx===0?'active-thumb':''}">`).join('')}
+                <div class="bg-white shadow-sm border border-slate-100 overflow-hidden product-card p-4 transition-all relative">
+                    ${discountBadge}
+                    <div class="img-container shadow-inner mb-3">
+                        <img id="main-img-${p.id}" src="${mainImg}" onclick="openZoom(this.src)" class="cursor-zoom-in">
                     </div>
-                    <div class="mt-4 px-2">
+                    
+                    <div class="flex gap-2 overflow-x-auto scrollbar-hide mb-4 px-1">
+                        ${imgArr.map((img, idx) => `<img src="${img}" onclick="updatePreview('${p.id}', '${img}', this)" class="thumbnail w-12 h-10 object-cover rounded-xl border-2 border-slate-100 cursor-pointer ${idx===0?'active-thumb':''}">`).join('')}
+                    </div>
+                    
+                    <div class="mt-2 px-2">
                         <div class="flex justify-between items-start">
-                            <div><h3 class="font-bold text-slate-800 text-lg leading-tight">${p.name}</h3><div class="flex items-center gap-1 mt-1">${starsHTML} <span class="text-[10px] text-slate-400 font-bold ml-1">(${avgRating.toFixed(1)})</span></div></div>
-                            <p class="text-green-600 font-black text-2xl">৳${p.sellPrice}</p>
+                            <div><h3 class="font-bold text-slate-800 text-lg leading-tight mb-1">${p.name}</h3><div class="flex items-center gap-1">${starsHTML} <span class="text-[10px] text-slate-400 font-bold ml-1">(${avgRating.toFixed(1)})</span></div></div>
+                            ${priceHTML}
                         </div>
                         <div class="flex gap-2 mt-4">
                             <button onclick="document.getElementById('desc-${p.id}').classList.toggle('hidden'); document.getElementById('rev-box-${p.id}').classList.add('hidden')" class="flex-1 text-[10px] font-bold text-slate-500 bg-slate-100 py-2 rounded-xl border border-slate-200 uppercase transition">বিবরণ</button>
@@ -225,20 +264,39 @@
             document.getElementById('modal-total').innerText = (sub + chg).toLocaleString('bn-BD');
         }
 
+        // হেলপার কমিশন লজিকসহ সাবমিট অর্ডার
         window.submitOrder = async () => {
             const n = document.getElementById('cust-name').value, ph = document.getElementById('cust-phone').value, ad = document.getElementById('cust-address').value;
             if(!n || !ph || (selectedDeliveryMethod === 'home' && !ad)) return alert("সব তথ্য দিন");
             const btn = document.getElementById('submit-order-btn'); btn.disabled = true;
+            
             try {
                 let s = cart.reduce((a, b) => a + (b.price * b.qty), 0);
                 let we = cart.reduce((a, b) => a + (b.weight * b.qty), 0);
                 let c = 0; if(selectedDeliveryMethod === 'home' && deliveryRules.length > 0) { const r = deliveryRules.find(rl => we <= rl.maxW) || deliveryRules[deliveryRules.length - 1]; c = r ? r.charge : 0; }
                 const fi = s + c;
+
+                // বর্তমান ইউজার যদি হেলপার হয় তবে তার তথ্য সংগ্রহ
+                let helperId = null;
+                let helperCommissionRate = 0;
+                if(currentUser) {
+                    const uDoc = await getDoc(doc(db, "users", currentUser.uid));
+                    if(uDoc.exists() && uDoc.data().role === 'helper') {
+                        helperId = currentUser.uid;
+                        helperCommissionRate = uDoc.data().commissionRate || 0;
+                    }
+                }
+
                 await addDoc(collection(db, "orders"), {
                     customerName: n, customerPhone: ph, customerAddress: selectedDeliveryMethod === 'shop' ? "🏪 শপ পিকআপ" : ad,
                     items: cart, totalBill: fi, deliveryCharge: c,
-                    status: 'pending', customerEmail: currentUser ? currentUser.email : "guest", createdAt: new Date()
+                    status: 'pending', customerEmail: currentUser ? currentUser.email : "guest",
+                    helperId: helperId, // হেলপার আইডি
+                    helperCommissionRate: helperCommissionRate, // কমিশনের হার
+                    commissionProcessed: false, // কমিশন কি আগে দেওয়া হয়েছে?
+                    createdAt: new Date()
                 });
+
                 alert("আপনার অর্ডারটি সফল হয়েছে!"); cart = []; updateCartUI(); closeOrderForm(); toggleCart(false);
             } catch(e) { alert("ত্রুটি!"); } btn.disabled = false;
         }
