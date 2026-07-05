@@ -14,7 +14,7 @@
         .benefit-card { transition: transform 0.3s ease; }
         .benefit-card:hover { transform: translateY(-5px); }
     </style>
-</head>
+ head>
 <body class="bg-gray-100 pb-20">
 
     <!-- ওপরের বার -->
@@ -22,7 +22,7 @@
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-xl font-bold italic">আপন হাট</h1>
             <div class="flex gap-4 items-center">
-                <a href="index.html" class="text-xs bg-white text-green-600 px-3 py-1 rounded-full font-bold">দোকানে যান</a>
+                <a href="index.html" class="text-xs bg-white text-green-600 px-3 py-1 rounded-full font-bold shadow-sm">দোকানে যান</a>
                 <button id="logout-btn" class="text-xs border px-2 py-1 rounded hover:bg-green-700 font-bold">লগআউট</button>
             </div>
         </div>
@@ -43,59 +43,51 @@
             </div>
             <div class="p-4 flex justify-around text-center bg-green-50">
                 <div>
-                    <p class="text-[10px] text-gray-500 font-bold uppercase">মোট অর্ডার</p>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">মোট অর্ডার</p>
                     <p id="total-orders-count" class="text-xl font-black text-green-700">0</p>
                 </div>
                 <div class="border-l border-r px-8">
-                    <p class="text-[10px] text-gray-500 font-bold uppercase">সদস্য পদ</p>
-                    <p class="text-sm font-bold text-orange-600">নিয়মিত কাস্টমার</p>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">সদস্য পদ</p>
+                    <p id="user-role-badge" class="text-sm font-bold text-orange-600 uppercase">সম্মানিত কাস্টমার</p>
                 </div>
             </div>
         </div>
 
-        <!-- বেনিফিট সেকশন (নতুন যুক্ত করা হয়েছে) -->
+        <!-- রোল ভিত্তিক স্পেশাল এক্সেস বাটন -->
+        <div id="special-access-area" class="mb-6 hidden">
+            <!-- JavaScript এর মাধ্যমে এখানে বাটন বসবে -->
+        </div>
+
+        <!-- বেনিফিট সেকশন -->
         <div class="mb-8">
             <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2 text-lg">
                 <i class="fas fa-gift text-orange-500"></i> কেন আপন হাট আপনার সেরা সঙ্গী?
             </h3>
             <div class="grid grid-cols-2 gap-3">
-                <!-- সুবিধা ১ -->
                 <div class="benefit-card bg-white p-4 rounded-2xl shadow-sm border-b-4 border-orange-500 text-center">
-                    <div class="bg-orange-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <i class="fas fa-sun text-orange-600"></i>
+                    <div class="bg-orange-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 text-orange-600">
+                        <i class="fas fa-sun"></i>
                     </div>
-                    <h4 class="text-[11px] font-bold text-gray-800">রোদ-বৃষ্টির ঝামেলা শেষ</h4>
-                    <p class="text-[9px] text-gray-500 mt-1 leading-tight">বাজারে যাওয়ার কষ্ট নেই, ঘরে বসেই সব অর্ডার করুন।</p>
+                    <h4 class="text-[11px] font-bold text-gray-800 leading-tight">রোদ-বৃষ্টির ঝামেলা শেষ</h4>
                 </div>
-                <!-- সুবিধা ২ -->
                 <div class="benefit-card bg-white p-4 rounded-2xl shadow-sm border-b-4 border-blue-500 text-center">
-                    <div class="bg-blue-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <i class="fas fa-motorcycle text-blue-600"></i>
+                    <div class="bg-blue-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 text-blue-600">
+                        <i class="fas fa-motorcycle"></i>
                     </div>
-                    <h4 class="text-[11px] font-bold text-gray-800">সময় ও ভাড়া সাশ্রয়</h4>
-                    <p class="text-[9px] text-gray-500 mt-1 leading-tight">আপনার মূল্যবান সময় বাঁচবে এবং রিকশা ভাড়ার প্রয়োজন নেই।</p>
+                    <h4 class="text-[11px] font-bold text-gray-800 leading-tight">সময় ও ভাড়া সাশ্রয়</h4>
                 </div>
-                <!-- সুবিধা ৩ -->
                 <div class="benefit-card bg-white p-4 rounded-2xl shadow-sm border-b-4 border-green-500 text-center">
-                    <div class="bg-green-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <i class="fas fa-balance-scale text-green-600"></i>
+                    <div class="bg-green-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 text-green-600">
+                        <i class="fas fa-balance-scale"></i>
                     </div>
-                    <h4 class="text-[11px] font-bold text-gray-800">সঠিক ওজন ও ফ্রেশ পণ্য</h4>
-                    <p class="text-[9px] text-gray-500 mt-1 leading-tight">ডিজিটাল স্কেলে সঠিক মাপে একদম টাটকা পণ্য আমরা দিচ্ছি।</p>
+                    <h4 class="text-[11px] font-bold text-gray-800 leading-tight">সঠিক ওজন ও মাপ</h4>
                 </div>
-                <!-- সুবিধা ৪ -->
                 <div class="benefit-card bg-white p-4 rounded-2xl shadow-sm border-b-4 border-purple-500 text-center">
-                    <div class="bg-purple-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <i class="fas fa-hand-holding-heart text-purple-600"></i>
+                    <div class="bg-purple-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 text-purple-600">
+                        <i class="fas fa-hand-holding-heart"></i>
                     </div>
-                    <h4 class="text-[11px] font-bold text-gray-800">গ্রামের অর্থনীতিতে অবদান</h4>
-                    <p class="text-[9px] text-gray-500 mt-1 leading-tight">আপনি যখন আপন হাট থেকে কেনেন, উন্নতি হয় আপনার গ্রামেরই।</p>
+                    <h4 class="text-[11px] font-bold text-gray-800 leading-tight">গ্রামের উন্নতিতে অবদান</h4>
                 </div>
-            </div>
-            <div class="mt-4 text-center">
-                <a href="benefits.html" class="text-xs font-bold text-green-700 bg-green-50 px-4 py-2 rounded-full border border-green-100">
-                    আমাদের সব সুবিধা বিস্তারিত দেখুন <i class="fas fa-arrow-right ml-1"></i>
-                </a>
             </div>
         </div>
 
@@ -107,7 +99,7 @@
         <div id="order-list-area" class="space-y-4">
             <div class="text-center py-10">
                 <div class="animate-spin text-green-600 text-3xl mb-2"><i class="fas fa-spinner"></i></div>
-                <p class="text-gray-400">অর্ডার চেক করা হচ্ছে...</p>
+                <p class="text-gray-400 italic">অর্ডার চেক করা হচ্ছে...</p>
             </div>
         </div>
     </div>
@@ -146,13 +138,61 @@
                 document.getElementById('user-display-email').innerText = user.email;
                 try {
                     const userDoc = await getDoc(doc(db, "users", user.uid));
-                    document.getElementById('user-display-name').innerText = userDoc.exists() ? userDoc.data().name : "সম্মানিত কাস্টমার";
+                    if(userDoc.exists()) {
+                        const userData = userDoc.data();
+                        document.getElementById('user-display-name').innerText = userData.name;
+                        document.getElementById('user-role-badge').innerText = 
+                            (userData.role === 'helper') ? "এজেন্ট / হেলপার" : 
+                            (userData.role === 'wholesaler') ? "পাইকারি দোকানদার" : 
+                            (userData.role === 'owner') ? "মালিক" : "সম্মানিত কাস্টমার";
+                        
+                        // স্পেশাল এক্সেস বাটন হ্যান্ডেল করা
+                        handleSpecialAccess(userData.role);
+                    } else {
+                        document.getElementById('user-display-name').innerText = "সম্মানিত কাস্টমার";
+                    }
                 } catch (e) { document.getElementById('user-display-name').innerText = "সম্মানিত কাস্টমার"; }
                 loadCustomerOrders(user.email);
             } else {
                 window.location.href = "login.html";
             }
         });
+
+        // স্পেশাল এক্সেস বাটন লজিক (সব ইউজার রোলের জন্য)
+        function handleSpecialAccess(role) {
+            const area = document.getElementById('special-access-area');
+            if(!role || role === 'customer') return;
+
+            area.classList.remove('hidden');
+            let link = "", text = "", icon = "", color = "";
+
+            if(role === 'owner') {
+                link = "owner-dashboard.html"; text = "মালিক প্যানেল"; icon = "fa-user-shield"; color = "bg-indigo-600 shadow-indigo-100";
+            } else if(role === 'wholesaler') {
+                link = "wholsale.html"; text = "পাইকারি বাজার"; icon = "fa-store-alt"; color = "bg-blue-600 shadow-blue-100";
+            } else if(role === 'helper') {
+                link = "helper-dashboard.html"; text = "হেলপার ড্যাশবোর্ড"; icon = "fa-handshake"; color = "bg-green-700 shadow-green-100";
+            } else if(role === 'delivery') {
+                link = "delivery-man.html"; text = "ডেলিভারি প্যানেল"; icon = "fa-truck"; color = "bg-orange-600 shadow-orange-100";
+            } else if(role === 'assistant') {
+                link = "assistant-dashboard.html"; text = "সহকারী প্যানেল"; icon = "fa-user-cog"; color = "bg-slate-700 shadow-slate-100";
+            }
+
+            area.innerHTML = `
+                <a href="${link}" class="w-full ${color} text-white p-4 rounded-2xl flex items-center justify-between shadow-lg active:scale-95 transition-all">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-white/20 p-2 rounded-xl text-xl w-10 h-10 flex items-center justify-center">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] uppercase font-bold opacity-80 tracking-widest">আপনার এক্সেস</p>
+                            <h4 class="font-bold text-lg leading-tight tracking-tight">${text}</h4>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-right opacity-50"></i>
+                </a>
+            `;
+        }
 
         function loadCustomerOrders(email) {
             const q = query(collection(db, "orders"), where("customerEmail", "==", email));
@@ -163,7 +203,7 @@
                 area.innerHTML = "";
 
                 if (snapshot.empty) {
-                    area.innerHTML = `<div class="text-center py-10 bg-white rounded-2xl shadow-sm border"><p class="text-gray-400 italic">আপনি এখনো কোনো অর্ডার করেননি।</p></div>`;
+                    area.innerHTML = `<div class="text-center py-10 bg-white rounded-2xl shadow-sm border border-dashed"><p class="text-gray-400 italic font-bold">আপনি এখনো কোনো অর্ডার করেননি।</p></div>`;
                     return;
                 }
 
@@ -181,11 +221,9 @@
                     const card = document.createElement('div');
                     card.className = "bg-white p-5 rounded-2xl shadow-sm border border-gray-100";
                     card.innerHTML = `
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-[10px] text-gray-400 font-bold uppercase">
-                                তারিখ: ${order.createdAt?.toDate().toLocaleDateString('bn-BD') || 'N/A'}
-                            </span>
-                            <span class="${sColor} text-[10px] px-3 py-1 rounded-full font-bold flex items-center gap-1">
+                        <div class="flex justify-between items-center mb-3 text-[10px] font-bold">
+                            <span class="text-gray-400 uppercase">তারিখ: ${order.createdAt?.toDate().toLocaleDateString('bn-BD') || 'N/A'}</span>
+                            <span class="${sColor} px-3 py-1 rounded-full flex items-center gap-1">
                                 <i class="fas ${sIcon}"></i> ${sText}
                             </span>
                         </div>
@@ -193,9 +231,9 @@
                             <div class="space-y-2">
                                 ${order.items.map(item => `
                                     <div class="flex justify-between items-center">
-                                        <p class="text-sm font-bold text-gray-800">${item.name}</p>
+                                        <p class="text-sm font-bold text-gray-800 leading-tight">${item.name}</p>
                                         ${status === 'delivered' ? 
-                                          `<button onclick="openReviewModal('${item.name}')" class="text-[10px] text-orange-500 bg-orange-50 px-2 py-1 rounded-lg border border-orange-200 font-bold">রিভিউ দিন</button>` : 
+                                          `<button onclick="openReviewModal('${item.name}')" class="text-[9px] text-orange-500 bg-orange-50 px-2 py-1 rounded-lg border border-orange-200 font-bold uppercase tracking-tighter">রিভিউ দিন</button>` : 
                                           `<p class="text-xs text-gray-400">৳${item.price}</p>`
                                         }
                                     </div>
@@ -204,10 +242,10 @@
                         </div>
                         <div class="flex justify-between items-center">
                             <div>
-                                <p class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">মোট বিল</p>
+                                <p class="text-[9px] text-gray-400 uppercase font-black tracking-widest">মোট বিল</p>
                                 <p class="text-xl font-black text-green-700">৳${order.totalBill}</p>
                             </div>
-                            <p class="text-[10px] text-gray-400 italic">ID: ${orderDoc.id.substring(0,8)}</p>
+                            <p class="text-[9px] text-gray-300 font-bold italic">ID: #${orderDoc.id.substring(0,8).toUpperCase()}</p>
                         </div>
                     `;
                     area.appendChild(card);
