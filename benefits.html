@@ -3,129 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>কেন আপন হাট? - সুবিধা ও ইনকাম গাইড</title>
+    <title>সুবিধা ও ইনকাম গাইড - আপন হাট</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
-        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f8fafc; }
-        .helper-card { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); }
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f1f5f9; }
+        .hero-gradient { background: linear-gradient(135deg, #166534 0%, #15803d 100%); }
+        .step-number { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #16a34a; color: white; font-weight: bold; flex-shrink: 0; }
+        .card-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); }
     </style>
 </head>
 <body class="pb-10">
 
-    <!-- ওপরের বার -->
+    <!-- নেভিগেশন বার -->
     <nav class="bg-green-600 p-4 text-white sticky top-0 z-50 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold italic">আপন হাট</h1>
-            <a href="index.html" class="bg-white text-green-600 px-4 py-1 rounded-full font-bold text-xs shadow-sm">বাজার করতে যান</a>
+        <div class="container mx-auto flex justify-between items-center px-2">
+            <h1 class="text-xl font-black italic tracking-tighter">আপন হাট</h1>
+            <a href="index.html" class="bg-white text-green-700 px-5 py-1.5 rounded-full font-bold text-xs shadow-sm active:scale-95 transition">বাজার করতে যান</a>
         </div>
     </nav>
 
     <!-- হিরো সেকশন -->
-    <div class="bg-green-700 text-white p-10 text-center rounded-b-[40px] shadow-lg">
-        <div class="bg-white/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-white/30">
-            <i class="fas fa-hand-holding-heart text-4xl"></i>
+    <div class="hero-gradient text-white py-14 px-6 text-center rounded-b-[50px] shadow-2xl relative overflow-hidden">
+        <div class="relative z-10">
+            <div class="bg-white/20 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-5 border-2 border-white/30">
+                <i class="fas fa-hand-holding-heart text-5xl animate-pulse"></i>
+            </div>
+            <h2 class="text-3xl font-black mb-2">সহজ বাজার, সুন্দর গ্রাম</h2>
+            <p class="text-sm opacity-90 font-medium italic">আপনার এলাকার বিশ্বস্ত ডিজিটাল শপ</p>
         </div>
-        <h2 class="text-3xl font-bold mb-2">সহজ বাজার, সুন্দর গ্রাম</h2>
-        <p class="text-sm opacity-90 italic">আপনার পরিবারের সেরা সঙ্গী - আপন হাট</p>
     </div>
 
-    <div class="container mx-auto p-6 max-w-lg">
+    <div class="container mx-auto px-4 -mt-12 max-w-lg relative z-20">
         
         <!-- সেকশন ১: কাস্টমারদের জন্য সুবিধা -->
-        <div class="mb-16">
-            <h2 class="text-2xl font-bold text-center text-green-800 mb-8 border-b-2 border-green-100 pb-2">কেন আপনি আপন হাট থেকে কিনবেন?</h2>
+        <div class="bg-white p-6 rounded-[40px] card-shadow border border-gray-100 mb-8">
+            <h2 class="text-xl font-black text-center text-green-800 mb-8 flex items-center justify-center gap-2">
+                <i class="fas fa-shopping-cart text-green-600"></i> কেন আপনি এখান থেকে কিনবেন?
+            </h2>
 
-            <div class="space-y-6">
-                <!-- সুবিধা ১-৫ (আপনার আগের কোড) -->
-                <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-orange-500 flex items-start gap-4">
-                    <div class="bg-orange-100 p-3 rounded-full text-orange-600 text-xl"><i class="fas fa-sun"></i></div>
+            <div class="space-y-5">
+                <div class="flex items-start gap-4 p-4 rounded-3xl bg-orange-50/50 border border-orange-100">
+                    <i class="fas fa-sun text-orange-500 text-2xl mt-1"></i>
                     <div>
-                        <h3 class="font-bold text-gray-800">রোদে পুড়তে হবে না</h3>
-                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">বাজারে যাওয়ার জন্য কড়া রোদ বা বৃষ্টিতে ভিজে কষ্ট করার দিন শেষ। এখন সব হবে এক ক্লিকে ঘরে বসেই।</p>
+                        <h3 class="font-bold text-slate-800 text-sm">রোদ-বৃষ্টির ঝামেলা শেষ</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">বাজারে যাওয়ার জন্য কড়া রোদ বা বৃষ্টিতে কষ্ট করার দিন শেষ। সব হবে এক ক্লিকে ঘরে বসেই।</p>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-blue-500 flex items-start gap-4">
-                    <div class="bg-blue-100 p-3 rounded-full text-blue-600 text-xl"><i class="fas fa-motorcycle"></i></div>
+                <div class="flex items-start gap-4 p-4 rounded-3xl bg-blue-50/50 border border-blue-100">
+                    <i class="fas fa-motorcycle text-blue-600 text-2xl mt-1"></i>
                     <div>
-                        <h3 class="font-bold text-gray-800">সময় ও ভাড়া সাশ্রয়</h3>
-                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">বাজারে যাওয়ার রিকশা বা ভ্যান ভাড়ার প্রয়োজন নেই। আমরাই পৌঁছে দেব মালামাল।</p>
+                        <h3 class="font-bold text-slate-800 text-sm">সময় ও ভাড়া সাশ্রয়</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">রিকশা বা ভ্যান ভাড়ার খরচ বাঁচিয়ে আমরাই আপনার বাড়ির দরজায় পণ্য পৌঁছে দেব।</p>
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-green-500 flex items-start gap-4">
-                    <div class="bg-green-100 p-3 rounded-full text-green-600 text-xl"><i class="fas fa-weight"></i></div>
+                <div class="flex items-start gap-4 p-4 rounded-3xl bg-green-50/50 border border-green-100">
+                    <i class="fas fa-balance-scale text-green-600 text-2xl mt-1"></i>
                     <div>
-                        <h3 class="font-bold text-gray-800">সঠিক ওজনে সেরা মান</h3>
-                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">ডিজিটাল স্কেলে মেপে একদম ফ্রেশ ও সঠিক ওজনের পণ্য সরবরাহ নিশ্চিত করি।</p>
-                    </div>
-                </div>
-
-                <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-purple-500 flex items-start gap-4">
-                    <div class="bg-purple-100 p-3 rounded-full text-purple-600 text-xl"><i class="fas fa-wallet"></i></div>
-                    <div>
-                        <h3 class="font-bold text-gray-800">নিরাপদ পেমেন্ট সুবিধা</h3>
-                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">পণ্য হাতে পেয়ে তারপর টাকা পরিশোধ করার ক্যাশ-অন-ডেলিভারি সুবিধা।</p>
+                        <h3 class="font-bold text-slate-800 text-sm">সঠিক ওজন ও ফ্রেশ মাল</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5 leading-relaxed">ডিজিটাল স্কেলে মেপে একদম ফ্রেশ ও সেরা মানের পণ্য আমরা সরাসরি সরবরাহ করি।</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- সেকশন ২: হেলপার গাইড (নতুন যুক্ত করা হয়েছে) -->
-        <div class="mb-10 p-8 rounded-[40px] shadow-xl border-2 border-green-200 relative overflow-hidden helper-card">
-            <div class="absolute -right-6 -top-6 text-green-100 text-9xl -rotate-12"><i class="fas fa-coins"></i></div>
+        <!-- সেকশন ২: হেলপার ইনকাম গাইড -->
+        <div class="bg-white p-8 rounded-[40px] card-shadow border-t-8 border-green-600 relative overflow-hidden mb-10">
+            <div class="absolute -right-10 -bottom-10 text-green-50 text-[180px] -rotate-12">
+                <i class="fas fa-coins"></i>
+            </div>
             
-            <h2 class="text-2xl font-black text-green-800 mb-6 relative z-10 flex items-center gap-2">
-                <i class="fas fa-hand-holding-usd"></i> হেলপার হয়ে ইনকাম করুন!
-            </h2>
-            
-            <div class="space-y-6 relative z-10">
-                <div class="bg-white/60 p-4 rounded-2xl">
-                    <h3 class="font-bold text-green-900 text-sm mb-1">কাজটা কী?</h3>
-                    <p class="text-xs text-green-700 leading-relaxed">আপনার এরিয়ার মানুষের হয়ে আপন হাট অ্যাপ থেকে অর্ডার করে দিন। ডেলিভারি আমাদের লোক করে দিবে, আপনি পাবেন প্রতিটি অর্ডারে ২% থেকে ৫% কমিশন!</p>
+            <div class="relative z-10">
+                <div class="text-center mb-8">
+                    <span class="bg-green-100 text-green-700 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest">এরিয়া হেলপার প্রোগ্রাম</span>
+                    <h2 class="text-2xl font-black text-slate-800 mt-3">অল্প পরিশ্রমে নিশ্চিত ইনকাম!</h2>
+                </div>
+                
+                <!-- কাজটা কী? -->
+                <div class="bg-gradient-to-br from-green-50 to-white p-5 rounded-3xl border-2 border-dashed border-green-200 mb-6">
+                    <h3 class="font-bold text-green-900 text-sm mb-2 flex items-center gap-2">
+                        <i class="fas fa-question-circle"></i> হেলপার হিসেবে আপনার কাজ কী?
+                    </h3>
+                    <p class="text-[12px] text-green-700 leading-relaxed font-medium">
+                        আপনার পাড়া বা গ্রামের মানুষের প্রয়োজনীয় বাজারের লিস্ট নিয়ে অ্যাপ থেকে অর্ডার করে দিবেন। <span class="text-red-600 font-bold">ডেলিভারি করবে আমাদের ডেলিভারি ম্যান (আপনাকে মালামাল বইতে হবে না)।</span> প্রতি অর্ডারে আপনি পাবেন আকর্ষণীয় কমিশন!
+                    </p>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-white p-3 rounded-2xl text-center shadow-sm">
-                        <p class="text-[10px] text-gray-400 font-bold uppercase">গড় আয়</p>
-                        <p class="text-lg font-black text-green-600">৳২০০-৳৫০০/দিন</p>
+                <!-- ইনকাম ক্যালকুলেটর -->
+                <div class="bg-slate-800 p-6 rounded-[35px] text-white shadow-xl mb-8">
+                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-widest text-center mb-1">সম্ভাব্য ইনকাম</p>
+                    <h4 class="text-3xl font-black text-center text-yellow-400">৳২০০ - ৳৫০০ <span class="text-sm font-normal text-white">প্রতিদিন</span></h4>
+                    <p class="text-[9px] text-center text-slate-400 mt-2 italic">আপনার এরিয়ার মানুষের বাজার যত বেশি হবে, ইনকামও তত বাড়বে!</p>
+                </div>
+
+                <!-- ধাপসমূহ -->
+                <div class="space-y-4 mb-8">
+                    <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2 mb-4">
+                        <i class="fas fa-list-check text-green-600"></i> শুরু করার ৩টি ধাপ:
+                    </h3>
+                    <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <span class="step-number">১</span>
+                        <p class="text-[12px] font-bold text-slate-600">একাউন্ট খুলে মালিকের থেকে এরিয়া হেলপার হিসেবে পারমিশন নিন।</p>
                     </div>
-                    <div class="bg-white p-3 rounded-2xl text-center shadow-sm">
-                        <p class="text-[10px] text-gray-400 font-bold uppercase">উত্তোলন</p>
-                        <p class="text-lg font-black text-orange-500">বিকাশ / নগদ</p>
+                    <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <span class="step-number">২</span>
+                        <p class="text-[12px] font-bold text-slate-600">সবার কাছ থেকে ফর্দ বা বাজারের লিস্ট নিয়ে অর্ডার করে দিন।</p>
+                    </div>
+                    <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <span class="step-number">৩</span>
+                        <p class="text-[12px] font-bold text-slate-600">অর্ডার ডেলিভারি হলে কমিশন বুঝে নিন এবং বিকাশ/নগদে উত্তোলন করুন।</p>
                     </div>
                 </div>
 
-                <div class="space-y-3">
-                    <h3 class="font-bold text-slate-800 text-sm border-b border-green-200 pb-1">মেনে চলার নিয়মসমূহ:</h3>
-                    <ul class="text-[11px] text-slate-600 space-y-2">
-                        <li class="flex gap-2"><i class="fas fa-check-circle text-green-500 mt-1"></i> সঠিক নাম ও মোবাইল নম্বর দিয়ে অর্ডার করতে হবে।</li>
-                        <li class="flex gap-2"><i class="fas fa-check-circle text-green-500 mt-1"></i> অর্ডার ডেলিভারি হওয়ার সাথে সাথে কমিশন যোগ হবে।</li>
-                        <li class="flex gap-2"><i class="fas fa-times-circle text-red-400 mt-1"></i> ভুয়া অর্ডার বা ক্যানসেল অর্ডারে কমিশন পাওয়া যাবে না।</li>
-                    </ul>
-                </div>
-
-                <a href="signup.html" class="block w-full bg-green-700 text-white py-4 rounded-2xl font-black text-center shadow-lg hover:bg-green-800 active:scale-95 transition-all">
-                    হেলপার হিসেবে কাজ শুরু করুন
+                <a href="signup.html" class="block w-full bg-green-600 text-white py-5 rounded-[25px] font-black text-center shadow-xl shadow-green-100 hover:bg-green-700 active:scale-95 transition-all text-lg">
+                    আজই রেজিস্ট্রেশন করুন
                 </a>
             </div>
         </div>
 
-        <!-- সাধারণ অ্যাকশন বাটন -->
-        <div class="mt-12 text-center bg-green-50 p-8 rounded-[30px] border-2 border-dashed border-green-200 shadow-inner">
-            <h3 class="text-xl font-bold text-green-800 mb-2 italic">অপেক্ষা কিসের?</h3>
-            <p class="text-[10px] text-green-600 mb-6 uppercase font-bold tracking-widest">আপনার প্রথম অর্ডারের জন্য আমরা প্রস্তুত!</p>
-            <a href="index.html" class="bg-green-600 text-white px-10 py-4 rounded-full font-bold shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all">
-                <i class="fas fa-shopping-cart"></i> বাজার করতে ক্লিক করুন
-            </a>
+        <!-- সাপোর্ট -->
+        <div class="bg-white p-6 rounded-3xl card-shadow border border-slate-100 text-center mb-10">
+            <p class="text-xs font-bold text-slate-500 mb-2">সরাসরি কথা বলতে কল করুন:</p>
+            <a href="tel:01407281473" class="text-xl font-black text-green-700"><i class="fas fa-phone-volume mr-2"></i>01407281473</a>
         </div>
     </div>
 
     <!-- ফুটার -->
-    <footer class="mt-10 p-6 text-center text-[10px] text-gray-400">
-        &copy; ২০২৬ আপন হাট | আপনার গ্রামের ডিজিটাল বন্ধু
+    <footer class="p-8 text-center border-t border-slate-200">
+        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">© ২০২৬ আপন হাট | আপনার গ্রামের ডিজিটাল বন্ধু</p>
     </footer>
 
 </body>
