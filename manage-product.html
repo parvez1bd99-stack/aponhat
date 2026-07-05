@@ -16,7 +16,7 @@
     <!-- নেভিগেশন বার -->
     <nav class="bg-green-700 p-4 text-white shadow-md sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="font-bold text-lg italic">পণ্য ব্যবস্থাপনা</h1>
+            <h1 class="font-bold text-lg italic text-white">পণ্য ব্যবস্থাপনা</h1>
             <a href="owner-dashboard.html" class="text-xs bg-white text-green-700 px-3 py-1 rounded-full font-bold shadow-sm">ড্যাশবোর্ড</a>
         </div>
     </nav>
@@ -44,13 +44,26 @@
             <form id="edit-form" class="space-y-4">
                 <input type="hidden" id="edit-p-id">
                 
-                <!-- নাম -->
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase ml-1">পণ্যের নাম</label>
-                    <input type="text" id="edit-p-name" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500" required>
+                <!-- নাম ও ক্যাটাগরি -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">পণ্যের নাম</label>
+                        <input type="text" id="edit-p-name" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500" required>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">ক্যাটাগরি</label>
+                        <input list="edit-category-list" id="edit-p-category" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500" required>
+                        <datalist id="edit-category-list">
+                            <option value="মুদি">
+                            <option value="ইলেক্ট্রিক">
+                            <option value="কসমেটিকস">
+                            <option value="মসলা">
+                            <option value="ডাল ও চাল">
+                        </datalist>
+                    </div>
                 </div>
 
-                <!-- মূল্য -->
+                <!-- মূল্য ও ডিসকাউন্ট -->
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="text-xs font-bold text-red-500 uppercase ml-1">ক্রয় মূল্য (৳)</label>
@@ -62,19 +75,24 @@
                     </div>
                 </div>
 
-                <!-- ওজন ও স্টক -->
                 <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-orange-500 uppercase ml-1">পুরানো মূল্য/MRP (৳)</label>
+                        <input type="number" id="edit-p-regular" placeholder="০ লিখুন যদি ছাড় না থাকে" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
                     <div>
                         <label class="text-xs font-bold text-blue-600 uppercase ml-1">ওজন (গ্রাম)</label>
                         <input type="number" id="edit-p-weight" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">স্টক পরিমাণ</label>
-                        <input type="number" id="edit-p-stock" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500" required>
-                    </div>
                 </div>
 
-                <!-- বিবরণ (নতুন যুক্ত করা হয়েছে) -->
+                <!-- স্টক -->
+                <div>
+                    <label class="text-xs font-bold text-gray-500 uppercase ml-1">স্টক পরিমাণ</label>
+                    <input type="number" id="edit-p-stock" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500" required>
+                </div>
+
+                <!-- বিবরণ -->
                 <div>
                     <label class="text-xs font-bold text-gray-500 uppercase ml-1">পণ্যের বিবরণ</label>
                     <textarea id="edit-p-desc" rows="3" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500" placeholder="পণ্যের বিস্তারিত বিবরণ লিখুন..."></textarea>
@@ -119,8 +137,9 @@
                     <div class="flex-1">
                         <h3 class="font-bold text-gray-800 leading-tight">${p.name}</h3>
                         <p class="text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-tighter">
-                            ওজন: ${p.weight || 0}g | স্টক: ${p.stock} | ৳${p.sellPrice}
+                            ${p.category} | ওজন: ${p.weight || 0}g | স্টক: ${p.stock}
                         </p>
+                        <p class="text-[10px] font-bold text-green-600">৳${p.sellPrice} ${p.regularPrice > p.sellPrice ? `<span class="text-slate-300 line-through ml-1">৳${p.regularPrice}</span>` : ''}</p>
                         <div class="flex gap-2 mt-2">
                             <button onclick="openEditModal('${id}')" class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-[10px] font-bold border border-blue-100 hover:bg-blue-500 hover:text-white transition">এডিট</button>
                             <button onclick="deleteProduct('${id}')" class="bg-red-50 text-red-500 px-3 py-1 rounded-lg text-[10px] font-bold border border-red-100 hover:bg-red-500 hover:text-white transition">ডিলিট</button>
@@ -131,7 +150,7 @@
             });
         });
 
-        // ২. ইমেজ ফিল্ড বাড়ানোর ফাংশন
+        // ২. ইমেজ ফিল্ড বাড়ানো
         window.addEditImageField = (val = "") => {
             const container = document.getElementById('edit-image-inputs-container');
             const div = document.createElement('div');
@@ -151,11 +170,13 @@
 
             document.getElementById('edit-p-id').value = id;
             document.getElementById('edit-p-name').value = p.name;
+            document.getElementById('edit-p-category').value = p.category || ""; // ক্যাটাগরি লোড
             document.getElementById('edit-p-buy').value = p.buyPrice;
             document.getElementById('edit-p-sell').value = p.sellPrice;
+            document.getElementById('edit-p-regular').value = p.regularPrice || 0; // পুরানো মূল্য লোড
             document.getElementById('edit-p-weight').value = p.weight || 0;
             document.getElementById('edit-p-stock').value = p.stock;
-            document.getElementById('edit-p-desc').value = p.description || ""; // বিবরণ লোড
+            document.getElementById('edit-p-desc').value = p.description || "";
 
             const imgContainer = document.getElementById('edit-image-inputs-container');
             imgContainer.innerHTML = '<label class="block text-xs font-bold text-blue-600 uppercase ml-1 mb-2">ছবির লিংক সমূহ (Image URLs)</label>';
@@ -187,11 +208,13 @@
             try {
                 await updateDoc(doc(db, "products", id), {
                     name: document.getElementById('edit-p-name').value,
+                    category: document.getElementById('edit-p-category').value, // ক্যাটাগরি আপডেট
                     buyPrice: Number(document.getElementById('edit-p-buy').value),
                     sellPrice: Number(document.getElementById('edit-p-sell').value),
+                    regularPrice: Number(document.getElementById('edit-p-regular').value), // পুরানো মূল্য আপডেট
                     weight: Number(document.getElementById('edit-p-weight').value),
                     stock: Number(document.getElementById('edit-p-stock').value),
-                    description: document.getElementById('edit-p-desc').value.trim(), // বিবরণ আপডেট
+                    description: document.getElementById('edit-p-desc').value.trim(),
                     image: imageUrls
                 });
                 alert("সফলভাবে আপডেট হয়েছে!");
