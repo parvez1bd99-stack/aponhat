@@ -6,84 +6,187 @@
     <title>ডেলিভারি প্যানেল - আপন হাট</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f1f5f9; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
 </head>
-<body class="bg-gray-100 pb-20">
+<body class="pb-24">
 
+    <!-- নেভিগেশন বার -->
     <nav class="bg-blue-700 p-4 text-white shadow-md sticky top-0 z-50">
-        <h1 class="text-center font-bold">ডেলিভারি প্যানেল</h1>
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="font-bold"><i class="fas fa-truck mr-2"></i>ডেলিভারি প্যানেল</h1>
+            <button onclick="location.reload()" class="text-xs bg-blue-800 px-3 py-1 rounded-full"><i class="fas fa-sync"></i> রিফ্রেশ</button>
+        </div>
     </nav>
 
-    <div class="container mx-auto p-4">
-        <!-- আজকের ক্যাশ হিসাব কার্ড -->
-        <div class="bg-white p-5 rounded-2xl shadow-md border-b-8 border-blue-700 mb-6 text-center">
-            <p class="text-gray-500 font-bold text-xs uppercase">আজকের মোট ক্যাশ সংগ্রহ</p>
-            <h2 class="text-3xl font-extrabold text-blue-800 my-1">৳ <span id="today-cash">0</span></h2>
-            <p class="text-[10px] text-gray-400">অর্ডার ডেলিভারি সম্পন্ন হওয়ার পর এটি আপডেট হবে</p>
+    <div class="container mx-auto p-4 max-w-lg">
+        
+        <!-- ১. তারিখ অনুযায়ী কালেকশন ক্যালকুলেটর -->
+        <div class="bg-white p-6 rounded-[35px] shadow-xl border-b-8 border-blue-700 mb-8 text-center relative overflow-hidden">
+            <div class="flex flex-col items-center gap-3">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">তারিখ অনুযায়ী কালেকশন দেখুন:</label>
+                <input type="date" id="filter-date" class="p-2 border rounded-xl outline-none text-blue-700 font-bold text-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 mb-2">
+            </div>
+            
+            <p id="date-label" class="text-[11px] text-blue-400 font-bold mt-2">আজকের কালেকশন:</p>
+            <h2 class="text-4xl font-black text-blue-800 my-1">৳ <span id="selected-date-cash">0</span></h2>
+            <p class="text-[9px] text-gray-400 italic">মালিককে এই হিসাব বুঝিয়ে দিন</p>
         </div>
 
-        <h3 class="font-bold text-gray-700 mb-3 ml-1"><i class="fas fa-truck-loading mr-2"></i>ডেলিভারি করার তালিকা</h3>
-        
-        <!-- ডেলিভারি লিস্ট -->
-        <div id="delivery-list" class="space-y-4 text-sm">
-            <p class="text-center py-10 text-gray-400">অপেক্ষা করুন...</p>
+        <!-- ২. ট্যাব সুইচ (চলতি অর্ডার বনাম কমপ্লিট অর্ডার) -->
+        <div class="flex gap-2 mb-6 bg-slate-200 p-1 rounded-2xl border">
+            <button id="btn-pending" onclick="switchTab('pending')" class="flex-1 py-3 rounded-xl font-bold text-xs bg-white text-blue-700 shadow-sm transition-all">🚚 চলতি ডেলিভারি</button>
+            <button id="btn-history" onclick="switchTab('history')" class="flex-1 py-3 rounded-xl font-bold text-xs text-slate-500 transition-all">📜 কালেকশন হিস্ট্রি</button>
+        </div>
+
+        <!-- অর্ডার লিস্ট এরিয়া -->
+        <div id="display-area" class="space-y-6">
+            <p class="text-center py-20 text-slate-400 italic font-bold">লোড হচ্ছে...</p>
         </div>
     </div>
 
     <script type="module">
         import { db } from "./firebase-config.js";
-        import { collection, onSnapshot, query, where, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { collection, onSnapshot, query, where, updateDoc, doc, arrayUnion, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // ১. শিপিং এ থাকা অর্ডারগুলো রিয়েল-টাইমে দেখা
-        onSnapshot(query(collection(db, "orders"), where("status", "==", "shipping")), snap => {
-            const list = document.getElementById('delivery-list');
-            list.innerHTML = snap.empty ? "<p class='text-center py-10 bg-white rounded-xl shadow-sm'>সব মাল ডেলিভারি শেষ!</p>" : "";
-            
-            snap.forEach(d => {
-                const o = d.data();
-                const card = document.createElement('div');
-                card.className = "bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500";
-                card.innerHTML = `
-                    <h4 class="font-bold text-lg">${o.customerName}</h4>
-                    <p class="text-gray-600"><i class="fas fa-map-marker-alt text-red-500 mr-1"></i> ${o.customerAddress}</p>
-                    <a href="tel:${o.customerPhone}" class="text-blue-600 font-bold block my-2 italic underline"><i class="fas fa-phone-alt"></i> ${o.customerPhone}</a>
-                    <p class="bg-gray-100 p-2 rounded mt-2 font-bold text-green-700 text-center">টাকা পাবেন: ৳${o.totalBill}</p>
-                    <div class="flex gap-2 mt-4">
-                        <button onclick="updateStatus('${d.id}', 'paid')" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-bold shadow-md active:scale-95 transition">টাকা পেয়েছি</button>
-                        <button onclick="updateStatus('${d.id}', 'due')" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold shadow-md active:scale-95 transition">বাকি থাকল</button>
-                    </div>
-                `;
-                list.appendChild(card);
-            });
+        let currentTab = 'pending';
+        let allOrders = [];
+
+        // ডিফল্ট তারিখ হিসেবে আজকের তারিখ সেট করা
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('filter-date').value = today;
+
+        // ১. রিয়েল-টাইম ডাটা লিসেনার (সব ডেলিভারি অর্ডার একবারে আনা হচ্ছে ফিল্টারিং এর সুবিধার জন্য)
+        onSnapshot(query(collection(db, "orders"), orderBy("createdAt", "desc")), snap => {
+            allOrders = snap.docs.map(d => ({id: d.id, ...d.data()}));
+            renderUI();
+            calculateCash();
         });
 
-        // ২. আজকের ক্যাশ হিসাব (delivered এবং paid অর্ডার থেকে)
-        const today = new Date().toLocaleDateString();
-        onSnapshot(query(collection(db, "orders"), where("status", "==", "delivered"), where("paymentStatus", "==", "paid")), snap => {
-            let cash = 0;
-            snap.forEach(d => {
-                const data = d.data();
-                if(data.createdAt && data.createdAt.toDate().toLocaleDateString() === today) {
-                    cash += Number(data.totalBill);
+        // তারিখ পরিবর্তন করলে হিসাব আপডেট হবে
+        document.getElementById('filter-date').onchange = () => {
+            calculateCash();
+            if(currentTab === 'history') renderUI();
+        };
+
+        // ক্যাশ হিসাব করার ফাংশন
+        function calculateCash() {
+            const selectedDate = new Date(document.getElementById('filter-date').value).toLocaleDateString();
+            const dateLabel = document.getElementById('date-label');
+            const todayStr = new Date().toLocaleDateString();
+
+            dateLabel.innerText = (selectedDate === todayStr) ? "আজকের কালেকশন:" : `${selectedDate} তারিখের কালেকশন:`;
+
+            let total = 0;
+            allOrders.forEach(o => {
+                if(o.status === 'delivered' && o.deliveredAt) {
+                    const dDate = o.deliveredAt.toDate().toLocaleDateString();
+                    if(dDate === selectedDate) {
+                        total += Number(o.paidAmount || 0);
+                    }
                 }
             });
-            document.getElementById('today-cash').innerText = cash;
-        });
+            document.getElementById('selected-date-cash').innerText = total.toLocaleString('bn-BD');
+        }
 
-        // ৩. স্ট্যাটাস আপডেট করার ফাংশন
-        window.updateStatus = async (id, payStatus) => {
-            if(confirm("অর্ডারটি কি সম্পন্ন হয়েছে?")) {
+        // ট্যাব সুইচ লজিক
+        window.switchTab = (tab) => {
+            currentTab = tab;
+            const btnP = document.getElementById('btn-pending');
+            const btnH = document.getElementById('btn-history');
+
+            if(tab === 'pending') {
+                btnP.className = "flex-1 py-3 rounded-xl font-bold text-xs bg-white text-blue-700 shadow-sm transition-all";
+                btnH.className = "flex-1 py-3 rounded-xl font-bold text-xs text-slate-500 transition-all";
+            } else {
+                btnH.className = "flex-1 py-3 rounded-xl font-bold text-xs bg-white text-blue-700 shadow-sm transition-all";
+                btnP.className = "flex-1 py-3 rounded-xl font-bold text-xs text-slate-500 transition-all";
+            }
+            renderUI();
+        };
+
+        function renderUI() {
+            const container = document.getElementById('display-area');
+            const selectedDate = new Date(document.getElementById('filter-date').value).toLocaleDateString();
+            container.innerHTML = "";
+
+            let filtered = [];
+            if(currentTab === 'pending') {
+                filtered = allOrders.filter(o => o.status === 'shipping');
+            } else {
+                filtered = allOrders.filter(o => o.status === 'delivered' && o.deliveredAt && o.deliveredAt.toDate().toLocaleDateString() === selectedDate);
+            }
+
+            if(filtered.length === 0) {
+                container.innerHTML = `<div class='bg-white p-12 rounded-[40px] text-center text-slate-400 font-bold border border-dashed'>কোন ডাটা পাওয়া যায়নি</div>`;
+                return;
+            }
+
+            filtered.forEach(o => {
+                const productSubtotal = o.items.reduce((sum, item) => sum + (item.price * (item.qty || 1)), 0);
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-[40px] shadow-md border border-slate-50 mb-4";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="font-black text-lg text-slate-800">${o.customerName}</h4>
+                            <p class="text-[9px] text-slate-400 font-bold uppercase">ID: #${o.id.substring(0,6)}</p>
+                        </div>
+                        ${currentTab === 'pending' ? `<a href="tel:${o.customerPhone}" class="bg-green-500 text-white p-3 rounded-xl shadow-lg shadow-green-100"><i class="fas fa-phone-alt"></i></a>` : `<span class="text-green-600 font-black text-xs italic"><i class="fas fa-check-circle"></i> সফল</span>`}
+                    </div>
+
+                    <!-- পণ্যের তালিকা -->
+                    <div class="bg-slate-50 p-3 rounded-2xl mb-4 text-[11px] space-y-1">
+                        ${o.items.map(i => `<div class="flex justify-between"><span>${i.name} (x${i.qty})</span> <b>৳${i.price * i.qty}</b></div>`).join('')}
+                    </div>
+
+                    <div class="flex justify-between text-xs font-bold border-t border-dashed pt-3 mb-4">
+                        <span class="${o.paymentStatus === 'due' ? 'text-red-500' : 'text-blue-700'}">${currentTab === 'pending' ? 'পাওনা বিল:' : 'সংগৃহীত ক্যাশ:'}</span>
+                        <span class="text-xl font-black ${o.paymentStatus === 'due' ? 'text-red-600' : 'text-green-700'}">৳${currentTab === 'pending' ? o.totalBill : o.paidAmount}</span>
+                    </div>
+
+                    ${currentTab === 'pending' ? `
+                        <div class="space-y-3">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase text-center tracking-tighter">কাস্টমার কত টাকা দিয়েছে লিখুন:</label>
+                            <input type="number" id="amt-${o.id}" value="${o.totalBill}" class="w-full p-4 bg-slate-50 border-2 rounded-2xl outline-none focus:border-blue-500 font-black text-center text-2xl">
+                            <button onclick="processDelivery('${o.id}', ${o.totalBill})" class="w-full bg-blue-700 text-white py-4 rounded-3xl font-black shadow-lg shadow-blue-100 mt-2 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-check-circle"></i> ডেলিভারি সম্পন্ন
+                            </button>
+                        </div>
+                    ` : `
+                        <div class="text-[10px] text-slate-400 font-bold italic text-center border-t pt-2">ডেলিভারি সময়: ${o.deliveredAt.toDate().toLocaleTimeString('bn-BD')}</div>
+                    `}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // ডেলিভারি সম্পন্ন করার ফাংশন
+        window.processDelivery = async (id, totalBill) => {
+            const collected = Number(document.getElementById(`amt-${id}`).value);
+            if (collected < 0) return alert("সঠিক টাকা লিখুন!");
+            
+            let paymentStatus = (collected < totalBill) ? 'due' : 'paid';
+            let msg = (collected < totalBill) ? `৳${collected} টাকা নিয়েছেন? বাকি ৳${totalBill - collected} বকেয়া হবে।` : "সম্পূর্ণ টাকা বুঝে পেয়েছেন তো?";
+
+            if (confirm(msg)) {
                 try {
+                    const now = new Date().toLocaleString('bn-BD');
                     await updateDoc(doc(db, "orders", id), { 
                         status: 'delivered', 
-                        paymentStatus: payStatus,
-                        deliveredAt: new Date()
+                        paymentStatus: paymentStatus,
+                        paidAmount: collected,
+                        deliveredAt: new Date(),
+                        paymentHistory: arrayUnion({ date: now, amount: collected, note: "ডেলিভারি সংগৃহীত" })
                     });
-                    alert("সফলভাবে আপডেট হয়েছে!");
-                } catch (e) {
-                    alert("ভুল হয়েছে: " + e.message);
-                }
+                    alert("সফল!");
+                } catch (e) { alert("ভুল: " + e.message); }
             }
         };
+
     </script>
 </body>
 </html>
