@@ -13,8 +13,9 @@
         .star-rating i.active { color: #fbbf24; }
         .benefit-card { transition: transform 0.3s ease; }
         .benefit-card:hover { transform: translateY(-5px); }
+        .helper-banner { background: linear-gradient(135deg, #166534 0%, #15803d 100%); }
     </style>
- head>
+</head>
 <body class="bg-gray-100 pb-20">
 
     <!-- ওপরের বার -->
@@ -54,15 +55,28 @@
         </div>
 
         <!-- রোল ভিত্তিক স্পেশাল এক্সেস বাটন -->
-        <div id="special-access-area" class="mb-6 hidden">
-            <!-- JavaScript এর মাধ্যমে এখানে বাটন বসবে -->
+        <div id="special-access-area" class="mb-6 hidden"></div>
+
+        <!-- হেলপার ইনকাম ব্যানার (নতুন যুক্ত করা হয়েছে) -->
+        <div id="helper-invite-banner" class="mb-8 hidden">
+            <div class="helper-banner p-6 rounded-3xl text-white shadow-xl relative overflow-hidden">
+                <div class="relative z-10">
+                    <h3 class="text-lg font-black mb-1">ঘরে বসে ইনকাম করতে চান? 💰</h3>
+                    <p class="text-xs opacity-90 mb-4">আমাদের 'এরিয়া হেলপার' হয়ে প্রতি অর্ডারে কমিশন পান।</p>
+                    <a href="benefits.html" class="inline-block bg-yellow-400 text-green-900 px-6 py-2 rounded-xl font-bold text-xs shadow-lg active:scale-95 transition">বিস্তারিত দেখুন ও আবেদন করুন</a>
+                </div>
+                <i class="fas fa-coins absolute -right-4 -bottom-4 text-7xl opacity-20 rotate-12"></i>
+            </div>
         </div>
 
         <!-- বেনিফিট সেকশন -->
         <div class="mb-8">
-            <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2 text-lg">
-                <i class="fas fa-gift text-orange-500"></i> কেন আপন হাট আপনার সেরা সঙ্গী?
-            </h3>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-gray-700 flex items-center gap-2 text-lg">
+                    <i class="fas fa-gift text-orange-500"></i> আপনার সুবিধা
+                </h3>
+                <a href="benefits.html" class="text-[10px] font-bold text-green-600 underline">সবগুলো দেখুন</a>
+            </div>
             <div class="grid grid-cols-2 gap-3">
                 <div class="benefit-card bg-white p-4 rounded-2xl shadow-sm border-b-4 border-orange-500 text-center">
                     <div class="bg-orange-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 text-orange-600">
@@ -75,18 +89,6 @@
                         <i class="fas fa-motorcycle"></i>
                     </div>
                     <h4 class="text-[11px] font-bold text-gray-800 leading-tight">সময় ও ভাড়া সাশ্রয়</h4>
-                </div>
-                <div class="benefit-card bg-white p-4 rounded-2xl shadow-sm border-b-4 border-green-500 text-center">
-                    <div class="bg-green-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 text-green-600">
-                        <i class="fas fa-balance-scale"></i>
-                    </div>
-                    <h4 class="text-[11px] font-bold text-gray-800 leading-tight">সঠিক ওজন ও মাপ</h4>
-                </div>
-                <div class="benefit-card bg-white p-4 rounded-2xl shadow-sm border-b-4 border-purple-500 text-center">
-                    <div class="bg-purple-100 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 text-purple-600">
-                        <i class="fas fa-hand-holding-heart"></i>
-                    </div>
-                    <h4 class="text-[11px] font-bold text-gray-800 leading-tight">গ্রামের উন্নতিতে অবদান</h4>
                 </div>
             </div>
         </div>
@@ -141,24 +143,27 @@
                     if(userDoc.exists()) {
                         const userData = userDoc.data();
                         document.getElementById('user-display-name').innerText = userData.name;
-                        document.getElementById('user-role-badge').innerText = 
-                            (userData.role === 'helper') ? "এজেন্ট / হেলপার" : 
-                            (userData.role === 'wholesaler') ? "পাইকারি দোকানদার" : 
-                            (userData.role === 'owner') ? "মালিক" : "সম্মানিত কাস্টমার";
                         
-                        // স্পেশাল এক্সেস বাটন হ্যান্ডেল করা
-                        handleSpecialAccess(userData.role);
-                    } else {
-                        document.getElementById('user-display-name').innerText = "সম্মানিত কাস্টমার";
+                        const role = userData.role;
+                        document.getElementById('user-role-badge').innerText = 
+                            (role === 'helper') ? "এজেন্ট / হেলপার" : 
+                            (role === 'wholesaler') ? "পাইকারি দোকানদার" : 
+                            (role === 'owner') ? "মালিক" : "সম্মানিত কাস্টমার";
+                        
+                        // যদি ইউজার সাধারণ কাস্টমার হয় তবে ইনকাম ব্যানার দেখাবে
+                        if(role === 'customer' || !role) {
+                            document.getElementById('helper-invite-banner').classList.remove('hidden');
+                        }
+
+                        handleSpecialAccess(role);
                     }
-                } catch (e) { document.getElementById('user-display-name').innerText = "সম্মানিত কাস্টমার"; }
+                } catch (e) { }
                 loadCustomerOrders(user.email);
             } else {
                 window.location.href = "login.html";
             }
         });
 
-        // স্পেশাল এক্সেস বাটন লজিক (সব ইউজার রোলের জন্য)
         function handleSpecialAccess(role) {
             const area = document.getElementById('special-access-area');
             if(!role || role === 'customer') return;
@@ -196,16 +201,10 @@
 
         function loadCustomerOrders(email) {
             const q = query(collection(db, "orders"), where("customerEmail", "==", email));
-            
             onSnapshot(q, (snapshot) => {
                 const area = document.getElementById('order-list-area');
                 document.getElementById('total-orders-count').innerText = snapshot.size;
-                area.innerHTML = "";
-
-                if (snapshot.empty) {
-                    area.innerHTML = `<div class="text-center py-10 bg-white rounded-2xl shadow-sm border border-dashed"><p class="text-gray-400 italic font-bold">আপনি এখনো কোনো অর্ডার করেননি।</p></div>`;
-                    return;
-                }
+                area.innerHTML = snapshot.empty ? `<div class="text-center py-10 bg-white rounded-2xl shadow-sm border border-dashed"><p class="text-gray-400 italic font-bold">আপনি এখনো কোনো অর্ডার করেননি।</p></div>` : "";
 
                 snapshot.forEach((orderDoc) => {
                     const order = orderDoc.data();
@@ -223,28 +222,20 @@
                     card.innerHTML = `
                         <div class="flex justify-between items-center mb-3 text-[10px] font-bold">
                             <span class="text-gray-400 uppercase">তারিখ: ${order.createdAt?.toDate().toLocaleDateString('bn-BD') || 'N/A'}</span>
-                            <span class="${sColor} px-3 py-1 rounded-full flex items-center gap-1">
-                                <i class="fas ${sIcon}"></i> ${sText}
-                            </span>
+                            <span class="${sColor} px-3 py-1 rounded-full flex items-center gap-1"><i class="fas ${sIcon}"></i> ${sText}</span>
                         </div>
                         <div class="border-b border-dashed pb-3 mb-3">
                             <div class="space-y-2">
                                 ${order.items.map(item => `
                                     <div class="flex justify-between items-center">
                                         <p class="text-sm font-bold text-gray-800 leading-tight">${item.name}</p>
-                                        ${status === 'delivered' ? 
-                                          `<button onclick="openReviewModal('${item.name}')" class="text-[9px] text-orange-500 bg-orange-50 px-2 py-1 rounded-lg border border-orange-200 font-bold uppercase tracking-tighter">রিভিউ দিন</button>` : 
-                                          `<p class="text-xs text-gray-400">৳${item.price}</p>`
-                                        }
+                                        ${status === 'delivered' ? `<button onclick="openReviewModal('${item.name}')" class="text-[9px] text-orange-500 bg-orange-50 px-2 py-1 rounded-lg border border-orange-200 font-bold uppercase tracking-tighter">রিভিউ দিন</button>` : `<p class="text-xs text-gray-400">৳${item.price}</p>`}
                                     </div>
                                 `).join('')}
                             </div>
                         </div>
                         <div class="flex justify-between items-center">
-                            <div>
-                                <p class="text-[9px] text-gray-400 uppercase font-black tracking-widest">মোট বিল</p>
-                                <p class="text-xl font-black text-green-700">৳${order.totalBill}</p>
-                            </div>
+                            <div><p class="text-[9px] text-gray-400 uppercase font-black tracking-widest">মোট বিল</p><p class="text-xl font-black text-green-700">৳${order.totalBill}</p></div>
                             <p class="text-[9px] text-gray-300 font-bold italic">ID: #${orderDoc.id.substring(0,8).toUpperCase()}</p>
                         </div>
                     `;
@@ -284,10 +275,8 @@
         document.getElementById('submit-review-btn').onclick = async () => {
             const comment = document.getElementById('review-comment').value.trim();
             if(selectedRating === 0) return alert("দয়া করে একটি রেটিং দিন।");
-            
             const btn = document.getElementById('submit-review-btn');
             btn.disabled = true; btn.innerText = "সেভ হচ্ছে...";
-
             try {
                 await addDoc(collection(db, "reviews"), {
                     productName: currentReviewPName,
@@ -299,11 +288,8 @@
                 });
                 alert("আপনার মূলবান রিভিউর জন্য ধন্যবাদ!");
                 closeReviewModal();
-            } catch (e) {
-                alert("দুঃখিত, রিভিউ সেভ করা যায়নি।");
-            } finally {
-                btn.disabled = false; btn.innerText = "রিভিউ সাবমিট করুন";
-            }
+            } catch (e) { alert("দুঃখিত, রিভিউ সেভ করা যায়নি।"); } 
+            finally { btn.disabled = false; btn.innerText = "রিভিউ সাবমিট করুন"; }
         };
 
         document.getElementById('logout-btn').onclick = () => {
