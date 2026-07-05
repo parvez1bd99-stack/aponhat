@@ -1,3 +1,5 @@
+--- START OF FILE addProduct.html ---
+
 <!DOCTYPE html>
 <html lang="bn">
 <head>
@@ -71,16 +73,22 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
+                    <!-- পুরানো মূল্য (MRP) - নতুন যুক্ত করা হয়েছে -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-orange-500 uppercase ml-1 mb-1">পুরানো মূল্য/MRP (৳)</label>
+                        <input type="number" id="p-regular" placeholder="২০০ (যদি থাকে)" class="w-full p-4 border rounded-2xl outline-none focus:border-orange-500 bg-slate-50">
+                    </div>
                     <!-- ওজন (গ্রাম) -->
                     <div>
                         <label class="block text-[10px] font-bold text-blue-500 uppercase ml-1 mb-1">ওজন (গ্রাম-এ)</label>
                         <input type="number" id="p-weight" placeholder="১০০০" class="w-full p-4 border rounded-2xl outline-none focus:border-blue-500 bg-slate-50" required>
                     </div>
-                    <!-- স্টক -->
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-500 uppercase ml-1 mb-1">স্টক পরিমাণ</label>
-                        <input type="number" id="p-stock" placeholder="৫০" class="w-full p-4 border rounded-2xl outline-none focus:border-green-500 bg-slate-50" required>
-                    </div>
+                </div>
+
+                <!-- স্টক -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase ml-1 mb-1">স্টক পরিমাণ</label>
+                    <input type="number" id="p-stock" placeholder="৫০" class="w-full p-4 border rounded-2xl outline-none focus:border-green-500 bg-slate-50" required>
                 </div>
 
                 <!-- পণ্যের বিবরণ (Description) -->
@@ -140,9 +148,10 @@
                 image: imageUrls,
                 buyPrice: Number(document.getElementById('p-buy').value),
                 sellPrice: Number(document.getElementById('p-sell').value),
-                weight: Number(document.getElementById('p-weight').value), // ওজনের ডাটা
+                regularPrice: Number(document.getElementById('p-regular').value) || 0, // পুরানো মূল্যের ডাটা
+                weight: Number(document.getElementById('p-weight').value), 
                 stock: Number(document.getElementById('p-stock').value),
-                description: document.getElementById('p-desc').value.trim(), // বিবরণের ডাটা
+                description: document.getElementById('p-desc').value.trim(), 
                 createdAt: new Date()
             };
 
