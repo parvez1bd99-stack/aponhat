@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ইউজার ও কাস্টমার ম্যানেজমেন্ট - আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f1f5f9; }
+        .tab-active { background-color: #1e293b; color: white; }
+    </style>
+</head>
+<body class="pb-20">
+
+    <nav class="bg-slate-800 p-4 text-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="font-bold text-lg italic"><i class="fas fa-users-cog mr-2"></i>ইউজার ডাটাবেজ</h1>
+            <a href="owner-dashboard.html" class="bg-white text-slate-800 px-3 py-1 rounded-full font-bold shadow-sm text-xs">ড্যাশবোর্ড</a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 max-w-2xl">
+        <!-- ১. সার্চ ও ফিল্টার এরিয়া -->
+        <div class="bg-white p-4 rounded-3xl shadow-sm mb-6 border border-slate-200">
+            <input type="text" id="search-user" onkeyup="filterUsers()" placeholder="নাম বা মোবাইল দিয়ে খুঁজুন..." class="w-full p-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-slate-400 outline-none mb-4 transition-all">
+            
+            <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                <button onclick="switchTab('all')" id="tab-all" class="tab-btn px-5 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 tab-active">সবাই</button>
+                <button onclick="switchTab('customer')" id="tab-customer" class="tab-btn px-5 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200">কাস্টমার</button>
+                <button onclick="switchTab('helper')" id="tab-helper" class="tab-btn px-5 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200">হেলপার</button>
+                <button onclick="switchTab('active')" id="tab-active" class="tab-btn px-5 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 text-green-600">অ্যাক্টিভ</button>
+            </div>
+        </div>
+
+        <!-- ২. ইউজার তালিকা -->
+        <div id="user-list-area" class="space-y-4">
+            <p class="text-center py-20 text-slate-400 italic">ডাটাবেজ লোড হচ্ছে...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, auth } from "./firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, query, onSnapshot, doc, deleteDoc, getDocs, where, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        let allUsers = [];
+        let currentTab = 'all';
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists() && userDoc.data().role === 'owner') {
+                    loadUsers();
+                } else {
+                    window.location.href = "login.html";
+                }
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
+        async function loadUsers() {
+            // সকল অর্ডারের ডাটা একবারে নিয়ে আসা (অ্যাক্টিভিটি চেক করার জন্য)
+            const orderSnap = await getDocs(collection(db, "orders"));
+            const orderCountMap = {};
+            orderSnap.forEach(o => {
+                const email = o.data().customerEmail;
+                orderCountMap[email] = (orderCountMap[email] || 0) + 1;
+            });
+
+            onSnapshot(collection(db, "users"), (snapshot) => {
+                allUsers = [];
+                snapshot.forEach((userDoc) => {
+                    const data = userDoc.data();
+                    const id = userDoc.id;
+                    const count = orderCountMap[data.email] || 0;
+                    allUsers.push({ id, ...data, orderCount: count });
+                });
+                renderUsers();
+            });
+        }
+
+        window.renderUsers = () => {
+            const area = document.getElementById('user-list-area');
+            area.innerHTML = "";
+
+            let filtered = allUsers;
+            if (currentTab === 'customer') filtered = allUsers.filter(u => u.role === 'customer');
+            if (currentTab === 'helper') filtered = allUsers.filter(u => u.role === 'helper');
+            if (currentTab === 'active') filtered = allUsers.filter(u => u.orderCount > 0);
+
+            if (filtered.length === 0) {
+                area.innerHTML = `<p class="text-center py-20 text-slate-300 font-bold">কোন ইউজার পাওয়া যায়নি।</p>`;
+                return;
+            }
+
+            filtered.forEach((user) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-[30px] shadow-sm border border-slate-100 flex flex-col gap-4 relative overflow-hidden";
+                
+                // অ্যাক্টিভিটি ইন্ডিকেটর
+                const isActive = user.orderCount > 0;
+                const statusBadge = isActive 
+                    ? `<span class="bg-green-100 text-green-600 text-[9px] px-2 py-1 rounded-full font-black uppercase">Active (${user.orderCount})</span>`
+                    : `<span class="bg-slate-100 text-slate-400 text-[9px] px-2 py-1 rounded-full font-black uppercase">Inactive</span>`;
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 text-xl">
+                                <i class="fas ${user.role === 'helper' ? 'fa-user-tie text-indigo-500' : 'fa-user'}"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-md leading-tight">${user.name}</h3>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter italic"><i class="fas fa-map-marker-alt"></i> ${user.area || 'এলাকা নেই'}</p>
+                                <p class="text-[9px] text-slate-400 font-medium">${user.email}</p>
+                            </div>
+                        </div>
+                        ${statusBadge}
+                    </div>
+
+                    <div class="flex gap-2 border-t pt-4">
+                        <a href="tel:${user.phone || ''}" class="flex-1 bg-slate-50 text-slate-600 py-3 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 border border-slate-100 active:scale-95 transition">
+                            <i class="fas fa-phone-alt"></i> কল দিন
+                        </a>
+                        <button onclick="confirmDeleteUser('${user.id}', '${user.name}')" class="bg-red-50 text-red-500 px-6 py-3 rounded-2xl font-bold text-xs active:scale-95 transition">
+                            <i class="fas fa-trash-alt"></i> মুছুন
+                        </button>
+                    </div>
+                `;
+                area.appendChild(card);
+            });
+        }
+
+        // ডিলিট করার আগে কারণ জিজ্ঞাসা করা
+        window.confirmDeleteUser = async (id, name) => {
+            const reason = prompt(`আপনি কি নিশ্চিতভাবে "${name}" কে ডিলিট করতে চান? ডিলিট করার কারণ লিখুন (Database cleanup এর জন্য):`);
+            
+            if (reason !== null) {
+                if (confirm(`সতর্কবার্তা: একবার ডিলিট করলে এই ইউজার আর লগইন করতে পারবে না। কনফার্ম?`)) {
+                    try {
+                        await deleteDoc(doc(db, "users", id));
+                        alert(`ইউজার সফলভাবে ডিলিট করা হয়েছে। কারণ: ${reason}`);
+                    } catch (e) {
+                        alert("ভুল হয়েছে: " + e.message);
+                    }
+                }
+            }
+        }
+
+        window.switchTab = (tab) => {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-active'));
+            document.getElementById(`tab-${tab}`).classList.add('tab-active');
+            renderUsers();
+        }
+
+        window.filterUsers = () => {
+            const term = document.getElementById('search-user').value.toLowerCase();
+            const cards = document.querySelectorAll('#user-list-area > div');
+            cards.forEach(card => {
+                const text = card.innerText.toLowerCase();
+                card.style.display = text.includes(term) ? "block" : "none";
+            });
+        }
+    </script>
+</body>
+</html>
