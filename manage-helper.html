@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>হেলপার ব্যবস্থাপনা - আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f8fafc; }
+    </style>
+</head>
+<body class="pb-20">
+
+    <nav class="bg-indigo-700 p-4 text-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="font-bold text-lg italic text-white">হেলপার ব্যবস্থাপনা</h1>
+            <a href="owner-dashboard.html" class="bg-white text-indigo-700 px-3 py-1 rounded-full font-bold shadow-sm text-xs">ড্যাশবোর্ড</a>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 max-w-2xl">
+        
+        <!-- ১. হেলপার আবেদন সেকশন (Pending Helpers) -->
+        <div id="pending-section" class="mb-10 hidden">
+            <h3 class="font-bold text-orange-600 mb-4 ml-1 flex items-center gap-2">
+                <i class="fas fa-user-clock"></i> নতুন হেলপার আবেদন
+            </h3>
+            <div id="pending-list-area" class="space-y-4">
+                <!-- পেন্ডিং লিস্ট এখানে বসবে -->
+            </div>
+        </div>
+
+        <!-- ২. সক্রিয় হেলপার সেকশন (Active Helpers) -->
+        <h3 class="font-bold text-slate-600 mb-4 ml-1 flex items-center gap-2">
+            <i class="fas fa-users text-indigo-600"></i> সক্রিয় হেলপার তালিকা
+        </h3>
+        <div id="helper-list-area" class="space-y-4">
+            <p class="text-center py-10 text-slate-400 italic">হেলপার লিস্ট লোড হচ্ছে...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, auth } from "./firebase-config.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, query, where, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists() && userDoc.data().role === 'owner') {
+                    loadPendingHelpers();
+                    loadActiveHelpers();
+                } else {
+                    window.location.href = "login.html";
+                }
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
+        // ১. পেন্ডিং হেলপার লোড করা
+        function loadPendingHelpers() {
+            const q = query(collection(db, "users"), where("role", "==", "pending_helper"));
+            
+            onSnapshot(q, (snapshot) => {
+                const section = document.getElementById('pending-section');
+                const area = document.getElementById('pending-list-area');
+                
+                if (snapshot.empty) {
+                    section.classList.add('hidden');
+                    return;
+                }
+
+                section.classList.remove('hidden');
+                area.innerHTML = "";
+
+                snapshot.forEach((userDoc) => {
+                    const data = userDoc.data();
+                    const id = userDoc.id;
+
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-5 rounded-[25px] shadow-md border-l-4 border-orange-500 flex flex-col gap-3";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold text-slate-800">${data.name}</h4>
+                                <p class="text-[10px] text-blue-600 font-bold uppercase"><i class="fas fa-map-marker-alt"></i> এলাকা: ${data.area || 'উল্লেখ নেই'}</p>
+                            </div>
+                            <span class="bg-orange-100 text-orange-600 text-[9px] px-2 py-1 rounded font-bold">আবেদন করেছে</span>
+                        </div>
+                        <div class="flex gap-2 mt-2">
+                            <button onclick="approveHelper('${id}')" class="flex-1 bg-green-600 text-white py-2 rounded-xl font-bold text-xs shadow-lg active:scale-95 transition">অনুমোদন দিন</button>
+                            <button onclick="rejectHelper('${id}')" class="bg-red-50 text-red-500 px-4 py-2 rounded-xl font-bold text-xs">বাতিল</button>
+                        </div>
+                    `;
+                    area.appendChild(card);
+                });
+            });
+        }
+
+        // ২. সক্রিয় হেলপার লোড করা
+        function loadActiveHelpers() {
+            const q = query(collection(db, "users"), where("role", "==", "helper"));
+            
+            onSnapshot(q, (snapshot) => {
+                const area = document.getElementById('helper-list-area');
+                area.innerHTML = snapshot.empty ? `<p class="text-center py-10 text-slate-300 font-bold">কোন সক্রিয় হেলপার নেই।</p>` : "";
+
+                snapshot.forEach((userDoc) => {
+                    const helper = userDoc.data();
+                    const id = userDoc.id;
+
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-5 rounded-[25px] shadow-sm border border-slate-100 flex flex-col gap-4";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-slate-800 text-lg leading-tight">${helper.name}</h3>
+                                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1"><i class="fas fa-map-marker-alt"></i> ${helper.area || 'এলাকা নেই'}</p>
+                                <p class="text-[9px] text-indigo-500 font-bold">${helper.email}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[9px] text-slate-400 font-bold uppercase mb-1">ব্যালেন্স</p>
+                                <p class="text-xl font-black text-green-600">৳${helper.walletBalance || 0}</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-indigo-50 p-4 rounded-2xl flex justify-between items-center border border-indigo-100">
+                            <div>
+                                <span class="text-[10px] text-indigo-400 font-black uppercase block">কমিশন হার:</span>
+                                <span class="text-2xl font-black text-indigo-700">${helper.commissionRate || 0}%</span>
+                            </div>
+                            <button onclick="changeCommission('${id}', ${helper.commissionRate || 0})" class="bg-indigo-600 text-white px-5 py-2 rounded-xl font-bold shadow-md text-xs">
+                                বদলান
+                            </button>
+                        </div>
+                    `;
+                    area.appendChild(card);
+                });
+            });
+        }
+
+        // অনুমোদন ফাংশন
+        window.approveHelper = async (id) => {
+            if(confirm("এই ইউজারকে হেলপার হিসেবে অনুমোদন দিতে চান?")) {
+                try {
+                    await updateDoc(doc(db, "users", id), {
+                        role: 'helper',
+                        commissionRate: 2, // ডিফল্ট ২% কমিশন
+                        walletBalance: 0
+                    });
+                    alert("অনুমোদন সফল হয়েছে!");
+                } catch (e) { alert("ত্রুটি হয়েছে!"); }
+            }
+        };
+
+        // বাতিল ফাংশন
+        window.rejectHelper = async (id) => {
+            if(confirm("আবেদনটি বাতিল করতে চান? ইউজার কাস্টমার হিসেবে থাকবে।")) {
+                try {
+                    await updateDoc(doc(db, "users", id), { role: 'customer' });
+                } catch (e) { alert("ত্রুটি হয়েছে!"); }
+            }
+        };
+
+        // কমিশন পরিবর্তন
+        window.changeCommission = async (id, current) => {
+            const newRate = prompt("নতুন কমিশন হার (%) লিখুন:", current);
+            if (newRate !== null && !isNaN(newRate)) {
+                await updateDoc(doc(db, "users", id), { commissionRate: Number(newRate) });
+                alert("আপডেট হয়েছে!");
+            }
+        };
+
+    </script>
+</body>
+</html>
