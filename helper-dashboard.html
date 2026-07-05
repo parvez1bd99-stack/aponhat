@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>হেলপার ড্যাশবোর্ড - আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f0fdf4; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="pb-10">
+
+    <!-- নেভিগেশন বার -->
+    <nav class="bg-green-700 p-4 text-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-handshake text-xl"></i>
+                <h1 class="font-bold text-lg italic">হেলপার প্যানেল</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="index.html" class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold border border-white/30">দোকান দেখুন</a>
+                <button onclick="window.logout()" class="text-red-200 text-xs font-bold"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto p-4 max-w-lg">
+        
+        <!-- ইউজার প্রোফাইল সেকশন -->
+        <div class="flex items-center gap-4 mb-6 mt-2">
+            <div class="w-14 h-14 bg-green-600 rounded-full flex items-center justify-center text-white text-2xl shadow-inner">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div>
+                <h2 id="helper-name" class="text-xl font-bold text-slate-800">লোড হচ্ছে...</h2>
+                <p class="text-[10px] text-green-600 font-bold uppercase tracking-widest">রেজিস্টার্ড হেলপার</p>
+            </div>
+        </div>
+
+        <!-- ওয়ালেট কার্ড -->
+        <div class="bg-white p-8 rounded-[40px] shadow-xl text-center mb-8 border-b-8 border-green-600 glass-card">
+            <p class="text-gray-400 font-bold text-xs uppercase tracking-widest mb-1">বর্তমান কমিশন ব্যালেন্স</p>
+            <h2 class="text-5xl font-black text-green-700 my-2">৳ <span id="wallet-balance">0</span></h2>
+            
+            <div class="mt-6 flex flex-col gap-3">
+                <button onclick="requestWithdraw()" class="w-full bg-orange-500 text-white py-4 rounded-2xl font-bold shadow-lg shadow-orange-100 hover:bg-orange-600 transition active:scale-95 flex items-center justify-center gap-2">
+                    <i class="fas fa-mobile-alt"></i> বিকাশে টাকা তুলুন
+                </button>
+                <p class="text-[10px] text-slate-400 italic">* সর্বনিম্ন ১০০ টাকা হলে উত্তোলন করা যাবে</p>
+            </div>
+        </div>
+
+        <!-- কাজের রিপোর্ট স্ট্যাটাস -->
+        <h3 class="font-bold text-slate-600 mb-4 ml-2 flex items-center gap-2">
+            <i class="fas fa-chart-line text-green-600"></i> আপনার কাজের রিপোর্ট
+        </h3>
+        
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <div class="bg-white p-5 rounded-3xl shadow-sm text-center border border-slate-100">
+                <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">মোট অর্ডার (হেল্প)</p>
+                <h4 id="total-helped" class="text-2xl font-black text-blue-600">0</h4>
+            </div>
+            <div class="bg-white p-5 rounded-3xl shadow-sm text-center border border-slate-100">
+                <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">কমিশন আয়</p>
+                <h4 id="total-earned" class="text-2xl font-black text-green-600">৳0</h4>
+            </div>
+        </div>
+
+        <!-- তথ্য বক্স -->
+        <div class="bg-blue-50 p-5 rounded-3xl border border-blue-100 flex gap-4">
+            <i class="fas fa-info-circle text-blue-500 text-xl"></i>
+            <p class="text-xs text-blue-800 leading-relaxed">
+                আপনার রেফারেল বা হেল্প করা প্রতিটি অর্ডার 'Delivered' হওয়ার পর অটোমেটিক আপনার ওয়ালেটে কমিশন যোগ হবে। টাকা উত্তোলনের রিকোয়েস্ট দিলে মালিক ২৪ ঘণ্টার মধ্যে আপনার বিকাশ নম্বরে টাকা পাঠিয়ে দিবেন।
+            </p>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { db, auth } from "./firebase-config.js";
+        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { doc, onSnapshot, collection, query, where, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        let currentBalance = 0;
+        let helperName = "";
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                // ১. হেলপারের ব্যক্তিগত তথ্য ও ব্যালেন্স লোড (রিয়েল-টাইম)
+                onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        helperName = data.name;
+                        currentBalance = data.walletBalance || 0;
+                        
+                        document.getElementById('helper-name').innerText = helperName;
+                        document.getElementById('wallet-balance').innerText = currentBalance.toLocaleString('bn-BD');
+                        document.getElementById('total-earned').innerText = "৳" + (data.totalEarned || 0).toLocaleString('bn-BD');
+                    }
+                });
+
+                // ২. হেলপারের মাধ্যমে হওয়া মোট অর্ডারের সংখ্যা গণনা
+                const q = query(collection(db, "orders"), where("helperId", "==", user.uid));
+                const snap = await getDocs(q);
+                document.getElementById('total-helped').innerText = snap.size;
+
+            } else { 
+                window.location.href = "login.html"; 
+            }
+        });
+
+        // ৩. টাকা উত্তোলনের রিকোয়েস্ট ফাংশন
+        window.requestWithdraw = async () => {
+            if(currentBalance < 100) {
+                return alert("দুঃখিত! টাকা তুলতে কমপক্ষে ১০০ টাকা ব্যালেন্স থাকতে হবে।");
+            }
+
+            const amount = prompt("আপনি কত টাকা তুলতে চান?", currentBalance);
+            
+            if (amount === null) return; // ক্যানসেল করলে কিছু হবে না
+
+            const withdrawAmount = Number(amount);
+
+            if (isNaN(withdrawAmount) || withdrawAmount < 100) {
+                return alert("সঠিক পরিমাণ লিখুন (সর্বনিম্ন ১০০ টাকা)।");
+            }
+
+            if (withdrawAmount > currentBalance) {
+                return alert("আপনার ওয়ালেটে পর্যাপ্ত টাকা নেই।");
+            }
+
+            const bkashNumber = prompt("আপনার বিকাশ পার্সোনাল নম্বরটি লিখুন:");
+            
+            if (!bkashNumber || bkashNumber.length < 11) {
+                return alert("সঠিক বিকাশ নম্বর দিন।");
+            }
+
+            if (confirm(`আপনি কি ৳${withdrawAmount} টাকা (${bkashNumber}) নম্বরে উত্তোলনের রিকোয়েস্ট পাঠাতে চান?`)) {
+                try {
+                    // ডাটাবেজে রিকোয়েস্ট সেভ করা
+                    await addDoc(collection(db, "withdraw_requests"), {
+                        helperId: auth.currentUser.uid,
+                        helperName: helperName,
+                        amount: withdrawAmount,
+                        phone: bkashNumber,
+                        status: 'pending',
+                        createdAt: new Date()
+                    });
+
+                    alert("আপনার রিকোয়েস্টটি সফলভাবে পাঠানো হয়েছে। মালিক অনুমোদন দিলে আপনার বিকাশ নম্বরে টাকা পৌঁছে যাবে।");
+                } catch (e) {
+                    alert("ত্রুটি: " + e.message);
+                }
+            }
+        };
+
+        // ৪. লগআউট ফাংশন
+        window.logout = () => {
+            if(confirm("আপনি কি লগআউট করতে চান?")) {
+                signOut(auth).then(() => window.location.href = "login.html");
+            }
+        }
+    </script>
+</body>
+</html>
