@@ -144,7 +144,7 @@
             }
         }
 
-        // ৪. স্মার্ট অর্ডার ফাংশন (Save to DB + WhatsApp)
+        // ৪. স্মার্ট অর্ডার ফাংশন (Save to DB + WhatsApp Redirect Fix)
         window.sendWholesaleOrder = async () => {
             if(wsCart.length === 0) return;
 
@@ -162,6 +162,7 @@
             const orderPayload = {
                 customerName: currentUserData.name,
                 customerEmail: currentUserData.email,
+                customerPhone: currentUserData.phone || "নম্বর নেই", // ফোন নম্বর যুক্ত করা হলো
                 items: wsCart,
                 totalBill: total,
                 status: 'pending',
@@ -169,27 +170,30 @@
             };
 
             try {
-                // ১. ডাটাবেজ ব্যাকআপ (wholesale_orders কালেকশনে সেভ)
+                // ১. ডাটাবেজে সেভ
                 await addDoc(collection(db, "wholesale_orders"), orderPayload);
 
                 // ২. হোয়াটসঅ্যাপ মেসেজ তৈরি
                 let msg = "🏪 *আপন হাট পাইকারি অর্ডার তালিকা*\n";
                 msg += `দোকানদার: ${orderPayload.customerName}\n`;
+                msg += `ফোন: ${orderPayload.customerPhone}\n`;
                 msg += "--------------------------\n";
                 msg += orderText;
                 msg += "--------------------------\n";
                 msg += `💰 *সম্ভাব্য মোট বিল: ৳${total}*\n\nদয়া করে অর্ডারটি কনফার্ম করুন।`;
                 
-                window.open(`https://wa.me/${MY_WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
+                const whatsappUrl = `https://wa.me/${MY_WHATSAPP}?text=${encodeURIComponent(msg)}`;
                 
-                alert("আপনার অর্ডারটি ডাটাবেজে সংরক্ষিত হয়েছে এবং হোয়াটসঅ্যাপ ওপেন হচ্ছে।");
+                // কার্ট এবং বাটন রিসেট
                 wsCart = [];
                 document.getElementById('ws-cart').classList.add('hidden');
 
+                // ৩. সরাসরি রিডাইরেক্ট (পপ-আপ ব্লক হবে না)
+                window.location.assign(whatsappUrl);
+
             } catch (e) {
                 console.error(e);
-                alert("ত্রুটি! সরাসরি হোয়াটসঅ্যাপে যোগাযোগ করুন।");
-            } finally {
+                alert("দুঃখিত, সমস্যা হয়েছে। সরাসরি হোয়াটসঅ্যাপে মেসেজ দিন।");
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fab fa-whatsapp text-2xl"></i> হোয়াটসঅ্যাপে পাঠান`;
             }
