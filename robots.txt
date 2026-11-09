@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /login.html
+Disallow: /admin
+Disallow: /helper
+Disallow: /delivery
+
+Sitemap: https://aponhat.vercel.app/sitemap.xml
