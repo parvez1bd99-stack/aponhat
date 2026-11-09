@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>উইথড্র আবেদন | আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap">
+    <style>body { font-family: 'Hind Siliguri', sans-serif; }</style>
+</head>
+<body style="display:none" class="bg-slate-100 min-h-screen pb-10">
+    <header class="bg-green-700 text-white sticky top-0 z-20 shadow">
+        <div class="p-4 flex items-center gap-3">
+            <a href="owner-dashboard.html" class="text-xl">←</a>
+            <h1 class="font-bold text-lg">উইথড্র আবেদন</h1>
+        </div>
+        <div id="tabs" class="flex gap-2 px-4 pb-3"></div>
+    </header>
+
+    <main class="max-w-lg mx-auto p-3 space-y-3">
+        <div id="state" class="text-center text-slate-400 py-16">লোড হচ্ছে...</div>
+        <div id="list" class="space-y-3"></div>
+    </main>
+
+    <script type="module">
+        import { db } from "./firebase-config.js";
+        import { requireRole } from "./auth-guard.js";
+        import { collection, doc, query, orderBy, limit, onSnapshot, updateDoc, runTransaction, increment, serverTimestamp }
+            from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        await requireRole(['owner']);
+
+        const $ = (id) => document.getElementById(id);
+        const taka = (n) => "৳" + Number(n || 0).toLocaleString("bn-BD");
+
+        function h(tag, props = {}, ...kids) {
+            const e = document.createElement(tag);
+            for (const [k, v] of Object.entries(props)) {
+                if (k === "class") e.className = v;
+                else if (k === "text") e.textContent = v;
+                else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+                else if (v !== undefined && v !== null) e.setAttribute(k, v);
+            }
+            for (const kid of kids.flat()) if (kid != null) e.append(kid);
+            return e;
+        }
+
+        let requests = [];
+        let tab = "pending";
+
+        onSnapshot(query(collection(db, "withdraw_requests"), orderBy("createdAt", "desc"), limit(200)), (snap) => {
+            requests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            $("state").style.display = "none";
+            render();
+        }, (err) => {
+            console.error(err);
+            $("state").style.display = "block";
+            $("state").textContent = "লোড হয়নি: " + (err.code || err.message);
+        });
+
+        // টাকা কাটা ও আবেদনের অবস্থা বদলানো একসাথে (একটা ব্যর্থ হলে অন্যটাও হবে না)
+        async function approve(req) {
+            await runTransaction(db, async (tx) => {
+                const rRef = doc(db, "withdraw_requests", req.id);
+                const rSnap = await tx.get(rRef);
+                if (!rSnap.exists()) throw new Error("আবেদনটি পাওয়া যায়নি");
+                const r = rSnap.data();
+                if (r.status !== "pending") throw new Error("আবেদনটি আগেই প্রক্রিয়া হয়েছে");
+
+                const hRef = doc(db, "users", r.helperId);
+                const hSnap = await tx.get(hRef);
+                if (!hSnap.exists()) throw new Error("হেলপারের একাউন্ট পাওয়া যায়নি");
+                const bal = Number(hSnap.data().walletBalance) || 0;
+                if (bal < r.amount) throw new Error(`হেলপারের ওয়ালেটে এখন মাত্র ${taka(bal)} আছে, ${taka(r.amount)} দেওয়া যাবে না।`);
+
+                tx.update(hRef, { walletBalance: increment(-r.amount), totalWithdrawn: increment(r.amount) });
+                tx.update(rRef, { status: "paid", paidAt: serverTimestamp() });
+            });
+        }
+
+        async function act(btn, fn) {
+            if (btn.disabled) return;
+            const old = btn.textContent;
+            btn.disabled = true; btn.textContent = "...";
+            try { await fn(); }
+            catch (e) { console.error(e); alert(e.message || e.code || "সমস্যা হয়েছে"); }
+            finally { btn.disabled = false; btn.textContent = old; }
+        }
+
+        function render() {
+            const pend = requests.filter(r => r.status === "pending");
+            const hist = requests.filter(r => r.status !== "pending");
+
+            const tabs = $("tabs");
+            tabs.innerHTML = "";
+            [["pending", `অপেক্ষমাণ (${pend.length.toLocaleString("bn-BD")})`], ["history", "ইতিহাস"]].forEach(([k, label]) =>
+                tabs.append(h("button", {
+                    class: "flex-1 py-2 rounded-2xl text-xs font-bold " + (tab === k ? "bg-white text-green-700" : "bg-green-800 text-white"),
+                    text: label, onclick: () => { tab = k; render(); }
+                })));
+
+            const list = $("list");
+            list.innerHTML = "";
+            const shown = tab === "pending" ? pend : hist;
+            if (!shown.length) { list.append(h("p", { class: "text-center text-slate-400 py-12", text: "কিছু নেই" })); return; }
+
+            shown.forEach(r => {
+                const when = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleString("bn-BD") : "";
+                const card = h("div", { class: "bg-white rounded-3xl shadow-sm p-4 space-y-2" },
+                    h("div", { class: "flex justify-between items-start" },
+                        h("div", {},
+                            h("p", { class: "font-bold text-slate-800", text: (r.helperName || "ব্যবহারকারী") + " (" + (r.requesterRole === "delivery" ? "ডেলিভারি ম্যান" : "হেলপার") + ")" }),
+                            h("p", { class: "text-[11px] text-slate-400", text: when })),
+                        h("p", { class: "text-2xl font-black text-green-700", text: taka(r.amount) })),
+                    h("div", { class: "flex items-center justify-between bg-pink-50 rounded-xl p-3" },
+                        h("span", { class: "text-sm font-bold text-pink-700", text: "বিকাশ: " + (r.bkashNumber || "") }),
+                        h("button", { class: "text-[11px] bg-white px-3 py-1 rounded-lg font-bold text-pink-700 border",
+                            text: "কপি", onclick: async (e) => {
+                                try { await navigator.clipboard.writeText(r.bkashNumber || ""); e.target.textContent = "কপি হয়েছে ✔"; } catch (_) { alert(r.bkashNumber); }
+                            } })));
+
+                if (r.status === "pending") {
+                    const ok = h("button", { class: "flex-1 bg-green-600 text-white py-3 rounded-xl text-sm font-bold active:scale-95 transition disabled:opacity-60", text: "✔ টাকা পাঠিয়েছি" });
+                    ok.addEventListener("click", () => act(ok, async () => {
+                        if (confirm(`বিকাশে ${r.bkashNumber} নম্বরে ${taka(r.amount)} পাঠিয়েছেন? কনফার্ম করলে হেলপারের ওয়ালেট থেকে এই টাকা কাটা যাবে।`)) await approve(r);
+                    }));
+                    const no = h("button", { class: "bg-red-50 text-red-600 px-5 rounded-xl text-sm font-bold disabled:opacity-60", text: "বাতিল" });
+                    no.addEventListener("click", () => act(no, async () => {
+                        if (confirm("আবেদনটি বাতিল করবেন?")) await updateDoc(doc(db, "withdraw_requests", r.id), { status: "rejected" });
+                    }));
+                    card.append(h("div", { class: "flex gap-2 pt-1" }, ok, no));
+                } else {
+                    card.append(h("p", {
+                        class: "text-xs font-bold " + (r.status === "paid" ? "text-green-600" : "text-red-500"),
+                        text: r.status === "paid" ? "✔ পাঠানো হয়েছে" : "✖ বাতিল"
+                    }));
+                }
+                list.append(card);
+            });
+        }
+    </script>
+</body>
+</html>

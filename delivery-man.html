@@ -3,190 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ডেলিভারি প্যানেল - আপন হাট</title>
+    <title>ডেলিভারি | আপন হাট</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
-        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f1f5f9; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap">
+    <style>body { font-family: 'Hind Siliguri', sans-serif; }</style>
 </head>
-<body class="pb-24">
-
-    <!-- নেভিগেশন বার -->
-    <nav class="bg-blue-700 p-4 text-white shadow-md sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="font-bold"><i class="fas fa-truck mr-2"></i>ডেলিভারি প্যানেল</h1>
-            <button onclick="location.reload()" class="text-xs bg-blue-800 px-3 py-1 rounded-full"><i class="fas fa-sync"></i> রিফ্রেশ</button>
-        </div>
-    </nav>
-
-    <div class="container mx-auto p-4 max-w-lg">
-        
-        <!-- ১. তারিখ অনুযায়ী কালেকশন ক্যালকুলেটর -->
-        <div class="bg-white p-6 rounded-[35px] shadow-xl border-b-8 border-blue-700 mb-8 text-center relative overflow-hidden">
-            <div class="flex flex-col items-center gap-3">
-                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">তারিখ অনুযায়ী কালেকশন দেখুন:</label>
-                <input type="date" id="filter-date" class="p-2 border rounded-xl outline-none text-blue-700 font-bold text-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 mb-2">
+<body style="display:none" class="bg-slate-100 min-h-screen pb-10">
+    <header class="bg-green-700 text-white sticky top-0 z-20 shadow">
+        <div class="p-4 flex justify-between items-center">
+            <div>
+                <h1 class="font-bold text-lg">আমার ডেলিভারি</h1>
+                <p id="who" class="text-xs opacity-80"></p>
             </div>
-            
-            <p id="date-label" class="text-[11px] text-blue-400 font-bold mt-2">আজকের কালেকশন:</p>
-            <h2 class="text-4xl font-black text-blue-800 my-1">৳ <span id="selected-date-cash">0</span></h2>
-            <p class="text-[9px] text-gray-400 italic">মালিককে এই হিসাব বুঝিয়ে দিন</p>
+            <button id="logout-btn" class="text-xs bg-red-500 px-3 py-2 rounded-xl font-bold">লগআউট</button>
         </div>
+        <div id="tabs" class="flex gap-2 px-4 pb-3"></div>
+    </header>
 
-        <!-- ২. ট্যাব সুইচ (চলতি অর্ডার বনাম কমপ্লিট অর্ডার) -->
-        <div class="flex gap-2 mb-6 bg-slate-200 p-1 rounded-2xl border">
-            <button id="btn-pending" onclick="switchTab('pending')" class="flex-1 py-3 rounded-xl font-bold text-xs bg-white text-blue-700 shadow-sm transition-all">🚚 চলতি ডেলিভারি</button>
-            <button id="btn-history" onclick="switchTab('history')" class="flex-1 py-3 rounded-xl font-bold text-xs text-slate-500 transition-all">📜 কালেকশন হিস্ট্রি</button>
-        </div>
+    <main class="max-w-lg mx-auto p-3 space-y-3">
+        <!-- ওয়ালেট -->
+        <section class="bg-gradient-to-br from-green-600 to-green-800 text-white rounded-3xl p-5 shadow">
+            <p class="text-xs opacity-80">আমার ওয়ালেট</p>
+            <p id="balance" class="text-4xl font-black mt-1">৳০</p>
+            <div class="flex justify-between text-xs mt-3 opacity-90">
+                <span>মোট আয়: <b id="earned">৳০</b></span>
+                <span>প্রতি ডেলিভারিতে: <b id="rate">০%</b> (চার্জের)</span>
+            </div>
+            <button id="toggle-withdraw" class="mt-4 w-full bg-white text-green-700 py-3 rounded-xl font-bold active:scale-95 transition">💸 টাকা তুলুন (বিকাশ)</button>
+        </section>
 
-        <!-- অর্ডার লিস্ট এরিয়া -->
-        <div id="display-area" class="space-y-6">
-            <p class="text-center py-20 text-slate-400 italic font-bold">লোড হচ্ছে...</p>
-        </div>
-    </div>
+        <form id="withdraw-form" class="hidden bg-white rounded-3xl shadow-sm p-4 space-y-3">
+            <h2 class="font-bold text-slate-700">উইথড্র আবেদন</h2>
+            <input id="w-amount" type="number" min="1" step="1" required placeholder="কত টাকা তুলবেন?" class="w-full p-3 border rounded-xl">
+            <input id="w-bkash" inputmode="tel" maxlength="11" required placeholder="বিকাশ নম্বর (01XXXXXXXXX)" class="w-full p-3 border rounded-xl">
+            <p class="text-[11px] text-slate-400">সর্বনিম্ন <span id="min-w"></span> টাকা। মালিক যাচাই করে বিকাশে পাঠাবেন।</p>
+            <button id="w-btn" type="submit" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold disabled:opacity-60">আবেদন পাঠান</button>
+            <p id="w-msg" class="text-center text-sm font-bold"></p>
+        </form>
+
+        <div id="state" class="text-center text-slate-400 py-16">লোড হচ্ছে...</div>
+        <div id="list" class="space-y-3"></div>
+
+        <section class="pt-2">
+            <h2 class="font-bold text-slate-700 mb-2">উইথড্র আবেদন</h2>
+            <div id="w-list" class="space-y-2"></div>
+        </section>
+    </main>
 
     <script type="module">
         import { db } from "./firebase-config.js";
-        import { collection, onSnapshot, query, where, updateDoc, doc, arrayUnion, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { requireRole, logout } from "./auth-guard.js";
+        import { collection, query, where, onSnapshot, doc, getDoc, addDoc, updateDoc, serverTimestamp }
+            from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        let currentTab = 'pending';
-        let allOrders = [];
+        const { user, profile } = await requireRole(['delivery']);
+        const $ = (id) => document.getElementById(id);
+        const taka = (n) => "৳" + Number(n || 0).toLocaleString("bn-BD");
 
-        // ডিফল্ট তারিখ হিসেবে আজকের তারিখ সেট করা
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('filter-date').value = today;
+        $("who").textContent = profile.name || profile.email || "";
+        $("logout-btn").onclick = logout;
 
-        // ১. রিয়েল-টাইম ডাটা লিসেনার (সব ডেলিভারি অর্ডার একবারে আনা হচ্ছে ফিল্টারিং এর সুবিধার জন্য)
-        onSnapshot(query(collection(db, "orders"), orderBy("createdAt", "desc")), snap => {
-            allOrders = snap.docs.map(d => ({id: d.id, ...d.data()}));
-            renderUI();
-            calculateCash();
+        // ---------- ওয়ালেট (লাইভ) ----------
+        const MIN_WITHDRAW = 100; // সর্বনিম্ন উইথড্র (টাকা), চাইলে বদলান
+        let me = profile;
+        let withdraws = [];
+        $("min-w").textContent = MIN_WITHDRAW.toLocaleString("bn-BD");
+        onSnapshot(doc(db, "users", user.uid), (s) => {
+            if (!s.exists()) return;
+            me = { id: s.id, ...s.data() };
+            $("balance").textContent = taka(me.walletBalance);
+            $("earned").textContent = taka(me.totalEarned);
+            $("rate").textContent = (Number(me.deliveryCommissionRate) || 0).toLocaleString("bn-BD") + "%";
+        });
+        $("toggle-withdraw").onclick = () => $("withdraw-form").classList.toggle("hidden");
+
+        const WSTAT = {
+            pending:  { t: "অপেক্ষমাণ", c: "bg-orange-100 text-orange-700" },
+            paid:     { t: "পাঠানো হয়েছে", c: "bg-green-100 text-green-700" },
+            rejected: { t: "বাতিল", c: "bg-red-100 text-red-700" }
+        };
+        onSnapshot(query(collection(db, "withdraw_requests"), where("helperId", "==", user.uid)), (snap) => {
+            withdraws = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+            const box = $("w-list");
+            box.innerHTML = "";
+            if (!withdraws.length) box.append(h("p", { class: "text-center text-slate-400 text-sm py-3", text: "কোনো আবেদন নেই" }));
+            withdraws.forEach(w => {
+                const st = WSTAT[w.status] || { t: w.status, c: "bg-slate-100" };
+                box.append(h("div", { class: "bg-white rounded-2xl shadow-sm p-3 flex justify-between items-center" },
+                    h("div", {},
+                        h("p", { class: "font-bold text-slate-800", text: taka(w.amount) }),
+                        h("p", { class: "text-[11px] text-slate-400", text: `বিকাশ ${w.bkashNumber || ""} • ${w.createdAt?.toDate ? w.createdAt.toDate().toLocaleDateString("bn-BD") : ""}` })),
+                    h("span", { class: `text-[10px] font-bold px-2 py-1 rounded-full ${st.c}`, text: st.t })));
+            });
+        }, (e) => console.error(e));
+
+        let sending = false;
+        $("withdraw-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (sending) return;
+            const msg = $("w-msg");
+            const setMsg = (t, ok) => { msg.textContent = t; msg.className = "text-center text-sm font-bold " + (ok ? "text-green-600" : "text-red-600"); };
+            const amount = Number($("w-amount").value);
+            const bkash = $("w-bkash").value.replace(/\s/g, "");
+            if (!Number.isInteger(amount) || amount < MIN_WITHDRAW) return setMsg(`সর্বনিম্ন ${MIN_WITHDRAW} টাকা তুলতে পারবেন`);
+            if (amount > (Number(me.walletBalance) || 0)) return setMsg("ওয়ালেটে এত টাকা নেই");
+            if (!/^01[3-9]\d{8}$/.test(bkash)) return setMsg("সঠিক ১১ ডিজিটের বিকাশ নম্বর দিন");
+            if (withdraws.some(w => w.status === "pending")) return setMsg("আগের আবেদনটি এখনো অপেক্ষমাণ আছে");
+            sending = true;
+            $("w-btn").disabled = true;
+            try {
+                await addDoc(collection(db, "withdraw_requests"), {
+                    helperId: user.uid, helperName: me.name || "", bkashNumber: bkash, amount,
+                    requesterRole: "delivery", status: "pending", createdAt: serverTimestamp()
+                });
+                setMsg("আবেদন পাঠানো হয়েছে!", true);
+                $("withdraw-form").reset();
+            } catch (err) {
+                console.error(err);
+                setMsg("আবেদন যায়নি: " + (err.code || err.message));
+            } finally { sending = false; $("w-btn").disabled = false; }
         });
 
-        // তারিখ পরিবর্তন করলে হিসাব আপডেট হবে
-        document.getElementById('filter-date').onchange = () => {
-            calculateCash();
-            if(currentTab === 'history') renderUI();
-        };
+        // পণ্য কোথা থেকে নিতে হবে (মালিকের সেট করা ঠিকানা)
+        let shop = null;
+        try {
+            const sh = await getDoc(doc(db, "settings", "shop"));
+            if (sh.exists()) shop = sh.data();
+        } catch (e) { console.error(e); }
 
-        // ক্যাশ হিসাব করার ফাংশন
-        function calculateCash() {
-            const selectedDate = new Date(document.getElementById('filter-date').value).toLocaleDateString();
-            const dateLabel = document.getElementById('date-label');
-            const todayStr = new Date().toLocaleDateString();
-
-            dateLabel.innerText = (selectedDate === todayStr) ? "আজকের কালেকশন:" : `${selectedDate} তারিখের কালেকশন:`;
-
-            let total = 0;
-            allOrders.forEach(o => {
-                if(o.status === 'delivered' && o.deliveredAt) {
-                    const dDate = o.deliveredAt.toDate().toLocaleDateString();
-                    if(dDate === selectedDate) {
-                        total += Number(o.paidAmount || 0);
-                    }
-                }
-            });
-            document.getElementById('selected-date-cash').innerText = total.toLocaleString('bn-BD');
+        function h(tag, props = {}, ...kids) {
+            const e = document.createElement(tag);
+            for (const [k, v] of Object.entries(props)) {
+                if (k === "class") e.className = v;
+                else if (k === "text") e.textContent = v;
+                else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+                else if (v !== undefined && v !== null) e.setAttribute(k, v);
+            }
+            for (const kid of kids.flat()) if (kid != null) e.append(kid);
+            return e;
         }
 
-        // ট্যাব সুইচ লজিক
-        window.switchTab = (tab) => {
-            currentTab = tab;
-            const btnP = document.getElementById('btn-pending');
-            const btnH = document.getElementById('btn-history');
+        let orders = [];
+        let tab = "active"; // active | done
 
-            if(tab === 'pending') {
-                btnP.className = "flex-1 py-3 rounded-xl font-bold text-xs bg-white text-blue-700 shadow-sm transition-all";
-                btnH.className = "flex-1 py-3 rounded-xl font-bold text-xs text-slate-500 transition-all";
-            } else {
-                btnH.className = "flex-1 py-3 rounded-xl font-bold text-xs bg-white text-blue-700 shadow-sm transition-all";
-                btnP.className = "flex-1 py-3 rounded-xl font-bold text-xs text-slate-500 transition-all";
-            }
-            renderUI();
-        };
+        // শুধু নিজের অ্যাসাইন করা অর্ডার (রুলসও এটাই মানে)
+        onSnapshot(query(collection(db, "orders"), where("deliveryManId", "==", user.uid)), (snap) => {
+            orders = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+                .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+            $("state").style.display = "none";
+            render();
+        }, (err) => {
+            console.error(err);
+            $("state").style.display = "block";
+            $("state").textContent = "অর্ডার লোড হয়নি: " + (err.code || err.message);
+        });
 
-        function renderUI() {
-            const container = document.getElementById('display-area');
-            const selectedDate = new Date(document.getElementById('filter-date').value).toLocaleDateString();
-            container.innerHTML = "";
+        function render() {
+            const active = orders.filter(o => o.status === "confirmed" || o.status === "shipping");
+            const done = orders.filter(o => o.status === "delivered");
 
-            let filtered = [];
-            if(currentTab === 'pending') {
-                filtered = allOrders.filter(o => o.status === 'shipping');
-            } else {
-                filtered = allOrders.filter(o => o.status === 'delivered' && o.deliveredAt && o.deliveredAt.toDate().toLocaleDateString() === selectedDate);
-            }
+            const tabs = $("tabs");
+            tabs.innerHTML = "";
+            [["active", `চলমান (${active.length.toLocaleString("bn-BD")})`], ["done", `সম্পন্ন (${done.length.toLocaleString("bn-BD")})`]]
+                .forEach(([key, label]) => tabs.append(h("button", {
+                    class: "flex-1 py-2 rounded-2xl text-xs font-bold " + (tab === key ? "bg-white text-green-700" : "bg-green-800 text-white"),
+                    text: label, onclick: () => { tab = key; render(); }
+                })));
 
-            if(filtered.length === 0) {
-                container.innerHTML = `<div class='bg-white p-12 rounded-[40px] text-center text-slate-400 font-bold border border-dashed'>কোন ডাটা পাওয়া যায়নি</div>`;
+            const list = $("list");
+            list.innerHTML = "";
+            const shown = tab === "active" ? active : done;
+            if (!shown.length) {
+                list.append(h("p", { class: "text-center text-slate-400 py-12", text: tab === "active" ? "এখন কোনো ডেলিভারি নেই" : "কোনো সম্পন্ন ডেলিভারি নেই" }));
                 return;
             }
-
-            filtered.forEach(o => {
-                const productSubtotal = o.items.reduce((sum, item) => sum + (item.price * (item.qty || 1)), 0);
-                const card = document.createElement('div');
-                card.className = "bg-white p-6 rounded-[40px] shadow-md border border-slate-50 mb-4";
-                card.innerHTML = `
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h4 class="font-black text-lg text-slate-800">${o.customerName}</h4>
-                            <p class="text-[9px] text-slate-400 font-bold uppercase">ID: #${o.id.substring(0,6)}</p>
-                        </div>
-                        ${currentTab === 'pending' ? `<a href="tel:${o.customerPhone}" class="bg-green-500 text-white p-3 rounded-xl shadow-lg shadow-green-100"><i class="fas fa-phone-alt"></i></a>` : `<span class="text-green-600 font-black text-xs italic"><i class="fas fa-check-circle"></i> সফল</span>`}
-                    </div>
-
-                    <!-- পণ্যের তালিকা -->
-                    <div class="bg-slate-50 p-3 rounded-2xl mb-4 text-[11px] space-y-1">
-                        ${o.items.map(i => `<div class="flex justify-between"><span>${i.name} (x${i.qty})</span> <b>৳${i.price * i.qty}</b></div>`).join('')}
-                    </div>
-
-                    <div class="flex justify-between text-xs font-bold border-t border-dashed pt-3 mb-4">
-                        <span class="${o.paymentStatus === 'due' ? 'text-red-500' : 'text-blue-700'}">${currentTab === 'pending' ? 'পাওনা বিল:' : 'সংগৃহীত ক্যাশ:'}</span>
-                        <span class="text-xl font-black ${o.paymentStatus === 'due' ? 'text-red-600' : 'text-green-700'}">৳${currentTab === 'pending' ? o.totalBill : o.paidAmount}</span>
-                    </div>
-
-                    ${currentTab === 'pending' ? `
-                        <div class="space-y-3">
-                            <label class="block text-[10px] font-black text-slate-400 uppercase text-center tracking-tighter">কাস্টমার কত টাকা দিয়েছে লিখুন:</label>
-                            <input type="number" id="amt-${o.id}" value="${o.totalBill}" class="w-full p-4 bg-slate-50 border-2 rounded-2xl outline-none focus:border-blue-500 font-black text-center text-2xl">
-                            <button onclick="processDelivery('${o.id}', ${o.totalBill})" class="w-full bg-blue-700 text-white py-4 rounded-3xl font-black shadow-lg shadow-blue-100 mt-2 active:scale-95 transition-all flex items-center justify-center gap-2">
-                                <i class="fas fa-check-circle"></i> ডেলিভারি সম্পন্ন
-                            </button>
-                        </div>
-                    ` : `
-                        <div class="text-[10px] text-slate-400 font-bold italic text-center border-t pt-2">ডেলিভারি সময়: ${o.deliveredAt.toDate().toLocaleTimeString('bn-BD')}</div>
-                    `}
-                `;
-                container.appendChild(card);
-            });
+            shown.forEach(o => list.append(card(o)));
         }
 
-        // ডেলিভারি সম্পন্ন করার ফাংশন
-        window.processDelivery = async (id, totalBill) => {
-            const collected = Number(document.getElementById(`amt-${id}`).value);
-            if (collected < 0) return alert("সঠিক টাকা লিখুন!");
-            
-            let paymentStatus = (collected < totalBill) ? 'due' : 'paid';
-            let msg = (collected < totalBill) ? `৳${collected} টাকা নিয়েছেন? বাকি ৳${totalBill - collected} বকেয়া হবে।` : "সম্পূর্ণ টাকা বুঝে পেয়েছেন তো?";
-
-            if (confirm(msg)) {
-                try {
-                    const now = new Date().toLocaleString('bn-BD');
-                    await updateDoc(doc(db, "orders", id), { 
-                        status: 'delivered', 
-                        paymentStatus: paymentStatus,
-                        paidAmount: collected,
-                        deliveredAt: new Date(),
-                        paymentHistory: arrayUnion({ date: now, amount: collected, note: "ডেলিভারি সংগৃহীত" })
-                    });
-                    alert("সফল!");
-                } catch (e) { alert("ভুল: " + e.message); }
+        async function setStatus(btn, o, status) {
+            if (btn.disabled) return;
+            const old = btn.textContent;
+            btn.disabled = true; btn.textContent = "...";
+            try {
+                const data = { status };
+                if (status === "delivered") data.deliveredAt = serverTimestamp();
+                await updateDoc(doc(db, "orders", o.id), data);
+            } catch (e) {
+                console.error(e);
+                alert("আপডেট হয়নি: " + (e.code === "permission-denied" ? "অনুমতি নেই বা অর্ডারের অবস্থা বদলে গেছে" : (e.code || e.message)));
+                btn.disabled = false; btn.textContent = old;
             }
-        };
+        }
 
+        function card(o) {
+            const items = (o.items || []).map(i => h("p", { class: "text-xs", text: `• ${i.name} × ${i.qty}` }));
+            const addr = o.customerAddress || "";
+            const shipping = o.status === "shipping";
+            const doneOrder = o.status === "delivered";
+
+            const actions = [];
+            if (o.status === "confirmed") {
+                const b = h("button", { class: "flex-1 bg-purple-600 text-white py-3 rounded-xl font-bold active:scale-95 transition disabled:opacity-60", text: "🚚 যাত্রা শুরু করুন" });
+                b.addEventListener("click", () => setStatus(b, o, "shipping"));
+                actions.push(b);
+            } else if (shipping) {
+                const b = h("button", { class: "flex-1 bg-green-600 text-white py-3 rounded-xl font-bold active:scale-95 transition disabled:opacity-60", text: "✔ ডেলিভারি সম্পন্ন" });
+                b.addEventListener("click", () => {
+                    if (confirm(`গ্রাহকের কাছ থেকে ${taka(o.totalBill)} বুঝে পেয়েছেন এবং পণ্য দিয়েছেন?`)) setStatus(b, o, "delivered");
+                });
+                actions.push(b);
+            }
+
+            const rateUsed = Number(o.deliveryManRate ?? me.deliveryCommissionRate ?? 0) || 0;
+            const earnAmt = Math.round((Number(o.deliveryCharge) || 0) * rateUsed / 100);
+            const earnLine = h("p", { class: "text-sm font-bold text-blue-700 bg-blue-50 rounded-xl px-3 py-2",
+                text: doneOrder
+                    ? (o.deliveryPayProcessed ? `💰 আপনার আয়: ${taka(o.deliveryEarned)} (ওয়ালেটে যোগ হয়েছে)` : "💰 আপনার আয় ওয়ালেটে যোগ হবে...")
+                    : `💰 এই ডেলিভারিতে আপনার আয়: ${taka(earnAmt)}` });
+
+            const pickup = doneOrder ? null : h("div", { class: "bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-1" },
+                h("p", { class: "text-xs font-bold text-amber-700", text: "📦 পণ্য নেওয়ার স্থান" }),
+                shop && shop.address
+                    ? [h("p", { class: "text-sm font-bold text-slate-800", text: (shop.name ? shop.name + " — " : "") + shop.address }),
+                       shop.phone ? h("a", { href: "tel:" + shop.phone, class: "text-xs text-blue-600 font-bold", text: "📞 " + shop.phone }) : null]
+                    : h("p", { class: "text-xs text-slate-500", text: "মালিক এখনো ঠিকানা দেননি, মালিককে ফোন করুন।" }));
+
+            return h("div", { class: "bg-white rounded-3xl shadow-sm p-4 space-y-2" },
+                h("div", { class: "flex justify-between items-start" },
+                    h("p", { class: "font-bold text-slate-800", text: o.customerName || "" }),
+                    h("span", { class: "text-[10px] text-slate-400", text: "#" + o.id.slice(0, 8).toUpperCase() })),
+                pickup,
+                h("p", { class: "text-sm text-slate-600", text: "📍 গ্রাহকের ঠিকানা: " + addr }),
+                h("div", { class: "flex gap-2" },
+                    h("a", { href: "tel:" + (o.customerPhone || ""), class: "flex-1 text-center bg-blue-50 text-blue-600 py-2 rounded-xl text-xs font-bold", text: "📞 কল করুন" }),
+                    addr && o.deliveryMethod !== "shop"
+                        ? h("a", { href: "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(addr), target: "_blank", rel: "noopener", class: "flex-1 text-center bg-slate-100 text-slate-700 py-2 rounded-xl text-xs font-bold", text: "🗺 ম্যাপ" })
+                        : null),
+                h("div", { class: "bg-slate-50 rounded-xl p-3" }, items),
+                h("div", { class: "flex justify-between items-center bg-green-50 rounded-xl p-3" },
+                    h("span", { class: "text-xs text-green-800 font-bold", text: doneOrder ? "আদায় হয়েছে" : "আদায় করুন (ক্যাশ)" }),
+                    h("span", { class: "text-xl font-black text-green-700", text: taka(o.totalBill) })),
+                earnLine,
+                actions.length ? h("div", { class: "flex gap-2 pt-1" }, actions) : null);
+        }
     </script>
 </body>
 </html>

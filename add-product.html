@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>পণ্য যোগ | আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap">
+    <style>body { font-family: 'Hind Siliguri', sans-serif; }</style>
+</head>
+<body style="display:none" class="bg-slate-100 min-h-screen pb-10">
+    <header class="bg-green-700 text-white p-4 flex items-center gap-3">
+        <a href="owner-dashboard.html" class="text-xl">←</a>
+        <h1 class="font-bold text-lg">নতুন পণ্য যোগ করুন</h1>
+    </header>
+
+    <main class="max-w-lg mx-auto p-4">
+        <form id="product-form" class="bg-white rounded-3xl shadow p-5 space-y-4">
+            <div>
+                <label class="text-xs font-bold text-slate-500">পণ্যের নাম *</label>
+                <input id="p-name" required maxlength="100" class="w-full p-3 border rounded-xl outline-none focus:border-green-600">
+            </div>
+            <div>
+                <label class="text-xs font-bold text-slate-500">ক্যাটাগরি *</label>
+                <input id="p-category" required maxlength="50" list="cat-list" placeholder="যেমন: ডাল ও চাল"
+                    class="w-full p-3 border rounded-xl outline-none focus:border-green-600">
+                <datalist id="cat-list"></datalist>
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-blue-600">ছবি * (সর্বোচ্চ ৩টি, অটো ছোট হবে)</label>
+                <input id="p-files" type="file" accept="image/*" multiple class="w-full text-sm mt-1">
+                <div id="preview" class="flex gap-2 mt-2 flex-wrap"></div>
+                <p id="img-msg" class="text-xs text-slate-400 mt-1"></p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-3 border-t border-dashed">
+                <div>
+                    <label class="text-xs font-bold text-red-500">ক্রয়মূল্য (৳) *</label>
+                    <input id="p-buy" type="number" min="0" step="any" required class="w-full p-3 border rounded-xl">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-green-600">বিক্রয়মূল্য (৳) *</label>
+                    <input id="p-sell" type="number" min="0" step="any" required class="w-full p-3 border rounded-xl">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500">পুরনো দাম (৳)</label>
+                    <input id="p-regular" type="number" min="0" step="any" class="w-full p-3 border rounded-xl">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500">ওজন (কেজি) *</label>
+                    <input id="p-weight" type="number" min="0" step="any" required class="w-full p-3 border rounded-xl">
+                </div>
+                <div class="col-span-2">
+                    <label class="text-xs font-bold text-slate-500">স্টক (সংখ্যা) *</label>
+                    <input id="p-stock" type="number" min="0" step="1" required class="w-full p-3 border rounded-xl">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-xs font-bold text-slate-500">বিবরণ</label>
+                <textarea id="p-desc" rows="3" maxlength="1000" class="w-full p-3 border rounded-xl"></textarea>
+            </div>
+
+            <button id="save-btn" type="submit"
+                class="w-full bg-green-600 text-white py-3 rounded-xl font-bold active:scale-95 transition disabled:opacity-60">
+                পণ্য সেভ করুন
+            </button>
+            <p id="msg" class="text-center text-sm font-bold"></p>
+        </form>
+    </main>
+
+    <script type="module">
+        import { db } from "./firebase-config.js";
+        import { requireRole } from "./auth-guard.js";
+        import { compressImage, MAX_IMAGES } from "./image-utils.js";
+        import { collection, doc, getDocs, writeBatch, serverTimestamp }
+            from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        await requireRole(['owner']);
+
+        let images = []; // ডাটা-কোড (base64) এর তালিকা
+        const $ = (id) => document.getElementById(id);
+
+        // আগের ক্যাটাগরিগুলো পরামর্শ হিসেবে দেখাবে
+        try {
+            const snap = await getDocs(collection(db, "products"));
+            const cats = [...new Set(snap.docs.map(d => d.data().category).filter(Boolean))];
+            cats.forEach(c => { const o = document.createElement('option'); o.value = c; $('cat-list').appendChild(o); });
+        } catch (e) { console.error(e); }
+
+        function renderPreview() {
+            const box = $('preview');
+            box.innerHTML = "";
+            images.forEach((src, i) => {
+                const wrap = document.createElement('div');
+                wrap.className = "relative";
+                const img = document.createElement('img');
+                img.src = src;
+                img.className = "w-20 h-20 object-cover rounded-xl border";
+                const del = document.createElement('button');
+                del.type = "button";
+                del.textContent = "✕";
+                del.className = "absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs";
+                del.onclick = () => { images.splice(i, 1); renderPreview(); };
+                wrap.append(img, del);
+                box.appendChild(wrap);
+            });
+            const kb = Math.round(images.reduce((a, s) => a + s.length, 0) * 0.75 / 1024);
+            $('img-msg').textContent = images.length ? `${images.length}টি ছবি, মোট প্রায় ${kb} KB` : "";
+        }
+
+        $('p-files').addEventListener('change', async (e) => {
+            const files = Array.from(e.target.files);
+            e.target.value = "";
+            const room = MAX_IMAGES - images.length;
+            if (files.length > room) alert(`সর্বোচ্চ ${MAX_IMAGES}টি ছবি দেওয়া যাবে।`);
+            $('img-msg').textContent = "ছবি ছোট করা হচ্ছে...";
+            for (const f of files.slice(0, Math.max(room, 0))) {
+                try { images.push(await compressImage(f)); }
+                catch (err) { alert(f.name + ": " + err.message); }
+            }
+            renderPreview();
+        });
+
+        let saving = false;
+        $('product-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (saving) return;
+
+            const name = $('p-name').value.trim();
+            const sell = Number($('p-sell').value);
+            const buy = Number($('p-buy').value);
+            const stock = Number($('p-stock').value);
+            const weight = Number($('p-weight').value);
+            const regular = Number($('p-regular').value) || 0;
+
+            if (!name) return alert("পণ্যের নাম দিন");
+            if (images.length === 0) return alert("কমপক্ষে একটি ছবি দিন");
+            if (!(sell > 0)) return alert("বিক্রয়মূল্য ০ এর বেশি হতে হবে");
+            if (!Number.isInteger(stock) || stock < 0) return alert("স্টক পূর্ণ সংখ্যা হতে হবে");
+            if (weight < 0 || buy < 0) return alert("সংখ্যা ঋণাত্মক হতে পারবে না");
+
+            saving = true;
+            const btn = $('save-btn');
+            btn.disabled = true;
+            btn.textContent = "সেভ হচ্ছে...";
+            $('msg').textContent = "";
+
+            try {
+                const pRef = doc(collection(db, "products"));
+                const batch = writeBatch(db);
+                // পাবলিক তথ্য (ক্রয়মূল্য ছাড়া)
+                batch.set(pRef, {
+                    name,
+                    category: $('p-category').value.trim(),
+                    images,
+                    sellPrice: sell,
+                    regularPrice: regular,
+                    weight,
+                    stock,
+                    description: $('p-desc').value.trim(),
+                    createdAt: serverTimestamp()
+                });
+                // গোপন তথ্য: শুধু মালিক দেখবে
+                batch.set(doc(db, "product_costs", pRef.id), { buyPrice: buy });
+                await batch.commit();
+
+                $('msg').className = "text-center text-sm font-bold text-green-600";
+                $('msg').textContent = "পণ্যটি সফলভাবে যোগ হয়েছে!";
+                $('product-form').reset();
+                images = [];
+                renderPreview();
+            } catch (err) {
+                console.error(err);
+                $('msg').className = "text-center text-sm font-bold text-red-600";
+                $('msg').textContent = "সমস্যা হয়েছে: " + (err.code || err.message);
+            } finally {
+                saving = false;
+                btn.disabled = false;
+                btn.textContent = "পণ্য সেভ করুন";
+            }
+        });
+    </script>
+</body>
+</html>

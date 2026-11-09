@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>হিসাব ও রিপোর্ট | আপন হাট</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap">
+    <style>
+        body { font-family: 'Hind Siliguri', sans-serif; }
+        button, a { touch-action: manipulation; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { scrollbar-width: none; }
+    </style>
+</head>
+<body style="display:none" class="bg-slate-100 min-h-screen pb-16">
+    <header class="bg-green-700 text-white sticky top-0 z-20 shadow">
+        <div class="p-4 flex items-center gap-3">
+            <a href="owner-dashboard.html" class="text-xl">←</a>
+            <h1 class="font-bold text-lg flex-1">হিসাব ও রিপোর্ট</h1>
+            <button id="refresh" class="text-xs bg-white/20 px-3 py-2 rounded-xl font-bold">🔄 রিফ্রেশ</button>
+        </div>
+        <div id="chips" class="flex gap-2 overflow-x-auto no-scrollbar px-4 pb-3"></div>
+        <div id="custom-box" class="hidden px-4 pb-3 flex gap-2 items-end">
+            <div class="flex-1"><label class="text-[10px] opacity-80">শুরু</label>
+                <input id="from" type="date" class="w-full p-2.5 rounded-xl text-slate-800 text-base"></div>
+            <div class="flex-1"><label class="text-[10px] opacity-80">শেষ</label>
+                <input id="to" type="date" class="w-full p-2.5 rounded-xl text-slate-800 text-base"></div>
+            <button id="go" class="bg-white text-green-700 px-4 py-3 rounded-xl font-bold text-sm">দেখুন</button>
+        </div>
+    </header>
+
+    <main class="max-w-2xl mx-auto p-3 space-y-4">
+        <p id="range-label" class="text-center text-xs text-slate-500"></p>
+        <div id="state" class="text-center text-slate-400 py-16">লোড হচ্ছে...</div>
+        <div id="content" class="space-y-4 hidden"></div>
+    </main>
+
+    <script type="module">
+        import { db } from "./firebase-config.js";
+        import { requireRole } from "./auth-guard.js";
+        import { collection, query, where, orderBy, limit, getDocs, Timestamp }
+            from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        await requireRole(['owner']);
+
+        const $ = (id) => document.getElementById(id);
+        const taka = (n) => "৳" + Math.round(Number(n) || 0).toLocaleString("bn-BD");
+        const num = (n) => Number(n || 0).toLocaleString("bn-BD");
+        const LIMIT = 2000; // একবারে সর্বোচ্চ কতগুলো অর্ডার পড়বে
+
+        function h(tag, props = {}, ...kids) {
+            const e = document.createElement(tag);
+            for (const [k, v] of Object.entries(props)) {
+                if (k === "class") e.className = v;
+                else if (k === "text") e.textContent = v;
+                else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+                else if (v !== undefined && v !== null) e.setAttribute(k, v);
+            }
+            for (const kid of kids.flat()) if (kid != null) e.append(kid);
+            return e;
+        }
+
+        // ---------- তারিখ ফিল্টার ----------
+        const PRESETS = [
+            ["today", "আজ"], ["yesterday", "গতকাল"], ["7d", "৭ দিন"],
+            ["month", "এই মাস"], ["lastmonth", "গত মাস"], ["custom", "তারিখ বাছুন"]
+        ];
+        let active = "today";
+        const endOf = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+        const startOf = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        const parseDate = (v) => { const [y, m, d] = v.split("-").map(Number); return new Date(y, m - 1, d); };
+        const fmtDate = (d) => d.toLocaleDateString("bn-BD", { day: "numeric", month: "short", year: "numeric" });
+        const keyOf = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+        function getRange() {
+            const now = new Date(), today = startOf(now);
+            if (active === "today") return [today, endOf(today)];
+            if (active === "yesterday") { const y = new Date(today); y.setDate(y.getDate() - 1); return [y, endOf(y)]; }
+            if (active === "7d") { const s = new Date(today); s.setDate(s.getDate() - 6); return [s, endOf(today)]; }
+            if (active === "month") return [new Date(now.getFullYear(), now.getMonth(), 1), endOf(today)];
+            if (active === "lastmonth") return [new Date(now.getFullYear(), now.getMonth() - 1, 1), endOf(new Date(now.getFullYear(), now.getMonth(), 0))];
+            if (!$("from").value || !$("to").value) return null;
+            return [startOf(parseDate($("from").value)), endOf(parseDate($("to").value))];
+        }
+
+        function renderChips() {
+            const box = $("chips");
+            box.innerHTML = "";
+            PRESETS.forEach(([k, label]) => box.append(h("button", {
+                class: "shrink-0 px-4 py-2 rounded-2xl text-sm font-bold " + (k === active ? "bg-white text-green-700" : "bg-green-800 text-white"),
+                text: label,
+                onclick: () => {
+                    active = k;
+                    $("custom-box").classList.toggle("hidden", k !== "custom");
+                    renderChips();
+                    if (k !== "custom") run();
+                }
+            })));
+        }
+
+        // ---------- স্থির তথ্য (একবার পড়ে রাখা) ----------
+        let users = [], costs = {}, withdraws = [], staticLoaded = false;
+        async function loadStatic(force) {
+            if (staticLoaded && !force) return;
+            const [u, c, w] = await Promise.all([
+                getDocs(collection(db, "users")),
+                getDocs(collection(db, "product_costs")),
+                getDocs(query(collection(db, "withdraw_requests"), orderBy("createdAt", "desc"), limit(500)))
+            ]);
+            users = u.docs.map(d => ({ id: d.id, ...d.data() }));
+            costs = {};
+            c.docs.forEach(d => costs[d.id] = Number(d.data().buyPrice) || 0);
+            withdraws = w.docs.map(d => ({ id: d.id, ...d.data() }));
+            staticLoaded = true;
+        }
+
+        // ---------- একটা অর্ডারের হিসাব ----------
+        function calcOrder(o) {
+            let cogs = 0, unknown = 0;
+            for (const i of o.items || []) {
+                if (costs[i.id] === undefined) unknown++;
+                else cogs += costs[i.id] * (Number(i.qty) || 0);
+            }
+            const subtotal = Number(o.subtotal) || 0;
+            const charge = Number(o.deliveryCharge) || 0;
+            const total = Number(o.totalBill) || 0;
+            // কমিশন যোগ হয়ে গিয়ে থাকলে আসল অঙ্ক, না হলে হিসাব করা অঙ্ক
+            const helperCom = o.helperId
+                ? (o.commissionProcessed ? Number(o.earnedCommission) || 0 : Math.round(subtotal * (Number(o.helperCommissionRate) || 0) / 100))
+                : 0;
+            const manPay = o.deliveryManId
+                ? (o.deliveryPayProcessed ? Number(o.deliveryEarned) || 0 : Math.round(charge * (Number(o.deliveryManRate) || 0) / 100))
+                : 0;
+            const profit = subtotal - cogs + charge - helperCom - manPay;
+            return { subtotal, charge, total, cogs, unknown, helperCom, manPay, profit };
+        }
+
+        // ---------- মূল কাজ ----------
+        let last = null; // CSV এর জন্য
+        let running = false;
+        async function run(force = false) {
+            if (running) return;
+            const r = getRange();
+            if (!r) return alert("শুরু ও শেষের তারিখ দিন");
+            const [from, to] = r;
+            if (from > to) return alert("শুরুর তারিখ শেষের তারিখের আগে হতে হবে");
+            if ((to - from) / 86400000 > 400) return alert("সর্বোচ্চ ১৩ মাসের হিসাব একসাথে দেখা যাবে");
+
+            running = true;
+            $("state").style.display = "block";
+            $("state").textContent = "হিসাব করা হচ্ছে...";
+            $("content").classList.add("hidden");
+            $("range-label").textContent = fmtDate(from) + (keyOf(from) === keyOf(to) ? "" : " থেকে " + fmtDate(to));
+
+            try {
+                await loadStatic(force);
+                const t0 = Timestamp.fromDate(from), t1 = Timestamp.fromDate(to);
+                const [createdSnap, deliveredSnap] = await Promise.all([
+                    getDocs(query(collection(db, "orders"), where("createdAt", ">=", t0), where("createdAt", "<=", t1), limit(LIMIT))),
+                    getDocs(query(collection(db, "orders"), where("deliveredAt", ">=", t0), where("deliveredAt", "<=", t1), limit(LIMIT)))
+                ]);
+                const created = createdSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                const delivered = deliveredSnap.docs.map(d => ({ id: d.id, ...d.data() })).filter(o => o.status === "delivered");
+                const hitLimit = createdSnap.size >= LIMIT || deliveredSnap.size >= LIMIT;
+                last = { from, to, delivered };
+                render(from, to, created, delivered, hitLimit);
+                $("state").style.display = "none";
+                $("content").classList.remove("hidden");
+            } catch (e) {
+                console.error(e);
+                $("state").textContent = "লোড হয়নি: " + (e.code || e.message);
+            } finally { running = false; }
+        }
+
+        // ---------- দেখানো ----------
+        function section(title, ...kids) {
+            return h("section", { class: "bg-white rounded-3xl shadow-sm p-4 space-y-3" },
+                h("h2", { class: "font-bold text-slate-700", text: title }), ...kids);
+        }
+        function row(label, value, cls = "") {
+            return h("div", { class: "flex justify-between text-sm " + cls },
+                h("span", { class: "text-slate-600", text: label }), h("b", { text: value }));
+        }
+
+        function render(from, to, created, delivered, hitLimit) {
+            const box = $("content");
+            box.innerHTML = "";
+
+            // মোট হিসাব
+            const T = { subtotal: 0, charge: 0, total: 0, cogs: 0, helperCom: 0, manPay: 0, profit: 0, unknown: 0 };
+            const byHelper = {}, byMan = {}, byProduct = {}, byDay = {};
+            const calcs = new Map();
+            delivered.forEach(o => {
+                const c = calcs.set(o.id, calcOrder(o)).get(o.id);
+                for (const k of Object.keys(T)) T[k] += c[k];
+
+                if (o.helperId) {
+                    const x = byHelper[o.helperId] ||= { orders: 0, sales: 0, com: 0 };
+                    x.orders++; x.sales += c.subtotal; x.com += c.helperCom;
+                }
+                if (o.deliveryManId) {
+                    const x = byMan[o.deliveryManId] ||= { count: 0, cash: 0, charge: 0, earned: 0 };
+                    x.count++; x.cash += c.total; x.charge += c.charge; x.earned += c.manPay;
+                }
+                for (const i of o.items || []) {
+                    const x = byProduct[i.id] ||= { name: i.name, qty: 0, revenue: 0, profit: 0 };
+                    const q = Number(i.qty) || 0, pr = Number(i.price) || 0;
+                    x.qty += q; x.revenue += pr * q;
+                    if (costs[i.id] !== undefined) x.profit += (pr - costs[i.id]) * q;
+                }
+                const d = o.deliveredAt?.toDate ? o.deliveredAt.toDate() : null;
+                if (d) { const k = keyOf(d); byDay[k] = (byDay[k] || 0) + c.total; }
+            });
+
+            if (hitLimit) box.append(h("p", { class: "bg-orange-50 text-orange-700 text-xs rounded-2xl p-3", text: `⚠ এই সময়ে ${LIMIT}টির বেশি অর্ডার, তাই সব দেখানো যায়নি। ছোট সময় বাছুন।` }));
+            if (T.unknown > 0) box.append(h("p", { class: "bg-orange-50 text-orange-700 text-xs rounded-2xl p-3", text: `⚠ ${num(T.unknown)}টি পণ্যের ক্রয়মূল্য পাওয়া যায়নি (মুছে ফেলা হয়েছে), তাই লাভ সামান্য বেশি দেখাতে পারে।` }));
+
+            // ১) লাভ
+            box.append(h("section", { class: "bg-gradient-to-br from-green-600 to-green-800 text-white rounded-3xl p-5 shadow" },
+                h("p", { class: "text-xs opacity-80", text: "নিট লাভ (সব খরচ বাদে)" }),
+                h("p", { class: "text-4xl font-black mt-1", text: taka(T.profit) }),
+                h("p", { class: "text-xs opacity-80 mt-2", text: `${num(delivered.length)}টি ডেলিভারি সম্পন্ন অর্ডার থেকে` })));
+
+            // ২) আয়-ব্যয়
+            box.append(section("আয়-ব্যয়ের হিসাব",
+                row("পণ্য বিক্রি", taka(T.subtotal)),
+                row("ডেলিভারি চার্জ আদায়", taka(T.charge)),
+                row("মোট আদায় (ক্যাশ)", taka(T.total), "border-t pt-2 text-green-700 text-base"),
+                row("− পণ্যের ক্রয়মূল্য", taka(T.cogs), "text-red-600"),
+                row("− হেলপারদের কমিশন", taka(T.helperCom), "text-red-600"),
+                row("− ডেলিভারি ম্যানদের আয়", taka(T.manPay), "text-red-600"),
+                row("= নিট লাভ", taka(T.profit), "border-t pt-2 text-green-700 text-base"),
+                h("p", { class: "text-[11px] text-slate-400", text: "ডেলিভারি হওয়ার তারিখ ধরে হিসাব। ক্রয়মূল্য বর্তমান ক্রয়মূল্য থেকে নেওয়া।" })));
+
+            // ৩) অর্ডারের অবস্থা (অর্ডারের তারিখ ধরে)
+            const cnt = (s) => created.filter(o => o.status === s).length;
+            box.append(section("এই সময়ে আসা অর্ডার: " + num(created.length) + "টি",
+                h("div", { class: "grid grid-cols-5 gap-1 text-center" },
+                    [["নতুন", "pending", "text-orange-600"], ["কনফার্ম", "confirmed", "text-blue-600"], ["পথে", "shipping", "text-purple-600"],
+                     ["ডেলিভার্ড", "delivered", "text-green-600"], ["বাতিল", "cancelled", "text-red-600"]]
+                        .map(([l, s, c]) => h("div", { class: "bg-slate-50 rounded-xl py-2" },
+                            h("p", { class: `text-xl font-black ${c}`, text: num(cnt(s)) }),
+                            h("p", { class: "text-[10px] text-slate-500", text: l }))))));
+
+            // ৪) কাকে কত দিতে হবে
+            const helpers = users.filter(u => u.role === "helper");
+            const men = users.filter(u => u.role === "delivery");
+            const pendingW = withdraws.filter(w => w.status === "pending");
+            const paidW = withdraws.filter(w => w.status === "paid" && w.paidAt?.toDate && w.paidAt.toDate() >= from && w.paidAt.toDate() <= to);
+            const sum = (arr, f) => arr.reduce((a, x) => a + (Number(f(x)) || 0), 0);
+            const owedNow = sum(helpers, u => u.walletBalance) + sum(men, u => u.walletBalance);
+
+            const staffCard = (u, lines) => h("div", { class: "bg-slate-50 rounded-2xl p-3 space-y-1" },
+                h("div", { class: "flex justify-between items-center" },
+                    h("p", { class: "font-bold text-slate-800 text-sm", text: u.name || u.email || "—" }),
+                    h("span", { class: "text-sm font-black text-green-700", text: "পাওনা " + taka(u.walletBalance) })),
+                ...lines.map(t => h("p", { class: "text-[11px] text-slate-500", text: t })));
+
+            box.append(section("কাকে কত টাকা দিতে হবে",
+                h("div", { class: "bg-orange-50 rounded-2xl p-3 space-y-1" },
+                    row("এখন সবার মোট পাওনা (ওয়ালেট)", taka(owedNow), "text-orange-700 text-base"),
+                    row(`বিকাশে পাঠানোর অপেক্ষায় (${num(pendingW.length)}টি আবেদন)`, taka(sum(pendingW, w => w.amount)), "text-orange-700"),
+                    h("a", { href: "withdraw-requests.html", class: "text-xs text-blue-600 font-bold", text: "উইথড্র আবেদন দেখুন →" })),
+                row("এই সময়ে পরিশোধ করেছেন", taka(sum(paidW, w => w.amount)), "text-slate-700"),
+                h("p", { class: "text-xs font-bold text-slate-500 pt-1", text: "হেলপার" }),
+                helpers.length ? helpers.map(u => {
+                    const x = byHelper[u.id] || { orders: 0, sales: 0, com: 0 };
+                    return staffCard(u, [`এই সময়ে: ${num(x.orders)}টি অর্ডার, বিক্রি ${taka(x.sales)}, কমিশন ${taka(x.com)}`]);
+                }) : h("p", { class: "text-xs text-slate-400", text: "কোনো হেলপার নেই" }),
+                h("p", { class: "text-xs font-bold text-slate-500 pt-1", text: "ডেলিভারি ম্যান" }),
+                men.length ? men.map(u => {
+                    const x = byMan[u.id] || { count: 0, cash: 0, charge: 0, earned: 0 };
+                    return staffCard(u, [
+                        `এই সময়ে: ${num(x.count)}টি ডেলিভারি, আয় ${taka(x.earned)}`,
+                        `ক্যাশ আদায় করেছে: ${taka(x.cash)} (মালিককে বুঝিয়ে দেওয়ার কথা)`
+                    ]);
+                }) : h("p", { class: "text-xs text-slate-400", text: "কোনো ডেলিভারি ম্যান নেই" })));
+
+            // ৫) সেরা পণ্য
+            const top = Object.values(byProduct).sort((a, b) => b.qty - a.qty).slice(0, 5);
+            box.append(section("সবচেয়ে বেশি বিক্রি হওয়া পণ্য",
+                top.length ? top.map((p, i) => h("div", { class: "flex justify-between items-center text-sm" },
+                    h("span", { class: "truncate pr-2", text: `${num(i + 1)}. ${p.name}` }),
+                    h("span", { class: "text-xs text-slate-500 shrink-0", text: `${num(p.qty)}টি • ${taka(p.revenue)} • লাভ ${taka(p.profit)}` })))
+                    : h("p", { class: "text-xs text-slate-400", text: "কোনো বিক্রি নেই" })));
+
+            // ৬) দৈনিক বিক্রি
+            const days = Object.keys(byDay).sort();
+            if (days.length > 1 && days.length <= 62) {
+                const max = Math.max(...days.map(k => byDay[k]));
+                box.append(section("দৈনিক আদায়",
+                    days.map(k => h("div", { class: "space-y-0.5" },
+                        h("div", { class: "flex justify-between text-[11px] text-slate-500" },
+                            h("span", { text: fmtDate(parseDate(k)) }), h("b", { text: taka(byDay[k]) })),
+                        h("div", { class: "h-2 bg-slate-100 rounded-full overflow-hidden" },
+                            h("div", { class: "h-full bg-green-500 rounded-full", style: `width:${Math.max(3, Math.round(byDay[k] / max * 100))}%` }))))));
+            }
+
+            // ৭) CSV
+            box.append(h("button", {
+                class: "w-full bg-white text-green-700 border border-green-600 py-3.5 rounded-2xl font-bold active:scale-95 transition",
+                text: "⬇ এক্সেল (CSV) ডাউনলোড",
+                onclick: () => downloadCsv(calcs)
+            }));
+        }
+
+        // ---------- CSV ডাউনলোড ----------
+        function downloadCsv(calcs) {
+            if (!last || !last.delivered.length) return alert("এই সময়ে কোনো সম্পন্ন অর্ডার নেই");
+            const q = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+            const head = ["ডেলিভারির তারিখ", "অর্ডার নং", "গ্রাহক", "ফোন", "হেলপার", "ডেলিভারি ম্যান", "পণ্যের দাম", "ডেলিভারি চার্জ", "মোট আদায়", "ক্রয়মূল্য", "হেলপার কমিশন", "ডেলিভারি ম্যানের আয়", "নিট লাভ"];
+            const rows = last.delivered.map(o => {
+                const c = calcs.get(o.id) || calcOrder(o);
+                return [
+                    o.deliveredAt?.toDate ? o.deliveredAt.toDate().toLocaleString("en-GB") : "",
+                    o.id.slice(0, 8).toUpperCase(), o.customerName, o.customerPhone,
+                    o.helperName || "", o.deliveryManName || "",
+                    c.subtotal, c.charge, c.total, c.cogs, c.helperCom, c.manPay, c.profit
+                ].map(q).join(",");
+            });
+            const csv = "\uFEFF" + [head.map(q).join(","), ...rows].join("\r\n");
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+            a.download = `report_${keyOf(last.from)}_${keyOf(last.to)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+        }
+
+        // ---------- শুরু ----------
+        const todayKey = keyOf(new Date());
+        $("from").value = todayKey;
+        $("to").value = todayKey;
+        $("go").onclick = () => run();
+        $("refresh").onclick = () => run(true);
+        renderChips();
+        run();
+    </script>
+</body>
+</html>

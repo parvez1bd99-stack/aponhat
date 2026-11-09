@@ -3,246 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>পণ্য ব্যবস্থাপনা - আপন হাট</title>
+    <title>পণ্য ম্যানেজ | আপন হাট</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
-        body { font-family: 'Hind Siliguri', sans-serif; }
-    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap">
+    <style>body { font-family: 'Hind Siliguri', sans-serif; }</style>
 </head>
-<body class="bg-gray-100 pb-20">
-
-    <!-- নেভিগেশন বার -->
-    <nav class="bg-green-700 p-4 text-white shadow-md sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="font-bold text-lg italic text-white">পণ্য ব্যবস্থাপনা</h1>
-            <a href="owner-dashboard.html" class="text-xs bg-white text-green-700 px-3 py-1 rounded-full font-bold shadow-sm">ড্যাশবোর্ড</a>
+<body style="display:none" class="bg-slate-100 min-h-screen pb-10">
+    <header class="bg-green-700 text-white sticky top-0 z-20 shadow">
+        <div class="p-4 flex items-center gap-3">
+            <a href="owner-dashboard.html" class="text-xl">←</a>
+            <h1 class="font-bold text-lg flex-1">পণ্য ম্যানেজ</h1>
+            <a href="add-product.html" class="text-xs bg-white/20 px-3 py-2 rounded-xl font-bold">➕ নতুন</a>
         </div>
-    </nav>
-
-    <div class="container mx-auto p-4 max-w-2xl">
-        <!-- সার্চ বক্স -->
-        <div class="mb-6">
-            <input type="text" id="search-product" onkeyup="searchProduct()" placeholder="পণ্যের নাম লিখে খুঁজুন..." class="w-full p-4 rounded-2xl border shadow-sm outline-none focus:ring-2 focus:ring-green-500 transition-all">
+        <div class="px-4 pb-3">
+            <input id="search" type="search" placeholder="পণ্য খুঁজুন..." class="w-full p-2.5 rounded-xl text-slate-800 outline-none text-sm">
         </div>
+    </header>
 
-        <!-- পণ্যের তালিকা এরিয়া -->
-        <div id="product-list-area" class="space-y-4">
-            <p class="text-center py-10 text-gray-400 italic">পণ্য লোড হচ্ছে...</p>
-        </div>
-    </div>
+    <main class="max-w-2xl mx-auto p-3 space-y-3">
+        <div id="state" class="text-center text-slate-400 py-16">লোড হচ্ছে...</div>
+        <div id="list" class="space-y-3"></div>
+    </main>
 
-    <!-- এডিট মডাল (Popup Form) -->
-    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-[60] flex items-center justify-center p-4">
-        <div class="bg-white p-6 rounded-3xl w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
-            <div class="flex justify-between items-center mb-6 border-b pb-2">
-                <h2 class="text-xl font-bold text-green-700">পণ্য এডিট করুন</h2>
-                <button onclick="closeEditModal()" class="text-red-500 text-3xl font-bold">&times;</button>
+    <!-- সম্পাদনা ফর্ম -->
+    <div id="modal" class="hidden fixed inset-0 z-40 bg-black/50 flex items-end justify-center">
+        <form id="edit-form" class="bg-white w-full max-w-lg rounded-t-3xl max-h-[94vh] overflow-y-auto p-5 space-y-3">
+            <div class="flex justify-between items-center">
+                <h2 class="font-bold text-lg">পণ্য সম্পাদনা</h2>
+                <button type="button" id="close-modal" class="text-slate-400 text-2xl leading-none">✕</button>
             </div>
-            
-            <form id="edit-form" class="space-y-4">
-                <input type="hidden" id="edit-p-id">
-                
-                <!-- নাম ও ক্যাটাগরি -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">পণ্যের নাম</label>
-                        <input type="text" id="edit-p-name" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500" required>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-gray-500 uppercase ml-1">ক্যাটাগরি</label>
-                        <input list="edit-category-list" id="edit-p-category" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500" required>
-                        <datalist id="edit-category-list">
-                            <option value="মুদি">
-                            <option value="ইলেক্ট্রিক">
-                            <option value="কসমেটিকস">
-                            <option value="মসলা">
-                            <option value="ডাল ও চাল">
-                        </datalist>
-                    </div>
-                </div>
+            <input id="e-name" required maxlength="100" placeholder="পণ্যের নাম" class="w-full p-3 border rounded-xl">
+            <input id="e-category" required maxlength="50" placeholder="ক্যাটাগরি" class="w-full p-3 border rounded-xl">
 
-                <!-- মূল্য ও ডিসকাউন্ট -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs font-bold text-red-500 uppercase ml-1">ক্রয় মূল্য (৳)</label>
-                        <input type="number" id="edit-p-buy" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-red-500" required>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-green-600 uppercase ml-1">বিক্রয় মূল্য (৳)</label>
-                        <input type="number" id="edit-p-sell" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500" required>
-                    </div>
-                </div>
+            <div>
+                <label class="text-xs font-bold text-blue-600">ছবি (সর্বোচ্চ ৩টি)</label>
+                <div id="e-preview" class="flex gap-2 mt-2 flex-wrap"></div>
+                <input id="e-files" type="file" accept="image/*" multiple class="w-full text-sm mt-2">
+                <p id="e-img-msg" class="text-xs text-slate-400"></p>
+            </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs font-bold text-orange-500 uppercase ml-1">পুরানো মূল্য/MRP (৳)</label>
-                        <input type="number" id="edit-p-regular" placeholder="০ লিখুন যদি ছাড় না থাকে" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-orange-500">
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-blue-600 uppercase ml-1">ওজন (গ্রাম)</label>
-                        <input type="number" id="edit-p-weight" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                </div>
-
-                <!-- স্টক -->
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase ml-1">স্টক পরিমাণ</label>
-                    <input type="number" id="edit-p-stock" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500" required>
-                </div>
-
-                <!-- বিবরণ -->
-                <div>
-                    <label class="text-xs font-bold text-gray-500 uppercase ml-1">পণ্যের বিবরণ</label>
-                    <textarea id="edit-p-desc" rows="3" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500" placeholder="পণ্যের বিস্তারিত বিবরণ লিখুন..."></textarea>
-                </div>
-
-                <!-- একাধিক ছবির লিংক -->
-                <div id="edit-image-inputs-container">
-                    <label class="block text-xs font-bold text-blue-600 uppercase ml-1 mb-2">ছবির লিংক সমূহ (Image URLs)</label>
-                </div>
-                <button type="button" onclick="addEditImageField()" class="text-[10px] bg-blue-100 text-blue-700 px-3 py-2 rounded-lg font-bold hover:bg-blue-200 transition">
-                    <i class="fas fa-plus-circle mr-1"></i> আরও ছবি যোগ করুন
-                </button>
-                
-                <button type="submit" id="update-btn" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-green-700 active:scale-95 transition-all mt-4">তথ্য আপডেট করুন</button>
-            </form>
-        </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div><label class="text-xs font-bold text-red-500">ক্রয়মূল্য (৳)</label>
+                    <input id="e-buy" type="number" min="0" step="any" required class="w-full p-3 border rounded-xl"></div>
+                <div><label class="text-xs font-bold text-green-600">বিক্রয়মূল্য (৳)</label>
+                    <input id="e-sell" type="number" min="0" step="any" required class="w-full p-3 border rounded-xl"></div>
+                <div><label class="text-xs font-bold text-slate-500">পুরনো দাম (৳)</label>
+                    <input id="e-regular" type="number" min="0" step="any" class="w-full p-3 border rounded-xl"></div>
+                <div><label class="text-xs font-bold text-slate-500">ওজন (কেজি)</label>
+                    <input id="e-weight" type="number" min="0" step="any" required class="w-full p-3 border rounded-xl"></div>
+                <div class="col-span-2"><label class="text-xs font-bold text-slate-500">স্টক</label>
+                    <input id="e-stock" type="number" min="0" step="1" required class="w-full p-3 border rounded-xl"></div>
+            </div>
+            <textarea id="e-desc" rows="3" maxlength="1000" placeholder="বিবরণ" class="w-full p-3 border rounded-xl"></textarea>
+            <button id="save-btn" type="submit" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold active:scale-95 transition disabled:opacity-60">আপডেট করুন</button>
+            <p id="e-msg" class="text-center text-sm font-bold text-red-600"></p>
+        </form>
     </div>
 
     <script type="module">
         import { db } from "./firebase-config.js";
-        import { collection, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { requireRole } from "./auth-guard.js";
+        import { compressImage, MAX_IMAGES } from "./image-utils.js";
+        import { collection, doc, getDocs, writeBatch, serverTimestamp }
+            from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        let allProducts = [];
+        await requireRole(['owner']);
 
-        // ১. রিয়েল-টাইম লোড
-        onSnapshot(collection(db, "products"), (snapshot) => {
-            allProducts = [];
-            const area = document.getElementById('product-list-area');
-            area.innerHTML = "";
+        const $ = (id) => document.getElementById(id);
+        const taka = (n) => "৳" + Number(n || 0).toLocaleString("bn-BD");
+        const PLACEHOLDER = "data:image/svg+xml;utf8," + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#e2e8f0"/></svg>');
 
-            snapshot.forEach((docSnap) => {
-                const p = docSnap.data();
-                const id = docSnap.id;
-                allProducts.push({ id, ...p });
+        function h(tag, props = {}, ...kids) {
+            const e = document.createElement(tag);
+            for (const [k, v] of Object.entries(props)) {
+                if (k === "class") e.className = v;
+                else if (k === "text") e.textContent = v;
+                else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+                else if (v !== undefined && v !== null) e.setAttribute(k, v);
+            }
+            for (const kid of kids.flat()) if (kid != null) e.append(kid);
+            return e;
+        }
 
-                const mainImg = (p.image || "").split(',')[0] || 'https://via.placeholder.com/150';
+        let products = [];
+        let costs = {};
+        let editing = null;
+        let editImages = [];
 
-                const card = document.createElement('div');
-                card.className = "bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex gap-4 items-center transition hover:shadow-md";
-                card.innerHTML = `
-                    <img src="${mainImg}" class="w-20 h-20 object-cover rounded-2xl bg-gray-50 border shadow-inner">
-                    <div class="flex-1">
-                        <h3 class="font-bold text-gray-800 leading-tight">${p.name}</h3>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase mt-1 tracking-tighter">
-                            ${p.category} | ওজন: ${p.weight || 0}g | স্টক: ${p.stock}
-                        </p>
-                        <p class="text-[10px] font-bold text-green-600">৳${p.sellPrice} ${p.regularPrice > p.sellPrice ? `<span class="text-slate-300 line-through ml-1">৳${p.regularPrice}</span>` : ''}</p>
-                        <div class="flex gap-2 mt-2">
-                            <button onclick="openEditModal('${id}')" class="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-[10px] font-bold border border-blue-100 hover:bg-blue-500 hover:text-white transition">এডিট</button>
-                            <button onclick="deleteProduct('${id}')" class="bg-red-50 text-red-500 px-3 py-1 rounded-lg text-[10px] font-bold border border-red-100 hover:bg-red-500 hover:text-white transition">ডিলিট</button>
-                        </div>
-                    </div>
-                `;
-                area.appendChild(card);
+        function normalize(d) {
+            const x = d.data();
+            let images = x.images ?? x.image ?? [];
+            if (typeof images === "string") images = images ? [images] : [];
+            return {
+                id: d.id, name: String(x.name || ""), category: String(x.category || ""),
+                images, sellPrice: Number(x.sellPrice) || 0, regularPrice: Number(x.regularPrice) || 0,
+                weight: Number(x.weight) || 0, stock: Math.floor(Number(x.stock) || 0),
+                description: String(x.description || ""), t: x.createdAt?.seconds || 0
+            };
+        }
+
+        async function load() {
+            try {
+                const [p, c] = await Promise.all([getDocs(collection(db, "products")), getDocs(collection(db, "product_costs"))]);
+                products = p.docs.map(normalize).sort((a, b) => b.t - a.t);
+                costs = {};
+                c.docs.forEach(d => costs[d.id] = Number(d.data().buyPrice) || 0);
+                $("state").style.display = products.length ? "none" : "block";
+                if (!products.length) $("state").textContent = "কোনো পণ্য নেই";
+                render();
+            } catch (e) {
+                console.error(e);
+                $("state").style.display = "block";
+                $("state").textContent = "লোড হয়নি: " + (e.code || e.message);
+            }
+        }
+
+        function render() {
+            const term = $("search").value.trim().toLowerCase();
+            const list = $("list");
+            list.innerHTML = "";
+            products.filter(p => !term || p.name.toLowerCase().includes(term) || p.category.toLowerCase().includes(term))
+                .forEach(p => {
+                    const buy = costs[p.id];
+                    const profit = buy === undefined ? null : p.sellPrice - buy;
+                    const low = p.stock <= 5;
+                    list.append(h("div", { class: "bg-white rounded-2xl shadow-sm p-3 flex gap-3" },
+                        h("img", { src: p.images[0] || PLACEHOLDER, alt: p.name, class: "w-16 h-16 rounded-xl object-cover bg-slate-100 shrink-0" }),
+                        h("div", { class: "flex-1 min-w-0" },
+                            h("p", { class: "font-bold text-slate-800 truncate", text: p.name }),
+                            h("p", { class: "text-[11px] text-slate-400", text: p.category }),
+                            h("p", { class: "text-xs text-slate-600", text: `বিক্রয় ${taka(p.sellPrice)} • ক্রয় ${buy === undefined ? "—" : taka(buy)}` + (profit === null ? "" : ` • লাভ ${taka(profit)}`) }),
+                            h("span", { class: `inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${low ? "bg-red-100 text-red-600" : "bg-green-100 text-green-700"}`, text: p.stock <= 0 ? "স্টক শেষ" : `স্টক ${p.stock}` })),
+                        h("div", { class: "flex flex-col gap-1 shrink-0" },
+                            h("button", { class: "text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg font-bold", text: "এডিট", onclick: () => openEdit(p) }),
+                            h("button", { class: "text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg font-bold", text: "মুছুন", onclick: () => removeProduct(p) }))));
+                });
+        }
+
+        // ---------- এডিট ----------
+        function renderEditImages() {
+            const box = $("e-preview");
+            box.innerHTML = "";
+            editImages.forEach((src, i) => {
+                box.append(h("div", { class: "relative" },
+                    h("img", { src, class: "w-20 h-20 object-cover rounded-xl border", alt: "" }),
+                    h("button", { type: "button", class: "absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 rounded-full text-xs", text: "✕",
+                        onclick: () => { editImages.splice(i, 1); renderEditImages(); } })));
             });
+            $("e-img-msg").textContent = editImages.length ? `${editImages.length}টি ছবি` : "কমপক্ষে একটি ছবি দিন";
+        }
+
+        function openEdit(p) {
+            editing = p;
+            editImages = [...p.images];
+            $("e-name").value = p.name;
+            $("e-category").value = p.category;
+            $("e-buy").value = costs[p.id] ?? 0;
+            $("e-sell").value = p.sellPrice;
+            $("e-regular").value = p.regularPrice || "";
+            $("e-weight").value = p.weight;
+            $("e-stock").value = p.stock;
+            $("e-desc").value = p.description;
+            $("e-msg").textContent = "";
+            renderEditImages();
+            $("modal").classList.remove("hidden");
+        }
+        const closeEdit = () => { $("modal").classList.add("hidden"); editing = null; };
+        $("close-modal").onclick = closeEdit;
+        $("modal").addEventListener("click", (e) => { if (e.target.id === "modal") closeEdit(); });
+
+        $("e-files").addEventListener("change", async (e) => {
+            const files = Array.from(e.target.files);
+            e.target.value = "";
+            const room = MAX_IMAGES - editImages.length;
+            if (files.length > room) alert(`সর্বোচ্চ ${MAX_IMAGES}টি ছবি দেওয়া যাবে।`);
+            $("e-img-msg").textContent = "ছবি ছোট করা হচ্ছে...";
+            for (const f of files.slice(0, Math.max(room, 0))) {
+                try { editImages.push(await compressImage(f)); } catch (err) { alert(f.name + ": " + err.message); }
+            }
+            renderEditImages();
         });
 
-        // ২. ইমেজ ফিল্ড বাড়ানো
-        window.addEditImageField = (val = "") => {
-            const container = document.getElementById('edit-image-inputs-container');
-            const div = document.createElement('div');
-            div.className = "flex gap-2 mb-2 animate-pulse";
-            div.innerHTML = `
-                <input type="text" class="edit-p-image-input w-full p-3 border rounded-xl outline-none focus:border-blue-500 text-xs" placeholder="ছবির লিংক দিন" value="${val}">
-                <button type="button" onclick="this.parentElement.remove()" class="bg-red-100 text-red-500 px-3 rounded-xl"><i class="fas fa-trash"></i></button>
-            `;
-            container.appendChild(div);
-            setTimeout(() => div.classList.remove('animate-pulse'), 300);
-        };
-
-        // ৩. এডিট মডাল ওপেন
-        window.openEditModal = (id) => {
-            const p = allProducts.find(item => item.id === id);
-            if (!p) return;
-
-            document.getElementById('edit-p-id').value = id;
-            document.getElementById('edit-p-name').value = p.name;
-            document.getElementById('edit-p-category').value = p.category || ""; // ক্যাটাগরি লোড
-            document.getElementById('edit-p-buy').value = p.buyPrice;
-            document.getElementById('edit-p-sell').value = p.sellPrice;
-            document.getElementById('edit-p-regular').value = p.regularPrice || 0; // পুরানো মূল্য লোড
-            document.getElementById('edit-p-weight').value = p.weight || 0;
-            document.getElementById('edit-p-stock').value = p.stock;
-            document.getElementById('edit-p-desc').value = p.description || "";
-
-            const imgContainer = document.getElementById('edit-image-inputs-container');
-            imgContainer.innerHTML = '<label class="block text-xs font-bold text-blue-600 uppercase ml-1 mb-2">ছবির লিংক সমূহ (Image URLs)</label>';
-            
-            if (p.image) {
-                p.image.split(',').forEach(url => addEditImageField(url.trim()));
-            } else {
-                addEditImageField();
-            }
-
-            document.getElementById('edit-modal').classList.remove('hidden');
-        };
-
-        window.closeEditModal = () => document.getElementById('edit-modal').classList.add('hidden');
-
-        // ৪. আপডেট সেভ
-        document.getElementById('edit-form').onsubmit = async (e) => {
+        let saving = false;
+        $("edit-form").addEventListener("submit", async (e) => {
             e.preventDefault();
-            const id = document.getElementById('edit-p-id').value;
-            const btn = document.getElementById('update-btn');
-            
-            btn.disabled = true; btn.innerText = "আপডেট হচ্ছে...";
+            if (saving || !editing) return;
+            const msg = $("e-msg");
+            const sell = Number($("e-sell").value), buy = Number($("e-buy").value);
+            const stock = Number($("e-stock").value), weight = Number($("e-weight").value);
+            if (!editImages.length) return (msg.textContent = "কমপক্ষে একটি ছবি দিন");
+            if (!(sell > 0)) return (msg.textContent = "বিক্রয়মূল্য ০ এর বেশি হতে হবে");
+            if (!Number.isInteger(stock) || stock < 0) return (msg.textContent = "স্টক পূর্ণ সংখ্যা হতে হবে");
+            if (buy < 0 || weight < 0) return (msg.textContent = "সংখ্যা ঋণাত্মক হতে পারবে না");
 
-            const imageUrls = Array.from(document.querySelectorAll('.edit-p-image-input'))
-                                   .map(input => input.value.trim())
-                                   .filter(val => val !== "") 
-                                   .join(',');
-
+            saving = true;
+            const btn = $("save-btn");
+            btn.disabled = true; btn.textContent = "সেভ হচ্ছে...";
+            msg.textContent = "";
             try {
-                await updateDoc(doc(db, "products", id), {
-                    name: document.getElementById('edit-p-name').value,
-                    category: document.getElementById('edit-p-category').value, // ক্যাটাগরি আপডেট
-                    buyPrice: Number(document.getElementById('edit-p-buy').value),
-                    sellPrice: Number(document.getElementById('edit-p-sell').value),
-                    regularPrice: Number(document.getElementById('edit-p-regular').value), // পুরানো মূল্য আপডেট
-                    weight: Number(document.getElementById('edit-p-weight').value),
-                    stock: Number(document.getElementById('edit-p-stock').value),
-                    description: document.getElementById('edit-p-desc').value.trim(),
-                    image: imageUrls
+                const batch = writeBatch(db);
+                batch.update(doc(db, "products", editing.id), {
+                    name: $("e-name").value.trim(),
+                    category: $("e-category").value.trim(),
+                    images: editImages,
+                    sellPrice: sell,
+                    regularPrice: Number($("e-regular").value) || 0,
+                    weight, stock,
+                    description: $("e-desc").value.trim(),
+                    updatedAt: serverTimestamp()
                 });
-                alert("সফলভাবে আপডেট হয়েছে!");
-                closeEditModal();
-            } catch (err) { alert("ভুল হয়েছে: " + err.message); }
-            finally { btn.disabled = false; btn.innerText = "তথ্য আপডেট করুন"; }
-        };
-
-        // ৫. ডিলিট
-        window.deleteProduct = async (id) => {
-            if (confirm("আপনি কি নিশ্চিতভাবে এই পণ্যটি ডিলিট করতে চান?")) {
-                try {
-                    await deleteDoc(doc(db, "products", id));
-                    alert("পণ্যটি ডিলিট করা হয়েছে।");
-                } catch (err) { alert("ভুল হয়েছে: " + err.message); }
+                batch.set(doc(db, "product_costs", editing.id), { buyPrice: buy });
+                await batch.commit();
+                closeEdit();
+                await load();
+            } catch (err) {
+                console.error(err);
+                msg.textContent = "সেভ হয়নি: " + (err.code || err.message);
+            } finally {
+                saving = false;
+                btn.disabled = false; btn.textContent = "আপডেট করুন";
             }
-        };
+        });
 
-        // ৬. সার্চ
-        window.searchProduct = () => {
-            const term = document.getElementById('search-product').value.toLowerCase();
-            const cards = document.querySelectorAll('#product-list-area > div');
-            cards.forEach(card => {
-                const name = card.querySelector('h3').innerText.toLowerCase();
-                card.style.display = name.includes(term) ? "flex" : "none";
-            });
-        };
+        async function removeProduct(p) {
+            if (!confirm(`"${p.name}" মুছে ফেলবেন? এটা আর ফেরানো যাবে না।`)) return;
+            try {
+                const batch = writeBatch(db);
+                batch.delete(doc(db, "products", p.id));
+                batch.delete(doc(db, "product_costs", p.id));
+                await batch.commit();
+                await load();
+            } catch (e) { alert("মোছা যায়নি: " + (e.code || e.message)); }
+        }
 
+        $("search").addEventListener("input", render);
+        load();
     </script>
 </body>
 </html>

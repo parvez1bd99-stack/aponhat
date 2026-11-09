@@ -3,177 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ডেলিভারি চার্জ ম্যানেজমেন্ট</title>
+    <title>ডেলিভারি চার্জ | আপন হাট</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap');
-        body { font-family: 'Hind Siliguri', sans-serif; display: none; }
-    </style>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap">
+    <style>body { font-family: 'Hind Siliguri', sans-serif; }</style>
 </head>
-<body class="bg-gray-100 p-4 pb-20">
+<body style="display:none" class="bg-slate-100 min-h-screen pb-10">
+    <header class="bg-green-700 text-white p-4 flex items-center gap-3">
+        <a href="owner-dashboard.html" class="text-xl">←</a>
+        <h1 class="font-bold text-lg">ডেলিভারি চার্জ সেটিং</h1>
+    </header>
 
-    <div class="max-w-lg mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
-        <div class="bg-blue-600 p-6 text-white text-center">
-            <h2 class="text-2xl font-bold italic">আপন হাট</h2>
-            <p class="text-xs opacity-80 mt-1">ডেলিভারি চার্জ কন্ট্রোল প্যানেল</p>
+    <main class="max-w-lg mx-auto p-4 space-y-4">
+        <div class="bg-white rounded-3xl shadow-sm p-5 space-y-3">
+            <p class="text-xs text-slate-500 leading-relaxed">
+                অর্ডারের মোট ওজন অনুযায়ী চার্জ নির্ধারণ হবে। যেমন "২ কেজি পর্যন্ত → ৳৩০"।
+                অর্ডারের ওজন সবচেয়ে বড় সীমার চেয়েও বেশি হলে শেষ নিয়মের চার্জই প্রযোজ্য হবে।
+            </p>
+            <div id="rows" class="space-y-2"></div>
+            <button id="add-row" type="button" class="w-full bg-blue-50 text-blue-600 py-2.5 rounded-xl text-sm font-bold">➕ নতুন সীমা যোগ করুন</button>
+            <button id="save" type="button" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold active:scale-95 transition disabled:opacity-60">সেভ করুন</button>
+            <p id="msg" class="text-center text-sm font-bold"></p>
         </div>
-
-        <div class="p-6">
-            <h3 class="text-sm font-bold text-gray-500 mb-4 uppercase flex items-center gap-2">
-                <i class="fas fa-list-ul text-blue-600"></i> বর্তমানে সেট করা রুলস:
-            </h3>
-            
-            <div id="rules-list" class="space-y-3 mb-8">
-                <p class="text-center py-10 text-gray-400 italic">অনুমতি যাচাই করা হচ্ছে...</p>
-            </div>
-
-            <div class="bg-blue-50 p-6 rounded-3xl border-2 border-dashed border-blue-200">
-                <h3 id="form-title" class="text-blue-700 font-bold mb-4 flex items-center gap-2">
-                    <i class="fas fa-plus-circle"></i> নতুন ধাপ যোগ করুন
-                </h3>
-                
-                <form id="delivery-form" class="space-y-4">
-                    <input type="hidden" id="edit-index" value="-1">
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 mb-1 ml-1 uppercase">সর্বোচ্চ ওজন (গ্রাম)</label>
-                        <input type="number" id="max-w" placeholder="যেমন: ১০০০" class="w-full p-4 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 mb-1 ml-1 uppercase">ডেলিভারি চার্জ (৳)</label>
-                        <input type="number" id="charge" placeholder="যেমন: ৩০" class="w-full p-4 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
-                    <div class="flex gap-2">
-                        <button type="submit" id="save-btn" class="flex-1 bg-blue-600 text-white py-4 rounded-2xl font-bold shadow-lg hover:bg-blue-700 active:scale-95 transition-all">সেভ করুন</button>
-                        <button type="button" id="cancel-btn" class="hidden bg-gray-200 text-gray-600 px-6 rounded-2xl font-bold" onclick="resetForm()">বাতিল</button>
-                    </div>
-                </form>
-            </div>
-
-            <button onclick="window.location.href='owner-dashboard.html'" class="w-full mt-8 text-gray-400 text-sm font-bold flex items-center justify-center gap-2">
-                <i class="fas fa-arrow-left"></i> ড্যাশবোর্ডে ফিরে যান
-            </button>
+        <div class="bg-white rounded-3xl shadow-sm p-5 space-y-3">
+            <h2 class="font-bold text-slate-700">📦 পণ্য নেওয়ার স্থান (ডেলিভারি ম্যান দেখবে)</h2>
+            <input id="shop-name" maxlength="80" placeholder="দোকান/গুদামের নাম" class="w-full p-3 border rounded-xl">
+            <textarea id="shop-address" rows="2" maxlength="250" placeholder="ঠিকানা (কোথা থেকে পণ্য রিসিভ করবে)" class="w-full p-3 border rounded-xl"></textarea>
+            <input id="shop-phone" inputmode="tel" maxlength="20" placeholder="যোগাযোগের ফোন নম্বর" class="w-full p-3 border rounded-xl">
+            <button id="save-shop" type="button" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold active:scale-95 transition disabled:opacity-60">ঠিকানা সেভ করুন</button>
+            <p id="shop-msg" class="text-center text-sm font-bold"></p>
         </div>
-    </div>
+        <p class="text-[11px] text-slate-400 text-center">শপ থেকে পিকআপ নিলে ডেলিভারি চার্জ সবসময় ০।</p>
+    </main>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { db } from "./firebase-config.js";
+        import { requireRole } from "./auth-guard.js";
+        import { doc, getDoc, setDoc, serverTimestamp }
+            from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyD8xa2qosGeDU_IXfecYxTVO8BlnvM9esU", 
-            authDomain: "aponhat.firebaseapp.com", 
-            projectId: "aponhat", 
-            storageBucket: "aponhat.firebasestorage.app", 
-            messagingSenderId: "904413579712", 
-            appId: "1:904413579712:web:4a3a4ba2014b0783c0a025" 
-        };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const docRef = doc(db, "settings", "delivery");
+        await requireRole(['owner']);
 
-        let currentRules = [];
+        const $ = (id) => document.getElementById(id);
+        const ref = doc(db, "settings", "delivery");
 
-        // ১. মালিক কি না তা নিশ্চিত হয়ে ডাটা লোড করা
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const userDoc = await getDoc(doc(db, "users", user.uid));
-                if (userDoc.exists() && userDoc.data().role === 'owner') {
-                    document.body.style.display = "block"; // মালিক হলে স্ক্রিন দেখাবে
-                    loadDeliveryRules(); // তারপর ডাটা লোড করবে
-                } else {
-                    alert("আপনার এই সেকশনে প্রবেশের অনুমতি নেই!");
-                    window.location.href = "login.html";
-                }
-            } else {
-                window.location.href = "login.html";
-            }
-        });
-
-        function loadDeliveryRules() {
-            onSnapshot(docRef, (docSnap) => {
-                const listArea = document.getElementById('rules-list');
-                listArea.innerHTML = "";
-                
-                if(docSnap.exists()){
-                    currentRules = docSnap.data().rules || [];
-                    currentRules.sort((a, b) => a.maxW - b.maxW);
-
-                    if(currentRules.length === 0) {
-                        listArea.innerHTML = "<p class='text-center py-6 text-gray-400'>কোন রুল সেট করা নেই।</p>";
-                        return;
-                    }
-
-                    currentRules.forEach((r, index) => {
-                        listArea.innerHTML += `
-                        <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-                            <div class="flex items-center gap-3">
-                                <div class="bg-blue-100 text-blue-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-[10px]">${index + 1}</div>
-                                <div>
-                                    <h4 class="font-bold text-gray-800 text-sm">${r.maxW} গ্রাম পর্যন্ত</h4>
-                                    <p class="text-[10px] text-green-600 font-bold">চার্জ: ৳${r.charge}</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="editRule(${index})" class="text-blue-500 p-2 hover:bg-blue-50 rounded-lg"><i class="fas fa-edit"></i></button>
-                                <button onclick="deleteRule(${index})" class="text-red-500 p-2 hover:bg-red-50 rounded-lg"><i class="fas fa-trash-alt"></i></button>
-                            </div>
-                        </div>`;
-                    });
-                } else {
-                    listArea.innerHTML = "<p class='text-center py-6 text-gray-400'>সেটিংস তৈরি করা হয়নি।</p>";
-                }
-            }, (error) => {
-                document.getElementById('rules-list').innerHTML = `<p class="text-red-500 text-center py-10">অনুমতি সমস্যা: ${error.message}</p>`;
-            });
+        function addRow(maxW = "", charge = "") {
+            const row = document.createElement("div");
+            row.className = "flex items-center gap-2";
+            row.innerHTML = `
+                <div class="flex-1"><label class="text-[10px] text-slate-400">ওজন (কেজি) পর্যন্ত</label>
+                    <input type="number" min="0" step="any" class="r-w w-full p-2.5 border rounded-xl"></div>
+                <div class="flex-1"><label class="text-[10px] text-slate-400">চার্জ (৳)</label>
+                    <input type="number" min="0" step="any" class="r-c w-full p-2.5 border rounded-xl"></div>
+                <button type="button" class="r-del mt-4 bg-red-50 text-red-500 w-10 h-10 rounded-xl">🗑</button>`;
+            row.querySelector(".r-w").value = maxW;
+            row.querySelector(".r-c").value = charge;
+            row.querySelector(".r-del").onclick = () => row.remove();
+            $("rows").appendChild(row);
         }
 
-        document.getElementById('delivery-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const maxW = Number(document.getElementById('max-w').value);
-            const charge = Number(document.getElementById('charge').value);
-            const editIndex = Number(document.getElementById('edit-index').value);
+        try {
+            const s = await getDoc(ref);
+            const rules = s.exists() && Array.isArray(s.data().rules) ? s.data().rules : [];
+            if (rules.length) rules.forEach(r => addRow(r.maxW, r.charge));
+            else { addRow(2, 30); addRow(5, 50); addRow(10, 80); }
+        } catch (e) {
+            console.error(e);
+            $("msg").className = "text-center text-sm font-bold text-red-600";
+            $("msg").textContent = "লোড হয়নি: " + (e.code || e.message);
+        }
 
-            if (editIndex === -1) {
-                currentRules.push({ maxW, charge });
-            } else {
-                currentRules[editIndex] = { maxW, charge };
+        $("add-row").onclick = () => addRow();
+
+        // ---------- পণ্য নেওয়ার স্থান ----------
+        const shopRef = doc(db, "settings", "shop");
+        try {
+            const sh = await getDoc(shopRef);
+            if (sh.exists()) {
+                $("shop-name").value = sh.data().name || "";
+                $("shop-address").value = sh.data().address || "";
+                $("shop-phone").value = sh.data().phone || "";
             }
+        } catch (e) { console.error(e); }
 
+        $("save-shop").onclick = async () => {
+            const m = $("shop-msg");
+            const setM = (t, ok) => { m.textContent = t; m.className = "text-center text-sm font-bold " + (ok ? "text-green-600" : "text-red-600"); };
+            const address = $("shop-address").value.trim();
+            if (address.length < 5) return setM("ঠিকানা লিখুন");
+            const b = $("save-shop");
+            b.disabled = true;
             try {
-                await setDoc(docRef, { rules: currentRules });
-                alert("সফলভাবে সেভ হয়েছে!");
-                resetForm();
-            } catch (error) {
-                alert("সেভ করতে সমস্যা: " + error.message);
-            }
+                await setDoc(shopRef, {
+                    name: $("shop-name").value.trim(),
+                    address,
+                    phone: $("shop-phone").value.trim(),
+                    updatedAt: serverTimestamp()
+                });
+                setM("সেভ হয়েছে!", true);
+            } catch (e) { console.error(e); setM("সেভ হয়নি: " + (e.code || e.message)); }
+            finally { b.disabled = false; }
         };
 
-        window.editRule = (index) => {
-            const rule = currentRules[index];
-            document.getElementById('max-w').value = rule.maxW;
-            document.getElementById('charge').value = rule.charge;
-            document.getElementById('edit-index').value = index;
-            document.getElementById('form-title').innerText = "রুল আপডেট করুন";
-            document.getElementById('save-btn').innerText = "আপডেট করুন";
-            document.getElementById('cancel-btn').classList.remove('hidden');
-        };
+        $("save").onclick = async () => {
+            const msg = $("msg");
+            const setMsg = (t, ok) => { msg.textContent = t; msg.className = "text-center text-sm font-bold " + (ok ? "text-green-600" : "text-red-600"); };
 
-        window.deleteRule = async (index) => {
-            if(confirm("মুছে ফেলতে চান?")){
-                currentRules.splice(index, 1);
-                await setDoc(docRef, { rules: currentRules });
-            }
-        };
+            const rules = [...document.querySelectorAll("#rows > div")].map(r => ({
+                maxW: Number(r.querySelector(".r-w").value),
+                charge: Number(r.querySelector(".r-c").value),
+                blank: r.querySelector(".r-w").value === "" || r.querySelector(".r-c").value === ""
+            }));
+            if (!rules.length) return setMsg("কমপক্ষে একটি নিয়ম দিন");
+            if (rules.some(r => r.blank || r.maxW <= 0 || r.charge < 0)) return setMsg("ওজন ০ এর বেশি ও চার্জ ঋণাত্মক নয়, এমন সংখ্যা দিন");
+            const ws = rules.map(r => r.maxW);
+            if (new Set(ws).size !== ws.length) return setMsg("একই ওজনের সীমা দুইবার দেওয়া যাবে না");
 
-        window.resetForm = () => {
-            document.getElementById('delivery-form').reset();
-            document.getElementById('edit-index').value = "-1";
-            document.getElementById('form-title').innerText = "নতুন ধাপ যোগ করুন";
-            document.getElementById('save-btn').innerText = "সেভ করুন";
-            document.getElementById('cancel-btn').classList.add('hidden');
+            const clean = rules.map(({ maxW, charge }) => ({ maxW, charge })).sort((a, b) => a.maxW - b.maxW);
+            const btn = $("save");
+            btn.disabled = true;
+            try {
+                await setDoc(ref, { rules: clean, updatedAt: serverTimestamp() });
+                setMsg("সেভ হয়েছে!", true);
+            } catch (e) {
+                console.error(e);
+                setMsg("সেভ হয়নি: " + (e.code || e.message));
+            } finally { btn.disabled = false; }
         };
     </script>
 </body>

@@ -3,91 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>লগইন - আপন হাট</title>
+    <title>লগইন | আপন হাট</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap">
+    <style>body { font-family: 'Hind Siliguri', sans-serif; }</style>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-sm border border-gray-100">
-        <div class="text-center mb-6">
-            <h2 class="text-2xl font-bold text-green-700">লগইন করুন</h2>
-            <p class="text-gray-400 text-sm italic">স্বাগতম আপন হাটে</p>
-        </div>
-        
-        <!-- দ্রুত লগইন (যদি আপনি আগে থেকে সেট করে রাখেন) -->
-        <button id="quick-login-btn" class="w-full bg-orange-500 text-white py-4 rounded-xl font-bold mb-6 shadow-lg border-b-4 border-orange-700 active:border-b-0 active:translate-y-1 transition-all">
-            🚀 সরাসরি লগইন (সহজ পদ্ধতি)
-        </button>
+<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-sm bg-white rounded-3xl shadow-lg p-8">
+        <h1 class="text-2xl font-bold text-green-700 text-center mb-1">আপন হাট</h1>
+        <p class="text-center text-slate-400 text-sm mb-6">মালিক, হেলপার ও ডেলিভারি ম্যান লগইন</p>
 
-        <div class="relative flex py-3 items-center">
-            <div class="flex-grow border-t border-gray-200"></div>
-            <span class="flex-shrink mx-4 text-gray-400 text-xs uppercase">অথবা</span>
-            <div class="flex-grow border-t border-gray-200"></div>
-        </div>
-
-        <form id="login-form" class="space-y-4 mt-4">
-            <input type="email" id="email" placeholder="আপনার ইমেইল" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500 transition-all">
-            <input type="password" id="password" placeholder="পাসওয়ার্ড" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-green-500 transition-all">
-            <button type="submit" id="login-btn" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-blue-700 active:scale-95 transition-all">লগইন</button>
+        <form id="login-form" class="space-y-4">
+            <input id="email" type="email" required autocomplete="username" placeholder="ইমেইল"
+                class="w-full p-3 border rounded-xl outline-none focus:border-green-600">
+            <input id="password" type="password" required autocomplete="current-password" placeholder="পাসওয়ার্ড"
+                class="w-full p-3 border rounded-xl outline-none focus:border-green-600">
+            <p id="msg" class="text-sm text-red-600 text-center min-h-[1.25rem]"></p>
+            <button id="login-btn" type="submit"
+                class="w-full bg-green-600 text-white py-3 rounded-xl font-bold active:scale-95 transition disabled:opacity-60">
+                লগইন
+            </button>
         </form>
-        
-        <p class="mt-6 text-center text-sm text-gray-500">আপনার একাউন্ট নেই? <a href="signup.html" class="text-green-600 font-bold underline">নতুন খুলুন</a></p>
+
+        <a href="index.html" class="block text-center text-xs text-slate-400 mt-6">← দোকানে ফিরে যান</a>
     </div>
 
     <script type="module">
-        import { db, auth } from "./firebase-config.js";
-        import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { auth } from "./firebase-config.js";
+        import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getProfile, ROLE_HOME } from "./auth-guard.js";
 
-        const loginForm = document.getElementById('login-form');
-        const loginBtn = document.getElementById('login-btn');
+        const form = document.getElementById('login-form');
+        const btn = document.getElementById('login-btn');
+        const msg = document.getElementById('msg');
+        let busy = false;
 
-        // সাধারণ লগইন প্রসেস
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            if(!email || !password) return alert("ইমেইল এবং পাসওয়ার্ড দিন");
-
-            loginBtn.disabled = true;
-            loginBtn.innerText = "চেক করা হচ্ছে...";
-
-            try {
-                const cred = await signInWithEmailAndPassword(auth, email, password);
-                // ইউজারের পদবী (Role) অনুযায়ী রিডাইরেক্ট করা
-                const uDoc = await getDoc(doc(db, "users", cred.user.uid));
-                
-                if(uDoc.exists()) {
-                    const role = uDoc.data().role;
-                    if(role === 'owner') window.location.href = "owner-dashboard.html";
-                    else if(role === 'wholesaler') window.location.href = "wholsale.html"; // দোকানদারদের জন্য যুক্ত করা হয়েছে
-                    else if(role === 'assistant') window.location.href = "assistant-dashboard.html";
-                    else if(role === 'delivery') window.location.href = "delivery-man.html";
-                    else if(role === 'helper') window.location.href = "helper-dashboard.html";
-                    else window.location.href = "customer-dashboard.html";
-                } else {
-                    window.location.href = "index.html";
-                }
-            } catch (err) {
-                alert("ভুল ইমেইল বা পাসওয়ার্ড!");
-                console.error(err);
-            } finally {
-                loginBtn.disabled = false;
-                loginBtn.innerText = "লগইন";
+        async function goHome(user) {
+            const profile = await getProfile(user.uid);
+            if (!profile || !ROLE_HOME[profile.role]) {
+                await signOut(auth);
+                throw new Error("NO_PROFILE");
             }
+            location.replace(ROLE_HOME[profile.role]);
+        }
+
+        // আগে থেকেই লগইন থাকলে সরাসরি নিজের পেজে পাঠাবে
+        onAuthStateChanged(auth, (user) => {
+            if (user && !busy) goHome(user).catch(() => {});
         });
 
-        // কুইক লগইন (টেস্ট একাউন্ট)
-        document.getElementById('quick-login-btn').onclick = async () => {
-            const email = "apon@gmail.com"; // আপনার আইডি
-            const pass = "123456"; 
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (busy) return;
+            busy = true;
+            msg.textContent = "";
+            btn.disabled = true;
+            btn.textContent = "চেক করা হচ্ছে...";
+
             try {
-                await signInWithEmailAndPassword(auth, email, pass);
-                // কুইক লগইন এর ক্ষেত্রেও রোল চেক করা উত্তম, তবে এটি সরাসরি ইনডেক্সে নিয়ে যাবে
-                window.location.href = "index.html";
-            } catch (err) { alert("কুইক লগইন এখন বন্ধ আছে। সাধারণ লগইন ব্যবহার করুন।"); }
-        };
+                const cred = await signInWithEmailAndPassword(
+                    auth,
+                    document.getElementById('email').value.trim(),
+                    document.getElementById('password').value
+                );
+                await goHome(cred.user);
+            } catch (err) {
+                console.error(err);
+                if (err.message === "NO_PROFILE") {
+                    msg.textContent = "এই একাউন্টের কোনো রোল সেট করা নেই। মালিকের সাথে যোগাযোগ করুন।";
+                } else if (err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found") {
+                    msg.textContent = "ইমেইল বা পাসওয়ার্ড ভুল!";
+                } else if (err.code === "auth/too-many-requests") {
+                    msg.textContent = "অনেকবার ভুল হয়েছে, কিছুক্ষণ পর চেষ্টা করুন।";
+                } else if (err.code === "auth/network-request-failed") {
+                    msg.textContent = "ইন্টারনেট সংযোগ চেক করুন।";
+                } else {
+                    msg.textContent = "সমস্যা হয়েছে: " + (err.code || err.message);
+                }
+            } finally {
+                busy = false;
+                btn.disabled = false;
+                btn.textContent = "লগইন";
+            }
+        });
     </script>
 </body>
 </html>

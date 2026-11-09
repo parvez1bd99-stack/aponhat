@@ -1,368 +1,467 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta name="google-site-verification" content="VJ8VlZgYJkloxrgvwWRVDGHD0z9aGivxClJq5BwxbeA" />
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- SEO Primary Meta Tags -->
-    <title>আপন হাট - প্রিমিয়াম অনলাইন শপ | Apon Hat</title>
-    <meta name="description" content="আপন হাট (Apon Hat) বাংলাদেশের অন্যতম সেরা অনলাইন শপ। ফ্রেশ গ্রোসারি, অর্গানিক ফুড এবং নিত্যপ্রয়োজনীয় প্রিমিয়াম পণ্য কিনুন সবচেয়ে সাশ্রয়ী দামে দ্রুত হোম ডেলিভারি সহ।">
-    <meta name="keywords" content="আপন হাট, Apon Hat, অনলাইন শপিং বাংলাদেশ, organic food bd, grocery online shop, premium food shop bangladesh, আপন হাট অনলাইন, ফ্রেশ ফুড">
-    <meta name="author" content="Apon Hat">
-    <link rel="canonical" href="https://aponhat.web.app/">
-
-    <!-- Open Graph / Facebook (Social Media SEO) -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://aponhat.web.app/">
-    <meta property="og:title" content="আপন হাট - প্রিমিয়াম অনলাইন শপ">
-    <meta property="og:description" content="সেরা মানের ফ্রেশ ও প্রিমিয়াম পণ্য এখন আপনার হাতের মুঠোয়। দ্রুত ডেলিভারি পেতে আজই অর্ডার করুন।">
-    <meta property="og:image" content="https://aponhat.web.app/logo.png">
-
-    <!-- Twitter Card -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://aponhat.web.app/">
-    <meta property="twitter:title" content="আপন হাট - প্রিমিয়াম অনলাইন শপ">
-    <meta property="twitter:description" content="সাশ্রয়ী দামে সেরা পণ্য কিনতে ভিজিট করুন আপন হাট।">
-    <meta property="twitter:image" content="https://aponhat.web.app/logo.png">
-
-    <!-- JSON-LD Structured Data (Google Search SEO) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "OnlineStore",
-      "name": "আপন হাট",
-      "alternateName": "Apon Hat",
-      "url": "https://aponhat.web.app/",
-      "logo": "https://aponhat.web.app/logo.png",
-      "description": "বাংলাদেশের একটি প্রিমিয়াম অনলাইন শপ যেখানে অর্গানিক এবং ফ্রেশ পণ্য পাওয়া যায়।",
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "telephone": "+8801XXXXXXXXX", 
-        "contactType": "customer service"
-      },
-      "address": {
-        "@type": "PostalAddress",
-        "addressCountry": "BD"
-      }
-    }
-    </script>
-
-    <!-- External Assets -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>আপন হাট - অনলাইন শপ</title>
+    <meta name="description" content="আপন হাট: নিত্যপ্রয়োজনীয় পণ্য, সাশ্রয়ী দামে হোম ডেলিভারি।">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&display=swap">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f3f4f6; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .active-thumb { border-color: #16a34a !important; transform: scale(1.1); }
-        .product-card { transition: all 0.3s ease; border-radius: 35px; }
-        .star-active { color: #fbbf24; }
-        .star-inactive { color: #e5e7eb; }
-        @keyframes cart-pulse { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
-        .pulse { animation: cart-pulse 0.4s ease-in-out; }
-        
-        .img-container {
-            width: 100%;
-            height: 200px;
-            overflow: hidden;
-            border-radius: 25px;
-        }
-        .img-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-        .product-card:hover .img-container img {
-            transform: scale(1.05);
-        }
+        html { -webkit-text-size-adjust: 100%; }
+        body { font-family: 'Hind Siliguri', sans-serif; font-size: 16px; }
+        button, a, select { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { scrollbar-width: none; }
     </style>
 </head>
-<body class="pb-24">
+<body class="bg-slate-100 min-h-screen pb-32">
 
-    <!-- নেভিগেশন বার -->
-    <nav class="bg-green-600 p-4 text-white sticky top-0 z-50 shadow-lg">
-        <div class="container mx-auto flex justify-between items-center gap-2">
-            <h1 class="text-xl font-black italic tracking-tighter whitespace-nowrap">আপন হাট</h1>
-            <div class="flex items-center gap-3">
-                <div id="user-area" class="flex items-center gap-2">
-                    <a href="login.html" class="bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold border border-white/30">লগইন</a>
+    <header class="bg-green-700 text-white sticky top-0 z-30 shadow">
+        <div class="max-w-5xl mx-auto px-4 pt-3 pb-2 flex items-center justify-between gap-2">
+            <h1 class="font-bold text-2xl">আপন হাট</h1>
+            <div id="user-area" class="text-sm flex items-center gap-2"></div>
+        </div>
+        <div class="max-w-5xl mx-auto px-4 pb-3">
+            <input id="search" type="search" placeholder="পণ্য খুঁজুন..."
+                class="w-full p-3 rounded-xl text-slate-800 outline-none text-base">
+        </div>
+    </header>
+
+    <div id="helper-banner" class="hidden bg-orange-100 text-orange-800 text-xs font-bold text-center py-2 px-4"></div>
+
+    <main class="max-w-5xl mx-auto px-3 pt-3 sm:px-4">
+        <div id="categories" class="flex gap-2 overflow-x-auto no-scrollbar pb-3"></div>
+        <div id="status" class="text-center text-slate-400 py-16">লোড হচ্ছে...</div>
+        <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </main>
+
+    <!-- নিচের ব্যাগ বার -->
+    <div id="cart-bar" class="hidden fixed bottom-0 inset-x-0 z-30 px-3 pt-3" style="padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);">
+        <button id="open-cart" class="max-w-5xl mx-auto w-full bg-green-600 text-white rounded-2xl py-4 px-5 shadow-xl flex justify-between text-lg font-bold active:scale-95 transition">
+            <span>🛍 ব্যাগ (<span id="bar-count">0</span>)</span>
+            <span id="bar-total"></span>
+        </button>
+    </div>
+
+    <!-- ব্যাগ ও অর্ডার ফর্ম -->
+    <div id="sheet" class="hidden fixed inset-0 z-40 bg-black/50 flex items-end justify-center">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl overflow-y-auto p-5" style="max-height: 92vh; max-height: 92dvh; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem);">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="font-bold text-lg">আপনার ব্যাগ</h2>
+                <button id="close-cart" class="text-slate-400 text-2xl leading-none w-11 h-11 -mr-2">✕</button>
+            </div>
+            <div id="cart-items" class="space-y-2"></div>
+
+            <div id="order-form" class="mt-4 space-y-3">
+                <div class="flex bg-slate-100 rounded-xl p-1 text-sm font-bold">
+                    <button type="button" id="m-home" class="flex-1 py-3 rounded-lg">🏠 হোম ডেলিভারি</button>
+                    <button type="button" id="m-shop" class="flex-1 py-3 rounded-lg">🏪 শপ থেকে নেব</button>
                 </div>
-                <div id="cart-icon-btn" class="relative cursor-pointer" onclick="toggleCart()">
-                    <i class="fas fa-shopping-bag text-xl"></i>
-                    <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center border-2 border-green-600">0</span>
+                <input id="c-name" maxlength="100" placeholder="গ্রাহকের নাম" class="w-full p-3 border rounded-xl">
+                <input id="c-phone" inputmode="tel" maxlength="20" placeholder="মোবাইল নম্বর (01XXXXXXXXX)" class="w-full p-3 border rounded-xl">
+                <textarea id="c-address" rows="2" maxlength="300" placeholder="পূর্ণ ঠিকানা (গ্রাম/পাড়া, ল্যান্ডমার্ক)" class="w-full p-3 border rounded-xl"></textarea>
+
+                <div class="bg-slate-50 rounded-xl p-3 text-sm space-y-1">
+                    <div class="flex justify-between"><span>পণ্যের দাম</span><b id="t-sub"></b></div>
+                    <div class="flex justify-between"><span>ডেলিভারি চার্জ (<span id="t-weight"></span> কেজি)</span><b id="t-del"></b></div>
+                    <div class="flex justify-between text-green-700 text-base border-t pt-1"><span>মোট (ক্যাশ অন ডেলিভারি)</span><b id="t-total"></b></div>
                 </div>
+                <button id="submit-order" class="w-full bg-green-600 text-white py-4 rounded-2xl text-lg font-bold active:scale-95 transition disabled:opacity-60">অর্ডার কনফার্ম করুন</button>
+                <p id="order-msg" class="text-center text-sm font-bold"></p>
             </div>
         </div>
-    </nav>
-
-    <!-- সার্চ বক্স -->
-    <div class="container mx-auto px-4 mt-4">
-        <div class="relative group">
-            <input type="text" id="search-input" oninput="handleSearch()" placeholder="পণ্য বা বিবরণ লিখে খুঁজুন..." 
-            class="w-full p-4 pl-12 rounded-3xl bg-white border-none shadow-sm focus:ring-2 focus:ring-green-500 outline-none transition-all text-sm">
-            <i class="fas fa-search absolute left-5 top-4.5 text-slate-300 group-focus-within:text-green-500 transition-colors mt-1"></i>
-        </div>
     </div>
 
-    <!-- ক্যাটাগরি ফিল্টার -->
-    <div id="category-container" class="container mx-auto p-4 flex gap-2 overflow-x-auto scrollbar-hide">
-        <button onclick="filterProducts('সব')" class="bg-white px-5 py-2 rounded-2xl shadow-sm text-[10px] font-bold whitespace-nowrap border border-slate-100">সব পণ্য</button>
-    </div>
-
-    <!-- পণ্যের তালিকা -->
-    <div class="container mx-auto p-4 max-w-md">
-        <div id="product-list" class="grid grid-cols-1 gap-8">
-            <p class="text-center py-20 text-slate-400 italic">ডাটা লোড হচ্ছে...</p>
-        </div>
-    </div>
-
-    <!-- ইমেজ জুম মডাল -->
-    <div id="zoom-modal" class="fixed inset-0 bg-black/95 hidden z-[100] flex items-center justify-center p-4" onclick="closeZoom()">
-        <img id="zoomed-img" src="" class="max-w-full max-h-[80vh] rounded-2xl shadow-2xl" alt="Product Zoomed">
-    </div>
-
-    <!-- কার্ট সাইডবার -->
-    <div id="cart-sidebar" class="fixed right-0 top-0 h-full w-full md:w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-500 z-[80] flex flex-col">
-        <div class="p-6 flex justify-between items-center border-b">
-            <h2 class="text-xl font-bold flex items-center gap-2"><i class="fas fa-shopping-cart text-green-600"></i> আপনার ব্যাগ</h2>
-            <button onclick="toggleCart()" class="text-slate-400 text-2xl">&times;</button>
-        </div>
-        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
-        <div class="p-6 bg-slate-50 border-t space-y-2">
-            <div class="flex justify-between text-xs text-slate-500 font-bold italic"><span>ওজন: <span id="cart-weight">0</span> গ্রাম</span><span>চার্জ: ৳<span id="cart-delivery">0</span></span></div>
-            <div class="flex justify-between font-black text-xl text-green-700 pt-2 border-t border-slate-200"><span>মোট বিল:</span><span>৳<span id="cart-total">0</span></span></div>
-            <button onclick="openOrderForm()" class="w-full bg-green-600 text-white py-4 rounded-xl mt-2 font-bold text-lg shadow-xl active:scale-95 transition-all">অর্ডার কনফার্ম করুন</button>
-        </div>
-    </div>
-
-    <!-- অর্ডার মডাল -->
-    <div id="order-modal" class="fixed inset-0 bg-black/60 hidden z-[90] flex items-center justify-center p-4">
-        <div class="bg-white p-8 rounded-[40px] w-full max-w-sm shadow-2xl overflow-y-auto max-h-[90vh]">
-            <h2 class="text-2xl font-bold text-center mb-6 text-green-700 italic border-b pb-2">অর্ডার নিশ্চিত করুন</h2>
-            <div class="space-y-4">
-                <div class="bg-slate-100 p-1 rounded-2xl flex gap-1 border">
-                    <button onclick="setDeliveryMethod('home')" id="btn-home" class="flex-1 py-2.5 text-[10px] font-bold rounded-xl bg-white shadow-sm text-green-700">🚚 হোম ডেলিভারি</button>
-                    <button onclick="setDeliveryMethod('shop')" id="btn-shop" class="flex-1 py-2.5 text-[10px] font-bold rounded-xl text-slate-500">🏪 শপ পিকআপ</button>
-                </div>
-                
-                <div class="bg-green-50 p-4 rounded-2xl border border-green-200 space-y-2">
-                    <div class="flex justify-between text-xs text-green-800 font-semibold"><span>পণ্যের দাম:</span> ৳<span id="modal-subtotal">0</span></div>
-                    <div class="flex justify-between text-xs text-orange-700 font-semibold"><span>ডেলিভারি চার্জ:</span> ৳<span id="modal-delivery">0</span></div>
-                    <div class="border-t border-green-200 mt-2 pt-2 flex justify-between font-black text-green-900 text-lg"><span>সর্বমোট বিল:</span> ৳<span id="modal-total">0</span></div>
-                </div>
-
-                <input type="text" id="cust-name" placeholder="আপনার নাম" class="w-full p-4 border rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all">
-                <input type="number" id="cust-phone" placeholder="মোবাইল নম্বর" class="w-full p-4 border rounded-2xl focus:ring-2 focus:ring-green-500 outline-none transition-all">
-                <textarea id="cust-address" placeholder="গ্রাম/পাড়া/বাড়ি নং" class="w-full p-4 border rounded-2xl focus:ring-2 focus:ring-green-500 outline-none min-h-[80px] transition-all"></textarea>
-                <button id="submit-order-btn" onclick="submitOrder()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg text-lg active:scale-95 transition-all">অর্ডার সম্পন্ন করুন</button>
-                <button onclick="closeOrderForm()" class="w-full text-slate-400 font-bold text-sm">বন্ধ করুন</button>
-            </div>
-        </div>
+    <!-- ছবি বড় করে দেখা -->
+    <div id="zoom" class="hidden fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4">
+        <img id="zoom-img" class="max-h-full max-w-full rounded-xl" alt="">
     </div>
 
     <script type="module">
         import { db, auth } from "./firebase-config.js";
-        import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { collection, getDocs, addDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getProfile, ROLE_HOME, logout } from "./auth-guard.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { collection, getDocs, getDoc, doc, addDoc, serverTimestamp }
+            from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        let allProducts = [], allReviews = [], cart = [], deliveryRules = [], selectedDeliveryMethod = 'home', currentUser = null;
-        const CACHE_KEY = "aponhat_final_cache_v4";
-        const CACHE_TIME = 2 * 60 * 60 * 1000; 
+        const $ = (id) => document.getElementById(id);
+        const PLACEHOLDER = "data:image/svg+xml;utf8," + encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><rect width="300" height="300" fill="#e2e8f0"/><text x="150" y="160" font-size="20" text-anchor="middle" fill="#94a3b8">ছবি নেই</text></svg>');
+        const taka = (n) => "৳" + Number(n).toLocaleString("bn-BD");
 
-        window.handleLogout = async () => {
-            if(confirm("আপনি কি লগআউট করতে চান?")) {
-                await signOut(auth);
-                location.reload();
+        // নিরাপদ এলিমেন্ট বানানোর ছোট সাহায্যকারী (ইউজারের লেখা সরাসরি HTML হয় না)
+        function h(tag, props = {}, ...kids) {
+            const e = document.createElement(tag);
+            for (const [k, v] of Object.entries(props)) {
+                if (k === "class") e.className = v;
+                else if (k === "text") e.textContent = v;
+                else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+                else if (v !== undefined && v !== null) e.setAttribute(k, v);
             }
-        };
-
-        async function init() {
-            const s = await getDoc(doc(db, "settings", "delivery"));
-            if(s.exists()) deliveryRules = s.data().rules.sort((a,b) => a.maxW - b.maxW);
-            const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
-            const now = new Date().getTime();
-            if (cached && (now - cached.timestamp < CACHE_TIME)) {
-                allProducts = cached.products; allReviews = cached.reviews; renderStore();
-            } else { await syncData(); }
+            for (const kid of kids.flat()) if (kid != null) e.append(kid);
+            return e;
         }
 
-        async function syncData() {
+        let products = [];            // সব পণ্য
+        let rules = [];               // ডেলিভারি চার্জের নিয়ম
+        let method = "home";          // home | shop
+        let profile = null;           // লগইন করা ইউজারের প্রোফাইল
+        let activeCat = "সব";
+        const cart = new Map();       // পণ্যের id -> পরিমাণ
+
+        // ---------- ব্যাগ সংরক্ষণ (শুধু id ও পরিমাণ) ----------
+        function loadCart() {
             try {
-                const [pSnap, rSnap] = await Promise.all([getDocs(collection(db, "products")), getDocs(collection(db, "reviews"))]);
-                allProducts = pSnap.docs.map(d => ({id: d.id, ...d.data()}));
-                allReviews = rSnap.docs.map(d => ({id: d.id, ...d.data()}));
-                localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: new Date().getTime(), products: allProducts, reviews: allReviews }));
-                renderStore();
-            } catch(e) { console.error(e); }
+                const o = JSON.parse(localStorage.getItem("aponhat_cart") || "{}");
+                for (const [id, q] of Object.entries(o)) if (Number.isInteger(q) && q > 0) cart.set(id, q);
+            } catch (e) { /* সমস্যা নেই */ }
+        }
+        function saveCart() {
+            try { localStorage.setItem("aponhat_cart", JSON.stringify(Object.fromEntries(cart))); } catch (e) { /* সমস্যা নেই */ }
         }
 
-        window.handleSearch = () => {
-            const term = document.getElementById('search-input').value.toLowerCase();
-            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(term) || (p.description && p.description.toLowerCase().includes(term)) || p.sellPrice.toString().includes(term));
-            renderProducts(filtered);
+        // ---------- ডাটা লোড ----------
+        function normalize(d) {
+            const x = d.data();
+            let images = x.images ?? x.image ?? [];
+            if (typeof images === "string") images = images ? [images] : [];
+            return {
+                id: d.id,
+                name: String(x.name || ""),
+                category: String(x.category || "অন্যান্য"),
+                images,
+                sellPrice: Number(x.sellPrice) || 0,
+                regularPrice: Number(x.regularPrice) || 0,
+                weight: Number(x.weight) || 0,
+                stock: Math.max(0, Math.floor(Number(x.stock) || 0)),
+                description: String(x.description || ""),
+                t: x.createdAt?.seconds || 0
+            };
         }
 
-        function renderStore() {
-            renderProducts(allProducts);
-            const cats = [...new Set(allProducts.map(p => p.category))];
-            const catArea = document.getElementById('category-container');
-            catArea.innerHTML = `<button onclick="filterProducts('সব')" class="bg-white px-5 py-2 rounded-2xl shadow-sm text-[10px] font-bold border border-slate-100">সব পণ্য</button>`;
+        async function loadAll() {
+            try {
+                const [pSnap, sSnap] = await Promise.all([
+                    getDocs(collection(db, "products")),
+                    getDoc(doc(db, "settings", "delivery"))
+                ]);
+                products = pSnap.docs.map(normalize).sort((a, b) => b.t - a.t);
+                rules = (sSnap.exists() && Array.isArray(sSnap.data().rules))
+                    ? sSnap.data().rules.map(r => ({ maxW: Number(r.maxW), charge: Number(r.charge) }))
+                        .filter(r => !isNaN(r.maxW) && !isNaN(r.charge)).sort((a, b) => a.maxW - b.maxW)
+                    : [];
+                // ব্যাগ ঠিক করা: নেই এমন পণ্য বাদ, স্টকের বেশি হলে কমানো
+                for (const [id, q] of cart) {
+                    const p = products.find(x => x.id === id);
+                    if (!p || p.stock <= 0) cart.delete(id);
+                    else if (q > p.stock) cart.set(id, p.stock);
+                }
+                saveCart();
+                $("status").style.display = products.length ? "none" : "block";
+                if (!products.length) $("status").textContent = "এখনো কোনো পণ্য যোগ করা হয়নি।";
+                renderCategories();
+                renderGrid();
+                renderBar();
+            } catch (e) {
+                console.error(e);
+                $("status").textContent = "পণ্য লোড করা যায়নি। ইন্টারনেট চেক করে আবার চেষ্টা করুন।";
+            }
+        }
+
+        // ---------- পণ্য দেখানো ----------
+        function renderCategories() {
+            const box = $("categories");
+            box.innerHTML = "";
+            const cats = ["সব", ...new Set(products.map(p => p.category))];
             cats.forEach(c => {
-                const btn = document.createElement('button');
-                btn.className = "bg-white px-5 py-2 rounded-2xl shadow-sm text-[10px] font-bold whitespace-nowrap border border-slate-100 hover:bg-green-50";
-                btn.innerText = c; btn.onclick = () => filterProducts(c);
-                catArea.appendChild(btn);
+                box.append(h("button", {
+                    class: "shrink-0 px-5 py-2.5 rounded-2xl text-sm font-bold border " +
+                        (c === activeCat ? "bg-green-600 text-white border-green-600" : "bg-white text-slate-600"),
+                    text: c,
+                    onclick: () => { activeCat = c; renderCategories(); renderGrid(); }
+                }));
             });
         }
 
-        window.renderProducts = (items) => {
-            const list = document.getElementById('product-list');
-            list.innerHTML = items.length === 0 ? "<div class='text-center py-20 text-slate-400'>পণ্য নেই</div>" : "";
-            items.forEach(p => {
-                const imgArr = (p.image || "").split(',').map(s => s.trim());
-                const mainImg = imgArr[0] || 'https://via.placeholder.com/400';
-                const pReviews = allReviews.filter(r => r.productName === p.name);
-                const avgRating = pReviews.length > 0 ? (pReviews.reduce((sum, r) => sum + r.rating, 0) / pReviews.length) : 0;
-                let starsHTML = "";
-                for(let i=1; i<=5; i++) { starsHTML += `<i class="fas fa-star text-[10px] ${i <= Math.round(avgRating) ? 'star-active' : 'star-inactive'}"></i>`; }
+        function renderGrid() {
+            const term = $("search").value.trim().toLowerCase();
+            const list = products.filter(p =>
+                (activeCat === "সব" || p.category === activeCat) &&
+                (!term || p.name.toLowerCase().includes(term) || p.description.toLowerCase().includes(term)));
+            const grid = $("grid");
+            grid.innerHTML = "";
+            if (!list.length && products.length) {
+                grid.append(h("p", { class: "col-span-full text-center text-slate-400 py-16", text: "কোনো পণ্য পাওয়া যায়নি" }));
+                return;
+            }
+            list.forEach(p => grid.append(productCard(p)));
+        }
 
-                const regularPrice = Number(p.regularPrice) || 0;
-                const sellPrice = Number(p.sellPrice) || 0;
-                let discountBadge = "";
-                let priceHTML = `<p class="text-green-600 font-black text-2xl">৳${sellPrice}</p>`;
+        function productCard(p) {
+            let qty = 1;
+            const soldOut = p.stock <= 0;
 
-                if (regularPrice > sellPrice) {
-                    const percent = Math.round(((regularPrice - sellPrice) / regularPrice) * 100);
-                    discountBadge = `<div class="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full shadow-lg z-10">
-                                        ${percent}% ছাড়
-                                     </div>`;
-                    priceHTML = `
-                        <div class="text-right">
-                            <p class="text-slate-400 text-xs font-bold line-through">৳${regularPrice}</p>
-                            <p class="text-green-600 font-black text-2xl leading-none">৳${sellPrice}</p>
-                        </div>
-                    `;
+            const main = h("img", { class: "w-full h-full object-cover cursor-zoom-in", alt: p.name, src: p.images[0] || PLACEHOLDER });
+            main.addEventListener("click", () => { $("zoom-img").src = main.src; $("zoom").classList.remove("hidden"); });
+
+            const imgBox = h("div", { class: "relative aspect-[4/3] bg-slate-100 rounded-2xl overflow-hidden" }, main);
+            if (p.regularPrice > p.sellPrice && p.sellPrice > 0) {
+                const pct = Math.round(((p.regularPrice - p.sellPrice) / p.regularPrice) * 100);
+                imgBox.append(h("span", { class: "absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full", text: pct + "% ছাড়" }));
+            }
+            if (soldOut) imgBox.append(h("div", { class: "absolute inset-0 bg-white/70 flex items-center justify-center font-bold text-red-600", text: "স্টক শেষ" }));
+
+            const thumbs = p.images.length > 1
+                ? h("div", { class: "flex gap-2 mt-2 overflow-x-auto no-scrollbar" },
+                    p.images.map(src => {
+                        const t = h("img", { src, alt: p.name, class: "w-14 h-14 object-cover rounded-xl border cursor-pointer shrink-0" });
+                        t.addEventListener("click", () => { main.src = src; });
+                        return t;
+                    }))
+                : null;
+
+            const desc = h("p", { class: "hidden text-sm text-slate-600 mt-1 bg-slate-50 p-3 rounded-xl", text: p.description || "বিবরণ নেই।" });
+            const qtyText = h("span", { class: "w-8 text-center font-bold text-base", text: "1" });
+            const setQty = (d) => { qty = Math.min(Math.max(1, qty + d), Math.max(1, p.stock)); qtyText.textContent = qty; };
+
+            const priceBox = p.regularPrice > p.sellPrice
+                ? h("div", {}, h("span", { class: "text-sm text-slate-400 line-through mr-1", text: taka(p.regularPrice) }),
+                    h("span", { class: "text-green-600 font-black text-2xl", text: taka(p.sellPrice) }))
+                : h("span", { class: "text-green-600 font-black text-2xl", text: taka(p.sellPrice) });
+
+            const addBtn = h("button", {
+                class: "flex-1 bg-green-600 text-white text-base font-bold py-3.5 rounded-xl active:scale-95 transition disabled:bg-slate-300",
+                text: "ব্যাগে ভরুন",
+                onclick: () => {
+                    const cur = cart.get(p.id) || 0;
+                    if (cur + qty > p.stock) return alert(`স্টকে মাত্র ${p.stock}টি আছে।`);
+                    cart.set(p.id, cur + qty);
+                    saveCart(); renderBar();
+                    qty = 1; qtyText.textContent = "1";
                 }
-
-                list.innerHTML += `
-                <div class="bg-white shadow-sm border border-slate-100 overflow-hidden product-card p-4 transition-all relative">
-                    ${discountBadge}
-                    <div class="img-container shadow-inner mb-3">
-                        <img id="main-img-${p.id}" src="${mainImg}" alt="${p.name}" onclick="openZoom(this.src)" class="cursor-zoom-in">
-                    </div>
-                    
-                    <div class="flex gap-2 overflow-x-auto scrollbar-hide mb-4 px-1">
-                        ${imgArr.map((img, idx) => `<img src="${img}" alt="${p.name} image ${idx+1}" onclick="updatePreview('${p.id}', '${img}', this)" class="thumbnail w-12 h-10 object-cover rounded-xl border-2 border-slate-100 cursor-pointer ${idx===0?'active-thumb':''}">`).join('')}
-                    </div>
-                    
-                    <div class="mt-2 px-2">
-                        <div class="flex justify-between items-start">
-                            <div><h3 class="font-bold text-slate-800 text-lg leading-tight mb-1">${p.name}</h3><div class="flex items-center gap-1">${starsHTML} <span class="text-[10px] text-slate-400 font-bold ml-1">(${avgRating.toFixed(1)})</span></div></div>
-                            ${priceHTML}
-                        </div>
-                        <div class="flex gap-2 mt-4">
-                            <button onclick="document.getElementById('desc-${p.id}').classList.toggle('hidden'); document.getElementById('rev-box-${p.id}').classList.add('hidden')" class="flex-1 text-[10px] font-bold text-slate-500 bg-slate-100 py-2 rounded-xl border border-slate-200 uppercase transition">বিবরণ</button>
-                            <button onclick="document.getElementById('rev-box-${p.id}').classList.toggle('hidden'); document.getElementById('desc-${p.id}').classList.add('hidden')" class="flex-1 text-[10px] font-bold text-blue-500 bg-blue-50 py-2 rounded-xl border border-blue-100 uppercase transition">মতামত (${pReviews.length})</button>
-                        </div>
-                        <p id="desc-${p.id}" class="hidden text-[11px] text-slate-500 mt-2 bg-white p-3 rounded-xl border border-dashed">${p.description || 'বিবরণ নেই।'}</p>
-                        <div id="rev-box-${p.id}" class="hidden mt-3 space-y-2">
-                            ${pReviews.sort((a,b)=>b.rating-a.rating).slice(0,3).map(rev => `<div class="bg-white p-2 rounded-xl text-[11px] border border-slate-100"><div class="flex justify-between"><b>${rev.userName}</b><span class="text-orange-500"><i class="fas fa-star text-[8px]"></i> ${rev.rating}</span></div><p class="text-slate-500 italic">"${rev.comment}"</p></div>`).join('') || '<p class="text-center text-slate-400 text-[10px]">নেই</p>'}
-                        </div>
-                        <div class="flex items-center gap-3 mt-6">
-                            <div class="flex items-center bg-slate-100 rounded-2xl p-1 border"><button onclick="changeQtyLocal('${p.id}', -1)" class="w-8 h-8 rounded-xl bg-white text-slate-500 shadow-sm"><i class="fas fa-minus text-xs"></i></button><span id="qty-${p.id}" class="w-8 text-center font-bold">1</span><button onclick="changeQtyLocal('${p.id}', 1)" class="w-8 h-8 rounded-xl bg-white text-slate-500 shadow-sm"><i class="fas fa-plus text-xs"></i></button></div>
-                            <button onclick="handleAddToCart('${p.id}')" class="flex-1 bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">ব্যাগে ভরুন</button>
-                        </div>
-                    </div>
-                </div>`;
             });
+            if (soldOut) addBtn.disabled = true;
+
+            return h("div", { class: "bg-white rounded-3xl shadow-sm p-3 flex flex-col" },
+                imgBox, thumbs,
+                h("h3", { class: "font-bold text-slate-800 text-lg leading-snug mt-3", text: p.name }),
+                h("div", { class: "mt-1 flex items-center justify-between" }, priceBox,
+                    h("button", { class: "text-sm text-blue-500 font-bold px-2 py-2", text: "বিবরণ", onclick: () => desc.classList.toggle("hidden") })),
+                desc,
+                h("div", { class: "flex items-center gap-3 mt-3" },
+                    h("div", { class: "flex items-center bg-slate-100 rounded-xl" },
+                        h("button", { class: "w-11 h-12 text-xl font-bold", text: "−", onclick: () => setQty(-1) }), qtyText,
+                        h("button", { class: "w-11 h-12 text-xl font-bold", text: "+", onclick: () => setQty(1) })),
+                    addBtn));
         }
 
-        window.updatePreview = (id, src, el) => { document.getElementById(`main-img-${id}`).src = src; el.parentElement.querySelectorAll('img').forEach(i => i.classList.remove('active-thumb')); el.classList.add('active-thumb'); }
-        window.changeQtyLocal = (id, ch) => { const el = document.getElementById(`qty-${id}`); let v = parseInt(el.innerText)+ch; if(v<1)v=1; el.innerText=v; }
-        window.handleAddToCart = (id) => {
-            const p = allProducts.find(i => i.id === id); const q = parseInt(document.getElementById(`qty-${id}`).innerText);
-            const ex = cart.find(item => item.id === id);
-            if(ex) ex.qty += q; else cart.push({id: p.id, name: p.name, price: p.sellPrice, weight: Number(p.weight) || 0, qty: q});
-            const icon = document.getElementById('cart-icon-btn'); icon.classList.add('pulse'); setTimeout(()=>icon.classList.remove('pulse'), 400);
-            document.getElementById(`qty-${id}`).innerText = 1; updateCartUI();
+        // ---------- হিসাব ----------
+        function calc() {
+            const items = [];
+            let subtotal = 0, weight = 0;
+            for (const [id, q] of cart) {
+                const p = products.find(x => x.id === id);
+                if (!p) continue;
+                items.push({ id, name: p.name, price: p.sellPrice, qty: q, weight: p.weight });
+                subtotal += p.sellPrice * q;
+                weight += p.weight * q;
+            }
+            let charge = 0;
+            if (items.length && method === "home" && rules.length) {
+                const r = rules.find(x => weight <= x.maxW) || rules[rules.length - 1];
+                charge = r.charge;
+            }
+            return { items, subtotal, weight: Math.round(weight * 100) / 100, charge, total: subtotal + charge };
         }
 
-        window.updateCartQty = (idx, ch) => { cart[idx].qty += ch; if(cart[idx].qty < 1) cart.splice(idx, 1); updateCartUI(); }
-        window.removeFromCart = (idx) => { cart.splice(idx, 1); updateCartUI(); }
+        function renderBar() {
+            const c = calc();
+            const count = c.items.reduce((a, i) => a + i.qty, 0);
+            $("cart-bar").classList.toggle("hidden", count === 0);
+            $("bar-count").textContent = count.toLocaleString("bn-BD");
+            $("bar-total").textContent = taka(c.total);
+            if (!$("sheet").classList.contains("hidden")) renderCart();
+        }
 
-        function updateCartUI() {
-            const count = cart.reduce((a, b) => a + b.qty, 0); document.getElementById('cart-count').innerText = count;
-            const con = document.getElementById('cart-items'); con.innerHTML = cart.length === 0 ? "<p class='text-center py-20 text-slate-300'>ব্যাগ খালি!</p>" : "";
-            let sub = 0, w = 0;
-            cart.forEach((i, idx) => {
-                const total = i.price * i.qty; sub += total; w += (i.weight * i.qty);
-                con.innerHTML += `<div class="flex gap-4 items-center bg-white p-4 rounded-[28px] border shadow-sm relative"><div class="flex-1"><p class="text-sm font-bold text-slate-800 leading-tight">${i.name}</p><div class="flex items-center gap-3 mt-3"><div class="flex items-center bg-slate-50 rounded-xl p-0.5 border"><button onclick="window.updateCartQty(${idx}, -1)" class="w-6 h-6 bg-white rounded-lg flex items-center justify-center text-[8px] shadow-sm"><i class="fas fa-minus"></i></button><span class="w-6 text-center font-bold text-xs">${i.qty}</span><button onclick="window.updateCartQty(${idx}, 1)" class="w-6 h-6 bg-white rounded-lg flex items-center justify-center text-[8px] shadow-sm"><i class="fas fa-plus"></i></button></div><span class="font-black text-slate-700 text-sm">৳${total}</span></div></div><button onclick="window.removeFromCart(${idx})" class="text-slate-200 hover:text-red-500 transition-colors p-2"><i class="fas fa-trash-alt"></i></button></div>`;
+        function renderCart() {
+            const c = calc();
+            const box = $("cart-items");
+            box.innerHTML = "";
+            if (!c.items.length) {
+                box.append(h("p", { class: "text-center text-slate-400 py-8", text: "ব্যাগ খালি!" }));
+                $("order-form").classList.add("hidden");
+                return;
+            }
+            $("order-form").classList.remove("hidden");
+            c.items.forEach(i => {
+                const p = products.find(x => x.id === i.id);
+                box.append(h("div", { class: "flex items-center gap-2 bg-slate-50 rounded-2xl p-3" },
+                    h("div", { class: "flex-1 min-w-0" },
+                        h("p", { class: "text-base font-bold truncate", text: i.name }),
+                        h("p", { class: "text-sm text-slate-500", text: `${taka(i.price)} × ${i.qty} = ${taka(i.price * i.qty)}` })),
+                    h("button", { class: "w-10 h-10 bg-white rounded-xl font-bold shadow-sm", text: "−", onclick: () => changeQty(i.id, -1) }),
+                    h("span", { class: "w-6 text-center font-bold", text: String(i.qty) }),
+                    h("button", { class: "w-10 h-10 bg-white rounded-xl font-bold shadow-sm", text: "+", onclick: () => { if (i.qty >= p.stock) return alert(`স্টকে মাত্র ${p.stock}টি আছে।`); changeQty(i.id, 1); } }),
+                    h("button", { class: "text-red-400 w-10 h-10 text-lg", text: "🗑", onclick: () => { cart.delete(i.id); saveCart(); renderBar(); } })));
             });
-            let chg = 0; if(cart.length > 0 && selectedDeliveryMethod === 'home' && deliveryRules.length > 0) { const r = deliveryRules.find(rl => w <= rl.maxW) || deliveryRules[deliveryRules.length - 1]; chg = r ? r.charge : 0; }
-            document.getElementById('cart-weight').innerText = w; document.getElementById('cart-delivery').innerText = chg;
-            document.getElementById('cart-total').innerText = (sub + chg).toLocaleString('bn-BD');
-            document.getElementById('modal-subtotal').innerText = sub.toLocaleString('bn-BD');
-            document.getElementById('modal-delivery').innerText = chg.toLocaleString('bn-BD');
-            document.getElementById('modal-total').innerText = (sub + chg).toLocaleString('bn-BD');
+            $("t-sub").textContent = taka(c.subtotal);
+            $("t-weight").textContent = c.weight.toLocaleString("bn-BD");
+            $("t-del").textContent = method === "shop" ? "০ (শপ পিকআপ)" : taka(c.charge);
+            $("t-total").textContent = taka(c.total);
         }
 
-        window.submitOrder = async () => {
-            const n = document.getElementById('cust-name').value, ph = document.getElementById('cust-phone').value, ad = document.getElementById('cust-address').value;
-            if(!n || !ph || (selectedDeliveryMethod === 'home' && !ad)) return alert("সব তথ্য দিন");
-            const btn = document.getElementById('submit-order-btn'); btn.disabled = true;
-            
+        function changeQty(id, d) {
+            const q = (cart.get(id) || 0) + d;
+            if (q < 1) cart.delete(id); else cart.set(id, q);
+            saveCart(); renderBar();
+        }
+
+        function setMethod(m) {
+            method = m;
+            const on = "flex-1 py-3 rounded-lg bg-white shadow text-green-700";
+            const off = "flex-1 py-3 rounded-lg text-slate-500";
+            $("m-home").className = m === "home" ? on : off;
+            $("m-shop").className = m === "shop" ? on : off;
+            $("c-address").style.display = m === "shop" ? "none" : "block";
+            renderBar();
+        }
+
+        // ---------- গ্রাহকের তথ্য মনে রাখা (এই ফোনেই থাকে) ----------
+        function saveCustomer(name, phone, address) {
+            try { localStorage.setItem("aponhat_customer", JSON.stringify({ name, phone, address })); } catch (e) { /* সমস্যা নেই */ }
+        }
+        function loadCustomer() {
             try {
-                let s = cart.reduce((a, b) => a + (b.price * b.qty), 0);
-                let we = cart.reduce((a, b) => a + (b.weight * b.qty), 0);
-                let c = 0; if(selectedDeliveryMethod === 'home' && deliveryRules.length > 0) { const r = deliveryRules.find(rl => we <= rl.maxW) || deliveryRules[deliveryRules.length - 1]; c = r ? r.charge : 0; }
-                const fi = s + c;
+                const c = JSON.parse(localStorage.getItem("aponhat_customer") || "null");
+                if (!c) return;
+                $("c-name").value = c.name || "";
+                $("c-phone").value = c.phone || "";
+                $("c-address").value = c.address && c.address !== "শপ পিকআপ" ? c.address : "";
+            } catch (e) { /* সমস্যা নেই */ }
+        }
 
-                let helperId = null;
-                let helperCommissionRate = 0;
-                if(currentUser) {
-                    const uDoc = await getDoc(doc(db, "users", currentUser.uid));
-                    if(uDoc.exists() && uDoc.data().role === 'helper') {
-                        helperId = currentUser.uid;
-                        helperCommissionRate = uDoc.data().commissionRate || 0;
-                    }
+        // ---------- অর্ডার ----------
+        let ordering = false;
+        async function submitOrder() {
+            if (ordering) return;
+            const msg = $("order-msg");
+            const setMsg = (t, ok) => { msg.textContent = t; msg.className = "text-center text-sm font-bold " + (ok ? "text-green-600" : "text-red-600"); };
+
+            const name = $("c-name").value.trim();
+            const phone = $("c-phone").value.replace(/[\s-]/g, "");
+            const address = $("c-address").value.trim();
+            if (!name) return setMsg("নাম দিন");
+            if (!/^01[3-9]\d{8}$/.test(phone)) return setMsg("সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন");
+            if (method === "home" && address.length < 5) return setMsg("পূর্ণ ঠিকানা দিন");
+            if (!cart.size) return setMsg("ব্যাগ খালি!");
+
+            ordering = true;
+            $("submit-order").disabled = true;
+            $("submit-order").textContent = "যাচাই হচ্ছে...";
+            setMsg("");
+
+            try {
+                // অর্ডারের আগে প্রতিটি পণ্যের সর্বশেষ দাম ও স্টক দেখা
+                const ids = [...cart.keys()];
+                const fresh = await Promise.all(ids.map(id => getDoc(doc(db, "products", id))));
+                let changed = false;
+                fresh.forEach((snap, k) => {
+                    const id = ids[k];
+                    if (!snap.exists()) { cart.delete(id); changed = true; return; }
+                    const np = normalize(snap);
+                    const idx = products.findIndex(x => x.id === id);
+                    const old = products[idx];
+                    if (old && (old.sellPrice !== np.sellPrice || old.stock !== np.stock)) changed = true;
+                    if (idx >= 0) products[idx] = { ...np, images: old?.images?.length ? old.images : np.images };
+                    if (np.stock <= 0) cart.delete(id);
+                    else if (cart.get(id) > np.stock) cart.set(id, np.stock);
+                });
+                if (changed) {
+                    saveCart(); renderGrid(); renderBar();
+                    setMsg("কিছু পণ্যের দাম বা স্টক বদলেছে। ব্যাগ দেখে আবার কনফার্ম করুন।");
+                    return;
                 }
 
-                await addDoc(collection(db, "orders"), {
-                    customerName: n, customerPhone: ph, customerAddress: selectedDeliveryMethod === 'shop' ? "🏪 শপ পিকআপ" : ad,
-                    items: cart, totalBill: fi, deliveryCharge: c,
-                    status: 'pending', customerEmail: currentUser ? currentUser.email : "guest",
-                    helperId: helperId, 
-                    helperCommissionRate: helperCommissionRate, 
-                    commissionProcessed: false, 
-                    createdAt: new Date()
+                const c = calc();
+                const isHelper = profile?.role === "helper";
+                const ref = await addDoc(collection(db, "orders"), {
+                    customerName: name,
+                    customerPhone: phone,
+                    customerAddress: method === "shop" ? "শপ পিকআপ" : address,
+                    deliveryMethod: method,
+                    items: c.items,
+                    subtotal: c.subtotal,
+                    deliveryCharge: c.charge,
+                    totalBill: c.total,
+                    status: "pending",
+                    helperId: isHelper ? auth.currentUser.uid : null,
+                    helperName: isHelper ? (profile.name || null) : null,
+                    helperCommissionRate: isHelper ? (Number(profile.commissionRate) || 0) : 0,
+                    commissionProcessed: false,
+                    stockDeducted: false,
+                    deliveryManId: null,
+                    createdAt: serverTimestamp()
                 });
 
-                alert("আপনার অর্ডারটি সফল হয়েছে!"); cart = []; updateCartUI(); closeOrderForm(); toggleCart(false);
-            } catch(e) { alert("প্রথমে আপনাকে লগইন করতে হবে। লগিন ছাড়া অর্ডার করতে পারবেন না !"); } btn.disabled = false;
+                cart.clear(); saveCart();
+                saveCustomer(name, phone, address);
+                renderBar(); renderCart();
+                $("cart-items").innerHTML = "";
+                $("cart-items").append(h("div", { class: "text-center py-8" },
+                    h("p", { class: "text-3xl", text: "✅" }),
+                    h("p", { class: "font-bold text-green-700 mt-2", text: "অর্ডার সফল হয়েছে!" }),
+                    h("p", { class: "text-xs text-slate-500 mt-1", text: "অর্ডার নম্বর: " + ref.id.slice(0, 8).toUpperCase() }),
+                    h("p", { class: "text-xs text-slate-500", text: "আমরা শীঘ্রই ফোনে যোগাযোগ করব।" })));
+                $("order-form").classList.add("hidden");
+            } catch (e) {
+                console.error(e);
+                setMsg("অর্ডার হয়নি: " + (e.code === "permission-denied" ? "অনুমতি নেই (Firestore Rules চেক করুন)" : (e.code || e.message)));
+            } finally {
+                ordering = false;
+                $("submit-order").disabled = false;
+                $("submit-order").textContent = "অর্ডার কনফার্ম করুন";
+            }
         }
 
-        onAuthStateChanged(auth, async (u) => { 
-            if(u) { 
-                currentUser = u; 
-                const d = await getDoc(doc(db, "users", u.uid)); 
-                const fName = d.exists() ? d.data().name : 'প্রোফাইল';
-                const sName = fName.split(' ')[0]; 
-                document.getElementById('user-area').innerHTML = `<button onclick="location.href='customer-dashboard.html'" class="text-white font-bold underline mr-1 text-xs truncate max-w-[70px]">${sName}</button><button onclick="window.handleLogout()" class="text-[8px] bg-red-500 px-1.5 py-0.5 rounded shadow transition hover:bg-red-700">LogOut</button>`; 
-            } 
+        // ---------- ইউজার এলাকা ----------
+        onAuthStateChanged(auth, async (u) => {
+            const area = $("user-area");
+            area.innerHTML = "";
+            profile = null;
+            $("helper-banner").classList.add("hidden");
+            if (!u) {
+                area.append(h("a", { href: "login.html", class: "bg-white/20 px-3 py-1.5 rounded-lg font-bold", text: "স্টাফ লগইন" }));
+                return;
+            }
+            try { profile = await getProfile(u.uid); } catch (e) { console.error(e); }
+            if (profile && ROLE_HOME[profile.role]) {
+                area.append(
+                    h("a", { href: ROLE_HOME[profile.role], class: "bg-white/20 px-3 py-1.5 rounded-lg font-bold", text: (profile.name || "ড্যাশবোর্ড").split(" ")[0] }),
+                    h("button", { class: "bg-red-500 px-2.5 py-1.5 rounded-lg font-bold", text: "লগআউট", onclick: logout }));
+                if (profile.role === "helper") {
+                    $("helper-banner").textContent = `হেলপার মোড: আপনার নামে অর্ডার জমা হবে, কমিশন ${profile.commissionRate ?? 0}%`;
+                    $("helper-banner").classList.remove("hidden");
+                }
+            } else {
+                area.append(h("button", { class: "bg-red-500 px-2.5 py-1.5 rounded-lg font-bold", text: "লগআউট", onclick: logout }));
+            }
         });
 
-        window.toggleCart = (sh) => { const s = document.getElementById('cart-sidebar'); if(sh===true) s.classList.remove('translate-x-full'); else if(sh===false) s.classList.add('translate-x-full'); else s.classList.toggle('translate-x-full'); }
-        window.openZoom = (s) => { document.getElementById('zoomed-img').src = s; document.getElementById('zoom-modal').classList.remove('hidden'); }
-        window.closeZoom = () => document.getElementById('zoom-modal').classList.add('hidden');
-        window.openOrderForm = () => cart.length > 0 ? document.getElementById('order-modal').classList.remove('hidden') : alert("ব্যাগ খালি!");
-        window.closeOrderForm = () => document.getElementById('order-modal').classList.add('hidden');
-        window.filterProducts = (c) => c === 'সব' ? renderProducts(allProducts) : renderProducts(allProducts.filter(p => p.category === c));
-        window.setDeliveryMethod = (m) => { selectedDeliveryMethod = m; document.getElementById('cust-address').style.display = m === 'shop' ? 'none' : 'block'; document.getElementById('btn-home').className = m === 'home' ? "flex-1 py-2.5 text-[10px] font-bold rounded-xl bg-white shadow-sm text-green-700 border border-green-200" : "flex-1 py-2.5 text-[10px] font-bold rounded-xl text-slate-500"; document.getElementById('btn-shop').className = m === 'shop' ? "flex-1 py-2.5 text-[10px] font-bold rounded-xl bg-white shadow-sm text-green-700 border border-green-200" : "flex-1 py-2.5 text-[10px] font-bold rounded-xl text-slate-500"; updateCartUI(); }
+        // ---------- ইভেন্ট ----------
+        $("search").addEventListener("input", renderGrid);
+        $("open-cart").onclick = () => { $("sheet").classList.remove("hidden"); $("order-msg").textContent = ""; renderCart(); };
+        $("close-cart").onclick = () => $("sheet").classList.add("hidden");
+        $("sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") $("sheet").classList.add("hidden"); });
+        $("zoom").onclick = () => $("zoom").classList.add("hidden");
+        $("m-home").onclick = () => setMethod("home");
+        $("m-shop").onclick = () => setMethod("shop");
+        $("submit-order").onclick = submitOrder;
 
-        init();
+        loadCart();
+        loadCustomer();
+        setMethod("home");
+        loadAll();
     </script>
 </body>
 </html>
